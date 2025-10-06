@@ -1,0 +1,126 @@
+{
+  "project_info": {
+    "project_number": "929084652852",
+    "project_id": "zanny-app-10dfa",
+    "storage_bucket": "zanny-app-10dfa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929084652852:android:8d9595c31fca3414ca3961",
+        "android_client_info": {
+          "package_name": "com.zanny_customer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929084652852-3u556r5e01khae0pg04q9clbt12udn1g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zanny_customer",
+            "certificate_hash": "29462678d3fbea2366960a0a29ea32ae79175c60"
+          }
+        },
+        {
+          "client_id": "929084652852-7bbnc57abdai3ho7lh2sqk6371jdp9r4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv2ZjaIY4UldtZoFrOZ3zWsXZ7EGds6vQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929084652852-7bbnc57abdai3ho7lh2sqk6371jdp9r4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "929084652852-294nak4mtq2cvtguqeq84o8ci9h38stq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.Zanny-Customer"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929084652852:android:8d26f417dc634093ca3961",
+        "android_client_info": {
+          "package_name": "com.zanny_merchant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929084652852-7bbnc57abdai3ho7lh2sqk6371jdp9r4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv2ZjaIY4UldtZoFrOZ3zWsXZ7EGds6vQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929084652852-7bbnc57abdai3ho7lh2sqk6371jdp9r4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "929084652852-294nak4mtq2cvtguqeq84o8ci9h38stq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.Zanny-Customer"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929084652852:android:4369c26e1011bebaca3961",
+        "android_client_info": {
+          "package_name": "com.zannys_driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929084652852-7bbnc57abdai3ho7lh2sqk6371jdp9r4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv2ZjaIY4UldtZoFrOZ3zWsXZ7EGds6vQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929084652852-7bbnc57abdai3ho7lh2sqk6371jdp9r4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "929084652852-294nak4mtq2cvtguqeq84o8ci9h38stq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.Zanny-Customer"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
