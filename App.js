@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {Provider} from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { Provider } from 'react-redux';
 import Navigation from './src/navigation';
 import store from './src/redux/index';
 import ConfirmationModal from './src/components/confirmationModal';
-import {colors, constants} from './src/constants';
+import { colors, constants } from './src/constants';
 import TermsAndConditions from './src/containers/app/termsAndConditions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NotificationPopup from 'react-native-push-notification-popup';
@@ -11,13 +11,12 @@ import {
   ActivityIndicator,
   View,
   Image,
-  SafeAreaView,
   StatusBar,
 } from 'react-native';
-import {images} from './src/assets';
-import {notification} from './src/constants/variables';
+import { images } from './src/assets';
+import { notification } from './src/constants/variables';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 const App = () => {
   const [termsAccepted, setTermsAccepted] = useState(null);
   const [isloading, setIsLoading] = useState(true);
@@ -44,7 +43,7 @@ const App = () => {
 
   if (isloading && !termsAccepted) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size={'large'} color={colors.yellow} />
       </View>
     );
@@ -55,29 +54,33 @@ const App = () => {
   };
 
   return (
-    <Provider store={store}>
-      <GestureHandlerRootView style={{flex: 1}}>
-        <StatusBar barStyle={'dark-content'} backgroundColor={colors.white} />
-        {showSplash ? (
-          <SafeAreaView style={{flex: 1}}>
-            <Image
-              source={images.splashScreen}
-              style={{height: '100%', width: '100%'}}
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+        <Provider store={store}>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <StatusBar barStyle={'dark-content'} backgroundColor={colors.white} />
+            {showSplash ? (
+              <SafeAreaView style={{ flex: 1 }}>
+                <Image
+                  source={images.splashScreen}
+                  style={{ height: '100%', width: '100%' }}
+                />
+              </SafeAreaView>
+            ) : termsAccepted ? (
+              <Navigation />
+            ) : (
+              <TermsAndConditions handleAccepted={handleAccepted} />
+            )}
+            <ConfirmationModal
+              ref={ref => {
+                constants.confirmationModal = ref;
+              }}
             />
-          </SafeAreaView>
-        ) : termsAccepted ? (
-          <Navigation />
-        ) : (
-          <TermsAndConditions handleAccepted={handleAccepted} />
-        )}
-        <ConfirmationModal
-          ref={ref => {
-            constants.confirmationModal = ref;
-          }}
-        />
-        <NotificationPopup ref={ref => (notification.popup = ref)} />
-      </GestureHandlerRootView>
-    </Provider>
+            <NotificationPopup ref={ref => (notification.popup = ref)} />
+          </GestureHandlerRootView>
+        </Provider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
