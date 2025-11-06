@@ -11,6 +11,7 @@ import AddressSlice from './slices/Address';
 import OrderType from './slices/OrderType';
 import PaymentType from './slices/PaymentType';
 import thunk from 'redux-thunk';
+import GetStarted from './slices/GetStarted';
 const reducer = combineReducers({
   LoginSlice,
   CartSlice,
@@ -22,6 +23,7 @@ const reducer = combineReducers({
   PaymentType,
   AddressSlice,
   AllergiesSlice,
+  GetStarted,
 });
 
 const store = configureStore({
@@ -34,3 +36,4 @@ const store = configureStore({
 });
 
 export default store;
+

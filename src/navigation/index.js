@@ -1,23 +1,18 @@
-import {NavigationContainer} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
-import AuthStack from './AuthStack';
-import {useDispatch, useSelector} from 'react-redux';
-import {setUserData} from '../redux/slices/Login';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {NavigationContainer} from '@react-navigation/native';
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import WelcomeScreen from '../containers/auth/WelComeScreen';
+import {setUserData} from '../redux/slices/Login';
 import DrawerNavigation from './drawer';
-import {ActivityIndicator, View} from 'react-native';
-import {colors} from '../constants';
+import Login from '../containers/auth/Login';
 
 const Navigation = () => {
-  const state = useSelector(state => state.LoginSlice.user);
-  const [isloading, setIsLoading] = useState(true);
   const disptach = useDispatch();
+  const {isGetStarted} = useSelector(state => state.GetStarted);
 
   useEffect(() => {
     getUserData();
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
   }, []);
 
   const getUserData = async () => {
@@ -26,17 +21,10 @@ const Navigation = () => {
     disptach(setUserData(data));
   };
 
-  if (isloading) {
-    return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size={'large'} color={colors.yellow} />
-      </View>
-    );
-  }
-
   return (
     <NavigationContainer>
-      <DrawerNavigation />
+      <Login />
+      {/* {isGetStarted ? <DrawerNavigation /> : <WelcomeScreen />} */}
     </NavigationContainer>
   );
 };

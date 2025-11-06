@@ -1,17 +1,16 @@
 import React, {useState} from 'react';
 import {
+  ActivityIndicator,
   SafeAreaView,
-  View,
   Text,
   TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
+  View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
 import Button from '../../components/button';
 import Header from '../../components/header';
 import {colors} from '../../constants';
-import {sendCode, sendResetCodeCustomer} from '../../services/auth';
+import {sendResetCodeCustomer} from '../../services/auth';
 
 const ForgotPassword = ({navigation}) => {
   const [inputValues, setInputValues] = useState({

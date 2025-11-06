@@ -25,3 +25,33 @@ export const STRIPE_SECRET_TEST = ENV.STRIPE_SECRET_TEST;
 export const STRIPE_PUBLISH_LIVE = ENV.STRIPE_PUBLISH_LIVE;
 export const STRIPE_SECRET_LIVE = ENV.STRIPE_SECRET_LIVE;
 export const constants = {};
+
+
+export const Colors = {
+  white: '#ffffff',
+  offwhite: '#FFF9F0',
+  primarymain: '#010E16',
+  black: '#000000',
+  border: '#EAEAEA',
+  softred: '#FEEAEA',
+  red: '#BF2725',
+  redish: '#3C0505',
+  redlite: '#FFE9E5',
+  softgray: '#E6E6E6',
+  gray: '#56585C',
+  grayLight: '#FFFFFF52',
+  graydark: '#7C7C7C',
+  grayplus: '#787878',
+  grayyy: '#838383',
+  primaryOrange: '#FF4B26',
+  orange: '#F2B037',
+  orangelite: '#E19C34',
+  orangeDark: '#F2A00A',
+  clayDark: '#E8EAF2',
+  linear: '#F09918',
+  clay: '#F9F9F9',
+  clayLite: '#EEEEEE',
+  background: '#F2B037B2',
+  warn: '#F6E9D4',
+  transparent: '#63606069',
+};
