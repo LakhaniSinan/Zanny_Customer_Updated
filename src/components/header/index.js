@@ -34,7 +34,7 @@ const Header = ({
     setTimeout(async () => {
       await AsyncStorage.removeItem('user');
       dispatch(setUserData(null));
-      navigation.navigate('AuthStack');
+      // navigation.navigate('AuthStack');
     }, 500);
   };
   return (

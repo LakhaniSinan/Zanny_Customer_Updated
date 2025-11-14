@@ -8,3 +8,7 @@ export const getProductsByMerchantId = id => {
     requestType.GET,
   );
 };
+
+export const getProductDetailById = id => {
+  return Api(`${endPoints.productDetailById}/${id}`, null, requestType.GET);
+};

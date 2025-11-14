@@ -26,7 +26,6 @@ export const STRIPE_PUBLISH_LIVE = ENV.STRIPE_PUBLISH_LIVE;
 export const STRIPE_SECRET_LIVE = ENV.STRIPE_SECRET_LIVE;
 export const constants = {};
 
-
 export const Colors = {
   white: '#ffffff',
   offwhite: '#FFF9F0',

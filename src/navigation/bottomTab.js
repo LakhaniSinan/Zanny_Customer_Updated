@@ -1,22 +1,37 @@
-import React from 'react';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
+import React from 'react';
+import {Platform} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {useSelector} from 'react-redux';
+import {Colors} from './../constants/index';
+import AuthStack from './AuthStack';
+import CurrentOrdersStack from './currentOrdersStack';
 import OrderStack from './orderStack';
 import ProfileStack from './profileStack';
-import {colors} from './../constants/index';
-import LinearGradient from 'react-native-linear-gradient';
-import Orders from '../containers/app/orders';
-import CurrentOrdersStack from './currentOrdersStack';
 
 const Tab = createMaterialBottomTabNavigator();
 
 const BottomNavigation = () => {
+  const {user} = useSelector(state => state.LoginSlice);
+
   return (
     <Tab.Navigator
-      activeColor="#fff"
-      inactiveColor="#3e2465"
-      barStyle={{backgroundColor: '#F8BB12'}}>
+      activeColor={Colors.orange}
+      inactiveColor="#A0A0A0"
+      shifting={false}
+      barStyle={{
+        backgroundColor: Colors.white,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        overflow: 'hidden',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: -2},
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        height: Platform.OS === 'ios' ? 80 : 65,
+      }}>
       <Tab.Screen
         name="Restaurants"
         component={OrderStack}
@@ -27,9 +42,10 @@ const BottomNavigation = () => {
           ),
         }}
       />
+
       <Tab.Screen
         name="CurrentOrders"
-        component={CurrentOrdersStack}
+        component={user == null ? AuthStack : CurrentOrdersStack}
         options={{
           tabBarLabel: 'My Orders',
           tabBarIcon: ({color}) => (
@@ -38,9 +54,10 @@ const BottomNavigation = () => {
         }}
       />
 
+      {/* Profile */}
       <Tab.Screen
         name="Profile"
-        component={ProfileStack}
+        component={user == null ? AuthStack : ProfileStack}
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({color}) => (

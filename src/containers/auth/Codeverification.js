@@ -1,8 +1,5 @@
-import React, {useState} from 'react';
-import {View, Text, SafeAreaView, StyleSheet,ActivityIndicator} from 'react-native';
-import Header from '../../components/header';
-import Button from '../../components/button';
-import {registerCustomer} from '../../services/auth';
+import React, {useEffect, useState} from 'react';
+import {Image, Text, TouchableOpacity, View} from 'react-native';
 import {
   CodeField,
   Cursor,
@@ -10,105 +7,244 @@ import {
   useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
 import {width} from 'react-native-dimension';
+import {icons} from '../../assets';
+import CustomModal from '../../components/customModal';
 import OverLayLoader from '../../components/loader';
-import {colors} from '../../constants';
+import PrimaryButton from '../../components/primaryButton';
+import {Colors} from '../../constants';
+import {
+  registerCustomer,
+  resetPasswordCustomer,
+  sendCode,
+} from '../../services/auth';
+
+const CELL_COUNT = 4;
 
 const CodeVerification = ({navigation, route}) => {
-  const CELL_COUNT = 4;
   const [value, setValue] = useState('');
-  const [isVisible, setIsVisible] = useState(false);
+  const data = route?.params;
+
+  const [timer, setTimer] = useState(60);
+  const [isLoading, setIsLoading] = useState(false);
+
   const ref = useBlurOnFulfill({value, cellCount: CELL_COUNT});
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({
     value,
     setValue,
   });
 
-  const data = route?.params?.data;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState({
+    Icon: '',
+    name: '',
+    detail: '',
+    buttonName: 'Okay',
+    onPress: () => setModalVisible(false),
+  });
 
-  const VerifyCode = () => {
+  useEffect(() => {
+    if (timer === 0) return;
+    const interval = setInterval(() => setTimer(prev => prev - 1), 1000);
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const formatTime = () => {
+    const m = String(Math.floor(timer / 60)).padStart(2, '0');
+    const s = String(timer % 60).padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  const showError = message => {
+    setModalData({
+      Icon: icons.cross,
+      name: 'Error',
+      detail: message,
+      buttonName: 'Okay',
+      onPress: () => setModalVisible(false),
+    });
+    setModalVisible(true);
+  };
+
+  const showSuccess = (message, navigateToLogin = false) => {
+    setModalData({
+      Icon: icons.check,
+      name: 'Success',
+      detail: message,
+      buttonName: navigateToLogin ? 'Proceed to Login' : 'Okay',
+      onPress: () => {
+        setModalVisible(false);
+        if (navigateToLogin) navigation.replace('Login');
+      },
+    });
+    setModalVisible(true);
+  };
+
+  const VerifyCode = async () => {
+    if (!value.trim()) return showError('Please enter the OTP.');
+
     let payload = {
       ...data,
+      name: `${data.firstName} ${data.lastName}`,
       code: value,
     };
-    if (value === '') {
-      alert('Please fill the field');
-    } else {
-      setIsVisible(true);
-      registerCustomer(payload)
-        .then(response => {
-          if (response.data.status == 'error') {
-            alert(response.data.message);
-            setIsVisible(false);
-          } else {
-            setIsVisible(false);
-            alert(response.data.message);
-            setValue('');
-            navigation.replace('Login');
-          }
-        })
-        .catch(err => {
-          setIsVisible(false);
-          alert(err.data.status);
-        });
+
+    try {
+      setIsLoading(true);
+      const response = await registerCustomer(payload);
+
+      if (response.status === 200 || response.status === 201) {
+        setValue('');
+        showSuccess(response.data.message, true);
+      } else {
+        showError(response.data.message);
+      }
+    } catch (error) {
+      showError(error?.response?.data?.message || 'Something went wrong!');
+    } finally {
+      setIsLoading(false);
     }
   };
-  return (
-    <>
-      <SafeAreaView style={{flex: 1,backgroundColor:colors.white}}>
-        <Header goBack text={"Verify Code"} />
-        <Text style={{textAlign: 'center', fontSize: 20, marginTop: width(20),color:colors.black}}>
-          Enter code
-        </Text>
-        <View>
-          <CodeField
-            ref={ref}
-            {...props}
-            value={value}
-            onChangeText={setValue}
-            cellCount={CELL_COUNT}
-            rootStyle={styles.codeFieldRoot}
 
-            keyboardType="number-pad"
-            textInputStyle={{color:"black"}}
-            textContentType="oneTimeCode"
-            renderCell={({index, symbol, isFocused}) => (
+  const handleForgotPass = async () => {
+    if (!value.trim()) return showError('Please enter the OTP.');
+
+    let payload = {
+      email: data?.email,
+      otp: value,
+      password: data?.password,
+    };
+
+    console.log(payload, 'payloadpayloadpayloadpayloadpayload');
+
+    try {
+      setIsLoading(true);
+      const response = await resetPasswordCustomer(payload);
+
+      if (response.status === 200 || response.status === 201) {
+        setValue('');
+        showSuccess('Password reset successfully!', true);
+      } else {
+        showError(response.data?.message || 'Reset failed.');
+      }
+    } catch (error) {
+      showError(error?.response?.data?.message || 'Something went wrong!');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    try {
+      setIsLoading(true);
+      const response = await sendCode({email: data?.email});
+
+      if (response.status === 200 || response.status === 201) {
+        setTimer(60);
+        showSuccess('A new OTP has been sent to your email.');
+      }
+    } catch (error) {
+      showError(error?.response?.data?.message || 'Failed to resend OTP.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <View style={{flex: 1, backgroundColor: Colors.white}}>
+      <TouchableOpacity
+        style={{
+          height: width(13),
+          width: width(13),
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onPress={() => navigation.goBack()}>
+        <Image source={icons.ArrowLeft} style={{height: 20, width: 20}} />
+      </TouchableOpacity>
+
+      <View style={{marginLeft: 15}}>
+        <Text style={{fontSize: 24, fontWeight: '500', color: Colors.black}}>
+          Verify OTP
+        </Text>
+        <Text
+          style={{
+            fontSize: 14,
+            fontWeight: '400',
+            color: Colors.grayyy,
+            marginTop: width(2),
+          }}>
+          Enter the OTP that was sent to your email.
+        </Text>
+      </View>
+
+      <View style={{paddingHorizontal: 65, marginTop: 40}}>
+        <CodeField
+          ref={ref}
+          {...props}
+          value={value}
+          onChangeText={setValue}
+          cellCount={CELL_COUNT}
+          keyboardType="number-pad"
+          renderCell={({index, symbol, isFocused}) => (
+            <View
+              key={index}
+              style={{
+                width: 48,
+                height: 48,
+                borderWidth: 1,
+                borderRadius: 13,
+                borderColor: isFocused ? Colors.grayyy : Colors.border,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
               <Text
-                key={index}
-                style={[styles.cell, isFocused && styles.focusCell]}
-                onLayout={getCellOnLayoutHandler(index)}>
-                {symbol || (isFocused ? <Cursor /> : null)}
+                style={{fontSize: 20, fontWeight: '500', color: Colors.black}}>
+                {symbol || (isFocused ? <Cursor /> : '')}
               </Text>
-            )}
-          />
-        </View>
-        <View style={{justifyContent: 'flex-end', flex: 1,marginBottom:width(2)}}>
-          {isVisible ? (
-            <ActivityIndicator size={'large'} color={colors.yellow} />
-          ) : (
-            <Button heading="Verify" onPress={VerifyCode} />
+            </View>
           )}
-        </View>
-      </SafeAreaView>
-    </>
+        />
+      </View>
+
+      <View style={{gap: 5, alignItems: 'center', marginTop: 30}}>
+        <Text style={{fontSize: 12, fontWeight: '400', color: Colors.grayyy}}>
+          A code has been sent to your email
+        </Text>
+
+        {timer > 0 ? (
+          <Text style={{fontSize: 14, fontWeight: '500', color: Colors.orange}}>
+            Resend in {formatTime()}
+          </Text>
+        ) : (
+          <TouchableOpacity onPress={handleResendCode}>
+            <Text
+              style={{fontSize: 14, fontWeight: '500', color: Colors.orange}}>
+              Resend Code
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <View style={{height: width(15), margin: width(4)}}>
+        <PrimaryButton
+          name="Verify Code"
+          onPress={data?.type === 'forgot' ? handleForgotPass : VerifyCode}
+        />
+      </View>
+
+      <CustomModal
+        visible={modalVisible}
+        Icon={modalData.Icon}
+        name={modalData.name}
+        detail={modalData.detail}
+        buttonName={modalData.buttonName}
+        onPress={modalData.onPress}
+        close={() => setModalVisible(false)}
+      />
+
+      <OverLayLoader isloading={isLoading} />
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  root: {flex: 1},
-  title: {textAlign: 'center', fontSize: 30},
-  codeFieldRoot: {marginTop: width(10), marginHorizontal: width(20)},
-  cell: {
-    width: width(10),
-    height: width(10),
-    fontSize: 24,
-    borderWidth: 1,
-    borderColor: '#00000030',
-    textAlign: 'center',
-    color:"black"
-  },
-  focusCell: {
-    borderColor: '#000',
-  },
-});
 
 export default CodeVerification;

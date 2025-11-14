@@ -1,183 +1,133 @@
 import React, {useState} from 'react';
 import {
-  SafeAreaView,
-  View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet
+  View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
-import Button from '../../components/button';
-import Header from '../../components/header';
-import {colors} from '../../constants';
-import {resetPasswordCustomer} from '../../services/auth';
-import {
-  CodeField,
-  Cursor,
-  useBlurOnFulfill,
-  useClearByFocusCell,
-} from 'react-native-confirmation-code-field';
-import Feather from 'react-native-vector-icons/Feather'
-
-const styles = StyleSheet.create({
-  codeFieldRoot: {marginTop: 10, justifyContent: 'space-evenly'},
-  cell: {
-    width: 40,
-    height: 40,
-    lineHeight: 38,
-    fontSize: 24,
-    borderWidth: 2,
-    borderColor: colors.grey,
-    textAlign: 'center',
-    color:colors.black
-  },
-  focusCell: {
-    borderColor: colors.yellow,
-  },
-});
-
-const CELL_COUNT = 4;
+import {useDispatch} from 'react-redux';
+import {icons} from '../../assets';
+import CustomInput from '../../components/customInput';
+import CustomModal from '../../components/customModal';
+import PrimaryButton from '../../components/primaryButton';
+import {Colors} from '../../constants';
 
 const ResetPassword = ({navigation, route}) => {
-  const [inputValues, setInputValues] = useState({
-    otp: '',
-    password: '',
-  });
-  const [value, setValue] = useState('');
-  const refrence = useBlurOnFulfill({value, cellCount: CELL_COUNT});
-  const [props, getCellOnLayoutHandler] = useClearByFocusCell({
-    value,
-    setValue,
-  });
-  const [isVisible, setIsVisible] = useState(false);
-  const {email} = route?.params;
-  const handleChangeInputs = (name, value) => {
-    setInputValues({...inputValues, [name]: value});
-  };
-  const [isSecure,setIsSecure]=useState(true)
+  const {email} = route.params;
 
+  console.log(email, 'emailemailemailemailemail');
 
-  const handleOnPressReset = () => {
-    const {otp, password} = inputValues;
-    if (otp == '') {
-      alert('Verification code  is required');
-    } else if (password == '') {
-      alert('Password is required');
-    } else {
-      let params = {
-        email,
-        otp,
-        password,
-      };
-      setIsVisible(true);
-      resetPasswordCustomer(params)
-        .then(res => {
-          if (res.data.status == 'error') {
-            setIsVisible(false);
-            alert(res.data.message);
-            setIsVisible(false);
-          } else {
-            setIsVisible(false);
-            setInputValues({
-              password: '',
-              otp: '',
-            });
-            alert(res.data.message);
-            navigation.navigate('Login');
-          }
-        })
-        .catch(err => {
-          console.log(err, 'error');
-          setIsVisible(false);
-        });
+  const dispatch = useDispatch();
+
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [errorVisible, setErrorVisible] = useState(false);
+
+  const handleSetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      setErrorVisible(true);
+      return;
     }
+    if (newPassword !== confirmPassword) {
+      setErrorVisible(true);
+      return;
+    }
+    let payload = {password: newPassword, email, type: 'forgot'};
+
+    navigation.navigate('CodeVerification', payload);
   };
+
+  const handleProceed = async () => {};
+
   return (
-    <>
-      <SafeAreaView style={{flex: 1,backgroundColor:colors.white}}>
-        <Header text={'Reset Password'} goBack={true} />
-        <View style={{marginTop: width(5)}}>
-          {/* <Text style={{paddingHorizontal: width(2)}}>Code</Text>
-          <View
-            style={{
-              borderBottomWidth: 0.5,
-              borderColor: colors.grey,
-            }}>
-            <TextInput
-              style={{margin: width(2)}}
-              placeholder="Enter verification code"
-              value={inputValues.otp}
-              onChangeText={value => handleChangeInputs('otp', value)}
-              maxLength={4}
-            />
-          </View> */}
-          <Text
-            style={{
-              color: colors.grey2,
-              fontSize: 18,
-              fontWeight: '600',
-              alignSelf: 'center',
-            }}>
-            Verification Code
-          </Text>
-          <CodeField
-            ref={refrence}
-            {...props}
-            value={inputValues.otp}
-            onChangeText={text => handleChangeInputs('otp', text)}
-            cellCount={CELL_COUNT}
-            rootStyle={styles.codeFieldRoot}
-            keyboardType="number-pad"
-            textContentType="oneTimeCode"
-            renderCell={({index, symbol, isFocused}) => (
-              <Text
-                key={index}
-                style={[styles.cell, isFocused && styles.focusCell]}
-                onLayout={getCellOnLayoutHandler(index)}>
-                {symbol || (isFocused ? <Cursor /> : null)}
-              </Text>
-            )}
+    <KeyboardAvoidingView
+      style={{flex: 1, backgroundColor: Colors.white}}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView
+        contentContainerStyle={{flexGrow: 1, paddingHorizontal: width(3)}}
+        keyboardShouldPersistTaps="handled">
+        <TouchableOpacity
+          style={{
+            marginTop: width(3),
+            height: width(10),
+            width: width(10),
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPress={() => navigation.goBack()}>
+          <Image source={icons.ArrowLeft} style={{height: 20, width: 20}} />
+        </TouchableOpacity>
+
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: 500,
+            color: Colors.black,
+            marginTop: width(3),
+          }}>
+          Set Password
+        </Text>
+
+        <Text
+          style={{
+            fontSize: 12,
+            fontWeight: 400,
+            color: Colors.black,
+            width: '90%',
+            marginTop: width(1),
+          }}>
+          Enter your new password and confirm to proceed.
+        </Text>
+
+        <View style={{marginTop: width(5), gap: 30}}>
+          <CustomInput
+            title="New Password"
+            placeholder="Enter new password"
+            value={newPassword}
+            onChangeText={setNewPassword}
+            Icon={icons.Hide}
+            secureTextEntry
           />
-          <Text style={{paddingHorizontal: width(2),marginTop:width(4)}}>Password</Text>
-          <View
-            style={{
-              borderBottomWidth: 0.5,
-              borderColor: colors.grey,
-              flexDirection:"row",
-              alignItems:"center",
-              justifyContent:"space-between",
-              paddingRight:width(4)
-            }}>
-            <View style={{width:"90%"}}>
-            <TextInput
-              style={{margin: width(2),color:colors.black}}
-              placeholder="Enter new password"
-              value={inputValues.password}
-              placeholderTextColor={colors.grey}
-              secureTextEntry={isSecure}
-              onChangeText={value => handleChangeInputs('password', value)}
-            />
-            </View>
-            <Feather
-            name={isSecure ? 'eye-off':'eye'}
-            size={width(5)}
-            color={colors.grey}
-            onPress={()=>setIsSecure(!isSecure)}
-            />
-          </View>
+
+          <CustomInput
+            title="Confirm Password"
+            placeholder="Confirm new password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            Icon={icons.Hide}
+            secureTextEntry
+          />
         </View>
-        <View
-          style={{justifyContent: 'flex-end', flex: 1, marginBottom: width(1)}}>
-          {isVisible ? (
-            <ActivityIndicator size={'large'} color={colors.yellow} />
-          ) : (
-            <Button heading={'Reset Password'} onPress={handleOnPressReset} />
-          )}
-        </View>
-      </SafeAreaView>
-    </>
+      </ScrollView>
+
+      <View
+        style={{
+          height: width(20),
+          width: '100%',
+          padding: width(4),
+          backgroundColor: Colors.white,
+          borderTopWidth: 1,
+          borderTopColor: Colors.border,
+        }}>
+        <PrimaryButton name="Confirm" onPress={handleSetPassword} />
+      </View>
+
+      <CustomModal
+        visible={errorVisible}
+        Icon={icons.cross}
+        colors={Colors.red}
+        name="Error"
+        detail="Please check your password fields and try again."
+        buttonName="Try Again"
+        close={() => setErrorVisible(false)}
+        onPress={() => setErrorVisible(false)}
+      />
+    </KeyboardAvoidingView>
   );
 };
 

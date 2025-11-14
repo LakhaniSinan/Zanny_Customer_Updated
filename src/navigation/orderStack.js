@@ -16,19 +16,20 @@ import UserAllergies from '../containers/app/userAllergies';
 import {useSelector} from 'react-redux';
 import Reviews from '../containers/app/restaurants/reviews';
 import PaymentOptions from '../containers/app/paymentOptions';
+import ProductDetail from '../containers/app/productDetail';
 const Stack = createStackNavigator();
 
 function OrderStack() {
   const user = useSelector(state => state.LoginSlice.user);
   return (
     <Stack.Navigator>
-        <Stack.Screen
-          name="UserAllergies"
-          component={UserAllergies}
-          options={{
-            headerShown: false,
-          }}
-        />
+      <Stack.Screen
+        name="UserAllergies"
+        component={UserAllergies}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="AllRestaurants"
         component={Restaurants}
@@ -40,6 +41,13 @@ function OrderStack() {
       <Stack.Screen
         name="Products"
         component={Products}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetail}
         options={{
           headerShown: false,
         }}

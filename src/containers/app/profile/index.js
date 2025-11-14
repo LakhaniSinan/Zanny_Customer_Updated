@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, SafeAreaView,Alert} from 'react-native';
+import {View, Text, SafeAreaView, Alert} from 'react-native';
 import {width} from 'react-native-dimension';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Header from '../../../components/header';
@@ -26,12 +26,11 @@ const Profile = () => {
       screenName: 'Support',
       type: 'profile',
     },
-
   ];
 
   return (
-    <SafeAreaView style={{flex: 1,backgroundColor:colors.white}}>
-      <Header logout text={'Profile'} drawer={true} />
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
+      <Header logout text={'Profile'} drawer={false} />
       <View style={{marginTop: width(4)}}>
         {data.map((item, index) => {
           return (
@@ -44,17 +43,17 @@ const Profile = () => {
               }
               style={profileStyles.cardStyle}
               key={item.name}>
-              <Text style={{fontWeight: 'bold', fontSize: 15,color:colors.grey}}>
+              <Text
+                style={{fontWeight: 'bold', fontSize: 15, color: colors.grey}}>
                 {item.name}
               </Text>
 
-              <View
-                style={profileStyles.iconStyle}>
+              <View style={profileStyles.iconStyle}>
                 <AntDesign size={18} color={'white'} name="arrowright" />
               </View>
             </TouchableOpacity>
           );
-      })}
+        })}
       </View>
 
       {/* <View style={{

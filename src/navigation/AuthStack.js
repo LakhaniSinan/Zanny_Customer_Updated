@@ -1,4 +1,4 @@
-import { createStackNavigator } from '@react-navigation/stack';
+import {createStackNavigator} from '@react-navigation/stack';
 import React from 'react';
 import Restaurants from '../containers/app/restaurants';
 import TermsAndConditions from '../containers/app/termsAndConditions';
@@ -8,6 +8,7 @@ import ForgotPassword from '../containers/auth/forgotPassword';
 import Login from '../containers/auth/Login';
 import ResetPassword from '../containers/auth/resetPassword';
 import SignUp from '../containers/auth/SignUp';
+import SignUpScreen from '../containers/auth/SignUp';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +35,13 @@ function AuthStack() {
         }}
         name="SignUp"
         component={SignUp}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+        }}
+        name="SignUpScreen"
+        component={SignUpScreen}
       />
       <Stack.Screen
         options={{

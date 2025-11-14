@@ -24,6 +24,7 @@ import AddSupportMsg from '../containers/app/support/addSupportMsg';
 import UpdateAllergies from '../containers/app/updateAllergies';
 import UserAllergies from '../containers/app/userAllergies';
 import UserQuestions from '../containers/app/userQuestions/index';
+import ProductDetail from '../containers/app/productDetail';
 
 const Stack = createStackNavigator();
 
@@ -210,6 +211,13 @@ function AppStack() {
       <Stack.Screen
         name="ChangePassword"
         component={ChangePassword}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetail}
         options={{
           headerShown: false,
         }}

@@ -24,6 +24,7 @@ export const images = {
 };
 
 export const icons = {
+  foodIcon: require('../assets/icons/foodIcon.png'),
   ShoppingCart: require('../assets/icons/ShoppingCart.png'),
   Ticket: require('../assets/icons/Ticket.png'),
   House: require('../assets/icons/House.png'),

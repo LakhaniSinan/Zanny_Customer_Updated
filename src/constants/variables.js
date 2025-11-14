@@ -81,4 +81,9 @@ export const endPoints = {
 
   //FAQs
   getAllFAQs: 'getAllFAQs',
+
+  //HOME STACK
+  homeData: 'homepage',
+
+  productDetailById: 'getProductDetails',
 };

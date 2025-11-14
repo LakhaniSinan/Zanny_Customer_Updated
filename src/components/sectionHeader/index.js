@@ -9,7 +9,7 @@ const SectionHeader = ({onPress, action, name, fontSize, color}) => {
       style={{
         flexDirection: 'row',
         justifyContent: 'space-between',
-        margin: width(3),
+        marginVertical: width(3),
       }}>
       <Text
         style={{

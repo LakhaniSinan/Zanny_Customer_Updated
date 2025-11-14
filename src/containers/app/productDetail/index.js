@@ -1,0 +1,472 @@
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+  Alert,
+  FlatList,
+  Image,
+  ScrollView,
+  Share,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {width} from 'react-native-dimension';
+import {icons} from '../../../assets';
+import ActionButton from '../../../components/actionButton';
+import ChefsCard from '../../../components/chefsCard';
+import OverLayLoader from '../../../components/loader';
+import ProgressCard from '../../../components/progressCard';
+import SectionHeader from '../../../components/sectionHeader';
+import SegmentedButtons from '../../../components/SegmentedButtons';
+import {Colors} from '../../../constants';
+import {getProductDetailById} from '../../../services/product';
+
+const ProductDetail = ({navigation, route}) => {
+  const data = route.params;
+  const [productDetails, setProductDetails] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('Nutrition');
+  console.log(productDetails, 'productDetailsproductDetailsproductDetails');
+
+  const deliveryData = [
+    {icon: icons.package, name: 'Delivery'},
+    {icon: icons.clock, name: '20mins'},
+    {icon: icons.yellowStar, name: '4.8 Rating'},
+  ];
+
+  const AllergiesData = [{name: 'Vegan'}, {name: 'Vegetarian'}];
+
+  useEffect(() => {
+    if (data?._id) fetchProductDetails();
+  }, [data?._id]);
+
+  const fetchProductDetails = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getProductDetailById(data._id);
+
+      if (response.status === 200 || response.status === 201) {
+        setProductDetails(response?.data?.data);
+      } else {
+        Alert.alert('Error', 'Something went wrong');
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getFinalPrice = useCallback((price, discount) => {
+    if (!discount) return price;
+
+    const final = price - (price * discount) / 100;
+    return Number(final.toFixed(2));
+  }, []);
+
+  if (!productDetails) return <OverLayLoader isloading={true} />;
+  const onShareProduct = async () => {
+    try {
+      const message = `
+${productDetails?.name}
+
+Price: £${productDetails?.price}
+Discount Price: £${getFinalPrice(
+        productDetails?.price,
+        productDetails?.discount,
+      )}
+
+Description:
+${productDetails?.description}
+
+Image:
+${productDetails?.image}
+    `;
+
+      const result = await Share.share({
+        message,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <View style={{flex: 1, backgroundColor: Colors.white}}>
+      <ScrollView>
+        {/* IMAGE */}
+        <Image
+          source={{uri: productDetails?.image}}
+          style={{height: width(100), width: '100%', marginTop: -45}}
+          resizeMode="cover"
+        />
+
+        {/* HEADER ICONS */}
+        <HeaderIcons navigation={navigation} />
+
+        {/* CONTENT AREA */}
+        <View style={styles.contentContainer}>
+          <TitleRow
+            productDetails={productDetails}
+            onShareProduct={onShareProduct}
+          />
+
+          <PriceRow
+            productDetails={productDetails}
+            getFinalPrice={getFinalPrice}
+          />
+
+          <Location />
+
+          <Description text={productDetails?.description} />
+
+          <DeliveryInfo deliveryData={deliveryData} />
+
+          <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+
+          {/* Progress */}
+          <FlatList
+            data={productDetails?.nutritions}
+            renderItem={({item}) => <ProgressCard item={item} />}
+            ListEmptyComponent={
+              <FlatList
+                data={productDetails?.nutritions}
+                renderItem={({item}) => <ProgressCard item={item} />}
+                ListEmptyComponent={
+                  <View style={{alignItems: 'center', paddingVertical: 20}}>
+                    <Text style={{fontSize: 14, color: '#999'}}>
+                      No nutrition data available
+                    </Text>
+                  </View>
+                }
+              />
+            }
+          />
+
+          {/* Allergies */}
+          <SectionHeader name={'Allergies'} fontSize={16} />
+          <View style={styles.flexWrap}>
+            {productDetails?.allergiesData?.map(item => (
+              <SegmentedButtons
+                item={item}
+                backgroundColor={Colors.softred}
+                color={Colors.red}
+              />
+            ))}
+          </View>
+
+          {/* Dietary */}
+          <SectionHeader name={'Dietary'} fontSize={16} />
+          <FlatList
+            horizontal
+            data={AllergiesData || []}
+            renderItem={({item}) => (
+              <SegmentedButtons
+                item={item}
+                backgroundColor={Colors.softred}
+                color={Colors.red}
+              />
+            )}
+            ItemSeparatorComponent={<View style={{width: 10}} />}
+          />
+
+          <SectionHeader name={'Made by'} fontSize={16} />
+
+          <ChefInfo merchant={productDetails?.merchantInfo} />
+
+          <SectionHeader
+            name={'More from this chef'}
+            action={'See All'}
+            color={Colors.redish}
+            fontSize={14}
+          />
+
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={productDetails?.otherProducts || []}
+            renderItem={({item}) => <ChefsCard item={item} />}
+            ItemSeparatorComponent={<View style={{width: 10}} />}
+            contentContainerStyle={{
+              paddingVertical: width(2),
+              paddingHorizontal: width(1),
+            }}
+          />
+        </View>
+        <BottomButtons />
+      </ScrollView>
+
+      <OverLayLoader isloading={isLoading} />
+    </View>
+  );
+};
+
+export default ProductDetail;
+
+const HeaderIcons = ({navigation}) => (
+  <View style={styles.headerIcons}>
+    <IconButton icon={icons.ArrowLeft} onPress={() => navigation.goBack()} />
+    <IconButton icon={icons.ShoppingCart} />
+  </View>
+);
+
+const IconButton = ({icon, onPress}) => (
+  <TouchableOpacity style={styles.iconBtn} onPress={onPress}>
+    <Image source={icon} style={styles.iconSize} />
+  </TouchableOpacity>
+);
+
+const TitleRow = ({productDetails, onShareProduct}) => (
+  <View style={styles.titleRow}>
+    <Text numberOfLines={2} style={styles.title}>
+      {productDetails?.name}
+    </Text>
+
+    <View style={styles.titleRight}>
+      <IconButton icon={icons.heart} />
+      <IconButton icon={icons.share} onPress={onShareProduct} />
+    </View>
+  </View>
+);
+
+const PriceRow = ({productDetails, getFinalPrice}) => (
+  <View style={styles.priceRow}>
+    <View style={styles.priceLeft}>
+      <Text style={styles.finalPrice}>
+        £{getFinalPrice(productDetails?.price, productDetails?.discount)}
+      </Text>
+
+      {productDetails?.discount > 0 && (
+        <Text style={styles.oldPrice}>£{productDetails?.price}</Text>
+      )}
+    </View>
+
+    <View style={styles.servings}>
+      <Image source={icons.foodIcon} style={styles.servingsIcon} />
+      <Text style={styles.servingsText}>
+        {productDetails?.otherProducts?.length} servings
+      </Text>
+    </View>
+  </View>
+);
+
+const Location = () => (
+  <View style={styles.location}>
+    <Image source={icons.map} style={styles.locationIcon} />
+    <Text style={styles.locationText}>2.8 km away</Text>
+  </View>
+);
+
+const Description = ({text}) => (
+  <View style={{marginTop: width(2)}}>
+    <Text style={styles.description}>{text}</Text>
+  </View>
+);
+
+const DeliveryInfo = ({deliveryData}) => (
+  <View style={styles.deliveryRow}>
+    {deliveryData.map((item, index) => (
+      <View key={index} style={styles.deliveryItem}>
+        <Image source={item.icon} style={styles.deliveryIcon} />
+        <Text style={styles.deliveryText}>{item.name}</Text>
+      </View>
+    ))}
+  </View>
+);
+
+const Tabs = ({activeTab, setActiveTab}) => (
+  <View style={styles.tabs}>
+    {['Nutrition', 'Customize'].map(tab => (
+      <TouchableOpacity
+        key={tab}
+        onPress={() => setActiveTab(tab)}
+        style={[
+          styles.tabButton,
+          {
+            backgroundColor:
+              activeTab === tab ? Colors.background : 'transparent',
+          },
+        ]}>
+        <Text
+          style={[
+            styles.tabText,
+            {color: activeTab === tab ? Colors.black : Colors.graydark},
+          ]}>
+          {tab}
+        </Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+);
+
+const ChefInfo = ({merchant}) => (
+  <View style={styles.chefRow}>
+    <View style={styles.chefLeft}>
+      <Image
+        source={{uri: merchant?.image}}
+        style={styles.chefImg}
+        resizeMode="contain"
+      />
+      <View style={{marginLeft: 8}}>
+        <Text style={styles.chefLabel}>Chef</Text>
+        <View style={styles.chefNameRow}>
+          <Text style={styles.chefName}>{merchant?.name}</Text>
+          <Image source={icons.objects} style={styles.verifyIcon} />
+        </View>
+      </View>
+    </View>
+    <ActionButton
+      name={'Hire'}
+      bgcColor={Colors.black}
+      fontColor={Colors.white}
+    />
+  </View>
+);
+const BottomButtons = () => (
+  <View style={styles.bottomBar}>
+    <ActionButton
+      height={46}
+      width={width(45)}
+      name={'Pre-order'}
+      fontColor={Colors.black}
+    />
+    <ActionButton
+      height={46}
+      width={width(45)}
+      name={'Buy Now'}
+      bgcColor={Colors.black}
+      fontColor={Colors.white}
+    />
+  </View>
+);
+
+const styles = {
+  contentContainer: {
+    backgroundColor: Colors.white,
+    borderTopRightRadius: 29,
+    borderTopLeftRadius: 29,
+    marginTop: -30,
+    padding: width(6),
+  },
+  headerIcons: {
+    position: 'absolute',
+    top: 10,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    zIndex: 99,
+  },
+  iconBtn: {
+    height: width(10),
+    width: width(10),
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: Colors.clayDark,
+  },
+  iconSize: {height: 20, width: 20},
+
+  /* Title */
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: Colors.redish,
+    width: width(65),
+  },
+  titleRight: {
+    width: width(25),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+
+  /* Prices */
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: width(3),
+  },
+  priceLeft: {flexDirection: 'row', alignItems: 'center'},
+  finalPrice: {fontSize: 30, fontWeight: '700', color: Colors.red},
+  oldPrice: {
+    fontSize: 16,
+    marginLeft: 6,
+    textDecorationLine: 'line-through',
+    color: Colors.gray,
+  },
+  servings: {flexDirection: 'row', alignItems: 'center'},
+  servingsIcon: {height: width(5), width: width(5)},
+  servingsText: {marginLeft: width(2), color: Colors.black},
+
+  /* Location */
+  location: {flexDirection: 'row', alignItems: 'center', marginTop: width(1)},
+  locationIcon: {height: 16, width: 16},
+  locationText: {fontSize: 12, color: Colors.grayyy},
+
+  /* Description */
+  description: {fontSize: 12, color: Colors.graydark},
+
+  /* Delivery row */
+  deliveryRow: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    paddingVertical: width(3),
+    marginTop: width(2),
+    borderColor: Colors.clayLite,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  deliveryItem: {flexDirection: 'row', alignItems: 'center', gap: 8},
+  deliveryIcon: {height: 16, width: 16},
+  deliveryText: {fontSize: 12, color: Colors.redish},
+
+  /* Tabs */
+  tabs: {
+    flexDirection: 'row',
+    backgroundColor: Colors.clayDark,
+    height: width(12),
+    marginTop: width(3),
+    borderRadius: 100,
+    padding: 4,
+  },
+  tabButton: {
+    flex: 1,
+    borderRadius: 75,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabText: {fontSize: 13, fontWeight: 600},
+
+  /* Flex wrap */
+  flexWrap: {flexDirection: 'row', flexWrap: 'wrap', gap: 10},
+
+  /* Chef */
+  chefRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  chefLeft: {flexDirection: 'row', alignItems: 'center'},
+  chefImg: {height: 34, width: 34, borderRadius: 100},
+  chefLabel: {fontSize: 11, color: Colors.primaryOrange},
+  chefNameRow: {flexDirection: 'row', alignItems: 'center', gap: 3},
+  chefName: {fontSize: 13, fontWeight: 600, color: Colors.black},
+  verifyIcon: {height: 15, width: 15},
+
+  /* Bottom Bar */
+  bottomBar: {
+    width: '100%',
+    backgroundColor: Colors.white,
+    zIndex: 9,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+};

@@ -1,9 +1,9 @@
 import React from 'react';
 import {Image, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../constants';
+import {icons} from '../../assets';
 
-const Category = props => {
-  const item = props.item;
+const Category = ({item}) => {
   return (
     <TouchableOpacity
       style={{
@@ -29,7 +29,7 @@ const Category = props => {
           justifyContent: 'center',
           left: 7,
         }}>
-        <Image source={item?.cateIcon} style={{height: 15, width: 15}} />
+        <Image source={icons.rice} style={{height: 15, width: 15}} />
       </View>
       <Text
         style={{
@@ -38,7 +38,7 @@ const Category = props => {
           paddingLeft: 12,
           color: Colors.black,
         }}>
-        {item?.cateName}
+        {item?.name}
       </Text>
     </TouchableOpacity>
   );

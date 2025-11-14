@@ -442,14 +442,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import React, {useEffect, useState} from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Platform,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Image, Platform, Text, TouchableOpacity, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {
   checkNotifications,
@@ -459,7 +452,7 @@ import {useDispatch} from 'react-redux';
 import {icons} from '../../assets';
 import CustomInput from '../../components/customInput';
 import PrimaryButton from '../../components/primaryButton';
-import {colors, Colors} from '../../constants';
+import {Colors} from '../../constants';
 import {setUserData} from '../../redux/slices/Login';
 
 import messaging from '@react-native-firebase/messaging';
@@ -472,6 +465,7 @@ import appleAuth, {
   AppleAuthRequestOperation,
   AppleAuthRequestScope,
 } from '@invertase/react-native-apple-authentication';
+import OverLayLoader from '../../components/loader';
 
 const Login = ({navigation}) => {
   const dispatch = useDispatch();
@@ -712,18 +706,6 @@ const Login = ({navigation}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
-      <TouchableOpacity
-        style={{
-          marginHorizontal: 10,
-          marginTop: 10,
-          height: width(10),
-          width: width(10),
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        onPress={() => navigation.goBack()}>
-        <Image source={icons.ArrowLeft} style={{height: 20, width: 20}} />
-      </TouchableOpacity>
       <View style={{marginLeft: 15}}>
         <View
           style={{
@@ -780,7 +762,7 @@ const Login = ({navigation}) => {
             Remember me
           </Text>
         </View>
-        <TouchableOpacity onPress={() => navigation.navigate('ForgetPassword')}>
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
           <Text
             style={{
               fontSize: 12,
@@ -854,7 +836,7 @@ const Login = ({navigation}) => {
         <Text style={{fontSize: 13, fontWeight: 500, color: Colors.grayyy}}>
           Don’t have an account?{' '}
         </Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
           <Text
             style={{
               fontSize: 13,
@@ -866,7 +848,7 @@ const Login = ({navigation}) => {
           </Text>
         </TouchableOpacity>
       </View>
-      {isVisible && <ActivityIndicator color={colors.yellow} size={'large'} />}
+      <OverLayLoader isloading={isVisible} />
     </View>
   );
 };
