@@ -11,7 +11,7 @@ import CurrentOrdersStack from './currentOrdersStack';
 
 const Tab = createMaterialBottomTabNavigator();
 
-const BottomStack = () => {
+const BottomNavigation = () => {
   return (
     <Tab.Navigator
       activeColor="#fff"
@@ -52,4 +52,4 @@ const BottomStack = () => {
   );
 };
 
-export default BottomStack;
+export default BottomNavigation;
