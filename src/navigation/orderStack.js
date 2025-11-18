@@ -17,6 +17,7 @@ import {useSelector} from 'react-redux';
 import Reviews from '../containers/app/restaurants/reviews';
 import PaymentOptions from '../containers/app/paymentOptions';
 import ProductDetail from '../containers/app/productDetail';
+import AllFoodScreen from '../containers/app/allFoodScreen';
 const Stack = createStackNavigator();
 
 function OrderStack() {
@@ -26,6 +27,13 @@ function OrderStack() {
       <Stack.Screen
         name="UserAllergies"
         component={UserAllergies}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="AllFoodScreen"
+        component={AllFoodScreen}
         options={{
           headerShown: false,
         }}

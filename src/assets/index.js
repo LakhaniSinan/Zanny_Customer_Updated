@@ -1,3 +1,8 @@
+export const fontFamily = {
+  poppinRegular: "Poppins-Medium"
+}
+
+
 export const images = {
   googleIcon: require('../assets/images/google.png'),
   appleIcon: require('../assets/images/apple.png'),
@@ -50,6 +55,7 @@ export const icons = {
   Google: require('../assets/icons/Google.png'),
   hi: require('../assets/icons/hi.png'),
   heart: require('../assets/icons/heart.png'),
+  heartBrown: require('../assets/icons/heart-brown.png'),
   map: require('../assets/icons/map.png'),
   package: require('../assets/icons/package.png'),
   clock: require('../assets/icons/clock.png'),

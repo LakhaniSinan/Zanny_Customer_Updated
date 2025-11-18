@@ -1,9 +1,9 @@
-import {View, Text, TouchableOpacity} from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
-import {Colors} from '../../constants';
-import {width} from 'react-native-dimension';
+import { Colors } from '../../constants';
+import { width } from 'react-native-dimension';
 
-const SectionHeader = ({onPress, action, name, fontSize, color}) => {
+const SectionHeader = ({ onPress, action, name, fontSize, color }) => {
   return (
     <View
       style={{
@@ -22,6 +22,7 @@ const SectionHeader = ({onPress, action, name, fontSize, color}) => {
       <TouchableOpacity onPress={onPress}>
         <Text
           style={{
+            textDecorationLine: 'underline',
             fontSize: 14,
             fontWeight: 500,
             color: Colors.red,

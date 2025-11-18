@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useEffect, useRef, useState} from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -12,16 +12,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {width} from 'react-native-dimension';
+import { width } from 'react-native-dimension';
 import Carousel from 'react-native-snap-carousel';
-import {icons, images} from '../../../assets';
+import { icons, images } from '../../../assets';
 import Category from '../../../components/categoryCard';
 import HireCheifCard from '../../../components/hireChefCard';
 import SectionHeader from '../../../components/sectionHeader';
-import {Colors} from '../../../constants';
-import {getHomeData} from '../../../services/home';
+import { Colors } from '../../../constants';
+import { getHomeData } from '../../../services/home';
 
-const Restaurants = ({navigation}) => {
+const Restaurants = ({ navigation }) => {
   const carouselRef = useRef();
   const [isLoading, setIsLoading] = useState(false);
   const [homeData, setHomedata] = useState(null);
@@ -72,22 +72,23 @@ const Restaurants = ({navigation}) => {
 
     for (let i = 1; i <= 1; i++) {
       stars.push(
-        <Text key={i} style={{fontSize: 14, color: Colors.orange}}>
+        <Text key={i} style={{ fontSize: 14, color: Colors.orange }}>
           {i <= rounded ? '★' : '☆'}
         </Text>,
       );
     }
 
-    return <View style={{flexDirection: 'row'}}>{stars}</View>;
+    return <View style={{ flexDirection: 'row' }}>{stars}</View>;
   };
 
-  const renderRecommendedItem = ({item}) => {
+  const renderRecommendedItem = ({ item }) => {
     return (
       <TouchableOpacity
-        style={{width: width(65), marginLeft: width(4)}}
-        onPress={() => navigation.navigate('ProductDetail', item)}>
-        <Image source={{uri: item?.image}} style={styles.foodImage} />
-
+        style={{ width: width(65), marginHorizontal: 10, marginLeft: width(4) }}
+        onPress={() => navigation.navigate('ProductDetail',
+          { data: item, productId: item._id, type: "normal" })}
+      >
+        <Image source={{ uri: item?.image }} style={styles.foodImage} />
         <View style={styles.foodTextContainer}>
           <View
             style={{
@@ -117,14 +118,13 @@ const Restaurants = ({navigation}) => {
               4.8 (120+) 2.8 km away
             </Text>
           </View>
-
           <View style={styles.chefContainer}>
             <Image
-              source={{uri: item?.merchantImage}}
+              source={{ uri: item?.merchantImage }}
               style={styles.chefImage}
               resizeMode="cover"
             />
-            <View style={{marginLeft: 8}}>
+            <View style={{ marginLeft: 8 }}>
               <Text style={styles.chefLabel}>Chef</Text>
               <View style={styles.chefNameContainer}>
                 <Text style={styles.chefName}>{item?.merchantName}</Text>
@@ -142,27 +142,36 @@ const Restaurants = ({navigation}) => {
   };
 
   const renderCarousel = useCallback(
-    ({item}) => (
-      <ImageBackground
-        source={{uri: item?.image}}
-        style={styles.promoBanner}
-        imageStyle={styles.promoImage}>
-        {item?.discountedPrice > 0 && (
+    ({ item }) => {
+      console.log(item, "itemitemitemitemitem_CAARRASD");
+
+      return (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ProductDetail',
+            { data: item, productId: item.productId, type: "banner" })}
+        >
+          <ImageBackground
+            source={{ uri: item?.image }}
+            style={styles.promoBanner}
+            imageStyle={styles.promoImage}>
+            {/* {item?.discountedPrice > 0 && (
           <View style={styles.discountBadge}>
             <Text style={styles.discountText}>{item.discountedPrice}% OFF</Text>
           </View>
-        )}
+        )} */}
 
-        <View style={styles.promoTextContainer}>
+            {/* <View style={styles.promoTextContainer}>
           <Text style={styles.promoTitle}>
             Let's grab your breakfast promo!
           </Text>
           <View style={styles.orderButton}>
             <Text style={styles.orderButtonText}>Order Now</Text>
           </View>
-        </View>
-      </ImageBackground>
-    ),
+        </View> */}
+          </ImageBackground>
+        </TouchableOpacity>
+      )
+    },
     [],
   );
 
@@ -178,15 +187,17 @@ const Restaurants = ({navigation}) => {
           />
         </View>
 
+        <TouchableOpacity style={styles.headerIconButton}>
+          <Image source={icons.Ticket} style={styles.headerIcon} />
+        </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => navigation.navigate('ShoppingCart')}
           style={styles.headerIconButton}>
           <Image source={icons.ShoppingCart} style={styles.headerIcon} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.headerIconButton}>
-          <Image source={icons.Ticket} style={styles.headerIcon} />
-        </TouchableOpacity>
+
       </View>
 
       <ScrollView
@@ -215,7 +226,7 @@ const Restaurants = ({navigation}) => {
               setActiveIndex(index);
             }}
           />
-          <View style={{position: 'absolute', bottom: 20, right: 20}}>
+          <View style={{ position: 'absolute', bottom: 20, right: 20 }}>
             <View
               style={{
                 flexDirection: 'row',
@@ -237,11 +248,11 @@ const Restaurants = ({navigation}) => {
             </View>
           </View>
         </View>
-        <View style={{paddingHorizontal: width(3)}}>
+        <View style={{ paddingHorizontal: width(3) }}>
           <SectionHeader
             name="Delicacies"
             action="See All"
-            onPress={() => navigation.navigate('Delicacies')}
+            onPress={() => navigation.navigate('AllFoodScreen')}
             color={Colors.redish}
           />
         </View>
@@ -252,29 +263,29 @@ const Restaurants = ({navigation}) => {
           showsHorizontalScrollIndicator={false}
           renderItem={renderRecommendedItem}
           keyExtractor={item => item.id}
-          contentContainerStyle={{paddingRight: width(4)}}
+          contentContainerStyle={{ paddingRight: width(4) }}
         />
-        <View style={{paddingHorizontal: width(3)}}>
+        <View style={{ paddingHorizontal: width(3) }}>
           <SectionHeader name="Category" action="See All" />
           <FlatList
             data={homeData?.foodCategories}
-            renderItem={({item}) => <Category item={item} />}
+            renderItem={({ item }) => <Category item={item} />}
             keyExtractor={item => item.id}
             numColumns={3}
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={styles.categoryList}
           />
         </View>
-        <View style={{paddingHorizontal: width(3)}}>
+        <View style={{ paddingHorizontal: width(3) }}>
           <SectionHeader name="Hire a Chef" action="See All" />
         </View>
         <FlatList
           data={chefs}
           horizontal
           showsHorizontalScrollIndicator={false}
-          renderItem={({item}) => <HireCheifCard item={item} />}
+          renderItem={({ item }) => <HireCheifCard item={item} />}
           keyExtractor={item => item.id}
-          ItemSeparatorComponent={() => <View style={{width: 10}} />}
+          ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
           contentContainerStyle={{
             paddingHorizontal: width(3),
             paddingBottom: width(4),
@@ -289,7 +300,7 @@ const Restaurants = ({navigation}) => {
 export default memo(Restaurants);
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: Colors.white},
+  container: { flex: 1, backgroundColor: Colors.white },
   header: {
     flexDirection: 'row',
     alignSelf: 'center',
@@ -307,8 +318,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     paddingHorizontal: 10,
   },
-  searchIcon: {height: 24, width: 24, tintColor: Colors.gray},
-  searchInput: {flex: 1, fontSize: 14, color: Colors.black},
+  searchIcon: { height: 24, width: 24, tintColor: Colors.gray },
+  searchInput: { flex: 1, fontSize: 14, color: Colors.black },
   headerIconButton: {
     height: 44,
     width: 44,
@@ -318,15 +329,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerIcon: {height: 24, width: 24},
+  headerIcon: { height: 24, width: 24 },
   promoBanner: {
     height: width(45),
     marginHorizontal: width(2),
     borderRadius: 12,
     overflow: 'hidden',
   },
-  promoImage: {borderRadius: 12},
-  promoTextContainer: {top: 18, left: 20, gap: 16},
+  promoImage: { borderRadius: 12 },
+  promoTextContainer: { top: 18, left: 20, gap: 16 },
   promoTitle: {
     fontSize: 20,
     fontWeight: '600',
@@ -341,35 +352,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  orderButtonText: {fontSize: 12, fontWeight: '600', color: Colors.black},
+  orderButtonText: { fontSize: 12, fontWeight: '600', color: Colors.black },
 
-  foodImage: {width: 269, height: 132, borderRadius: 12},
+  foodImage: { width: 269, height: 132, borderRadius: 12 },
   foodInfoContainer: {
     width: 269,
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 8,
   },
-  foodTextContainer: {gap: 6},
+  foodTextContainer: { gap: 6 },
   foodName: {
     fontSize: 14,
     fontWeight: '500',
     color: Colors.black,
     width: width(50),
   },
-  ratingContainer: {flexDirection: 'row', alignItems: 'center', gap: 4},
-  starIcon: {height: 14, width: 14},
-  foodDetail: {fontSize: 12, color: Colors.gray},
-  chefContainer: {flexDirection: 'row', alignItems: 'center', marginTop: 6},
-  chefImage: {height: 34, width: 34, borderRadius: 17},
-  chefLabel: {fontSize: 11, fontWeight: '500', color: Colors.primaryOrange},
-  chefNameContainer: {flexDirection: 'row', alignItems: 'center', gap: 3},
-  chefName: {fontSize: 13, fontWeight: '600', color: Colors.black},
-  objectsIcon: {height: 15, width: 15},
-  foodPrice: {fontSize: 16, fontWeight: '500', color: Colors.redish},
+  ratingContainer: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  starIcon: { height: 14, width: 14 },
+  foodDetail: { fontSize: 12, color: Colors.gray },
+  chefContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
+  chefImage: { height: 34, width: 34, borderRadius: 17 },
+  chefLabel: { fontSize: 11, fontWeight: '500', color: Colors.primaryOrange },
+  chefNameContainer: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  chefName: { fontSize: 13, fontWeight: '600', color: Colors.black },
+  objectsIcon: { height: 15, width: 15 },
+  foodPrice: { fontSize: 16, fontWeight: '500', color: Colors.redish },
 
-  categoryList: {paddingHorizontal: width(3), gap: 10, paddingBottom: 10},
-  columnWrapper: {flexWrap: 'wrap', gap: 10},
+  categoryList: { paddingHorizontal: width(3), gap: 10, paddingBottom: 10 },
+  columnWrapper: { flexWrap: 'wrap', gap: 10 },
   discountBadge: {
     position: 'absolute',
     top: 10,

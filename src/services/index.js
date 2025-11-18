@@ -2,7 +2,7 @@ import axios from 'axios';
 // let baseUrl = 'http://192.168.0.57:4000/api/';
 // let baseUrl = 'https://czmgcw3c-4000.inc1.devtunnels.ms/api/';
 // let baseUrl = 'https://sirldigital.com/zannyFoods/api/';
-let baseUrl = 'https://1qsx0vd0-4000.inc1.devtunnels.ms/api/';
+let baseUrl = 'https://0g01d8wd-4000.inc1.devtunnels.ms/api/';
 // let baseUrl = 'https://rt2j38bh-4000.asse.devtunnels.ms/api/';
 
 const api = async (path, params, method) => {
