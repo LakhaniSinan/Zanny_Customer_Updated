@@ -18,6 +18,7 @@ import Reviews from '../containers/app/restaurants/reviews';
 import PaymentOptions from '../containers/app/paymentOptions';
 import ProductDetail from '../containers/app/productDetail';
 import AllFoodScreen from '../containers/app/allFoodScreen';
+import CartScreen from '../containers/app/cartScreen';
 const Stack = createStackNavigator();
 
 function OrderStack() {
@@ -70,6 +71,13 @@ function OrderStack() {
       <Stack.Screen
         name="Cart"
         component={Cart}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="CartScreen"
+        component={CartScreen}
         options={{
           headerShown: false,
         }}

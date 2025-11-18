@@ -1,7 +1,14 @@
 export const fontFamily = {
-  poppinRegular: "Poppins-Medium"
-}
-
+  poppinRegular: 'Poppins-Regular',
+  poppinMedium: 'Poppins-Medium',
+  poppinSemiBold: 'Poppins-SemiBold',
+  poppinBold: 'Poppins-Bold',
+  poppinExtraBold: 'Poppins-ExtraBold',
+  poppinBlack: 'Poppins-Black',
+  poppinLight: 'Poppins-Light',
+  poppinThin: 'Poppins-Thin',
+  poppinExtraLight: 'Poppins-ExtraLight',
+};
 
 export const images = {
   googleIcon: require('../assets/images/google.png'),
@@ -77,4 +84,5 @@ export const icons = {
   fillHeart: require('../assets/icons/fillHeart.png'),
   check: require('../assets/icons/check.png'),
   cross: require('../assets/icons/cross.png'),
+  deleteIcon: require('../assets/icons/deleteIcon.png'),
 };

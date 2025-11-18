@@ -1,5 +1,6 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
+import ProfileScreen from './../containers/app/profileScreen';
 import PersonalInfo from './../containers/app/profile/personalInfo';
 import Allergies from './../containers/app/allergies/index';
 import Orders from './../containers/app/orders/index';
@@ -19,6 +20,13 @@ const Stack = createStackNavigator();
 function ProfileStack() {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name="ProfileScreen"
+        component={ProfileScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="UserProfile"
         component={Profile}

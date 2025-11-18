@@ -1,14 +1,14 @@
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import React from 'react';
-import {Platform} from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {Platform, Image} from 'react-native';
 import {useSelector} from 'react-redux';
 import {Colors} from './../constants/index';
+import {icons} from '../assets';
 import AuthStack from './AuthStack';
 import CurrentOrdersStack from './currentOrdersStack';
 import OrderStack from './orderStack';
 import ProfileStack from './profileStack';
+import FavouriteStack from './FavouriteStack';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -17,9 +17,12 @@ const BottomNavigation = () => {
 
   return (
     <Tab.Navigator
-      activeColor={Colors.orange}
-      inactiveColor="#A0A0A0"
+      activeColor={Colors.red}
       shifting={false}
+      activeIndicatorStyle={{
+        backgroundColor: Colors.white, // 👈 Active background white
+        borderRadius: 10,
+      }}
       barStyle={{
         backgroundColor: Colors.white,
         borderTopLeftRadius: 20,
@@ -33,23 +36,57 @@ const BottomNavigation = () => {
         height: Platform.OS === 'ios' ? 80 : 65,
       }}>
       <Tab.Screen
-        name="Restaurants"
+        name="Home"
         component={OrderStack}
         options={{
-          tabBarLabel: 'Restaurants',
+          tabBarLabel: 'Home',
           tabBarIcon: ({color}) => (
-            <MaterialCommunityIcons name="home" color={color} size={26} />
+            <Image
+              source={icons.House}
+              style={{width: 20, height: 20, tintColor: color}}
+            />
           ),
         }}
       />
 
       <Tab.Screen
-        name="CurrentOrders"
+        name="History"
         component={user == null ? AuthStack : CurrentOrdersStack}
         options={{
-          tabBarLabel: 'My Orders',
+          tabBarLabel: 'History',
           tabBarIcon: ({color}) => (
-            <MaterialCommunityIcons name="food" color={color} size={26} />
+            <Image
+              source={icons.history}
+              style={{width: 20, height: 20, tintColor: color}}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Explore"
+        component={OrderStack}
+        options={{
+          tabBarLabel: 'Explore',
+          tabBarIcon: ({color}) => (
+            <Image
+              source={icons.explore}
+              style={{width: 20, height: 20, tintColor: color}}
+            />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Favourite"
+        component={user == null ? AuthStack : FavouriteStack}
+        options={{
+          tabBarLabel: 'Favourite',
+          tabBarIcon: ({color}) => (
+            <Image
+              source={icons.heart}
+              style={{width: 20, height: 20, tintColor: color}}
+            />
           ),
         }}
       />
@@ -61,7 +98,10 @@ const BottomNavigation = () => {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({color}) => (
-            <MaterialIcons name="person" color={color} size={26} />
+            <Image
+              source={icons.User}
+              style={{width: 20, height: 20, tintColor: color}}
+            />
           ),
         }}
       />

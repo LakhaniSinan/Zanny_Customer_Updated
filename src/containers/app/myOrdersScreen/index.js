@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {FlatList, Text, View} from 'react-native';
-import FoodCard from '../../../components/foodCard';
-import {fontFamily, icons, images} from '../../../assets';
 import {useNavigation} from '@react-navigation/native';
-import {colors} from '../../../constants';
+import React from 'react';
+import {FlatList, Text, View} from 'react-native';
+import {fontFamily, icons, images} from '../../../assets';
 import BackButton from '../../../components/backIcon';
+import HistoryCard from '../../../components/historyCard';
+import {Colors} from '../../../constants';
 
 const foodCardData = [
   {
@@ -49,45 +49,17 @@ const foodCardData = [
   },
 ];
 
-const AllFoodScreen = () => {
-  const [products, setProducts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // fetchProducts();
-  }, []);
-
-  // const fetchProducts = async () => {
-  //     if (loading || !hasMore) return;
-
-  //     setLoading(true);
-
-  //     try {
-  //         // let res =
-  //         const newProducts = res.data.data;
-  //         setProducts((prev) => [...prev, ...newProducts]);
-  //         setHasMore(page < res.data.totalPages);
-  //         setPage((prev) => prev + 1);
-  //     } catch (error) {
-  //         console.log("Fetch Error: ", error);
-  //     }
-
-  //     setLoading(false);
-  // };
-
+const MyOrdersScreen = () => {
   const navigation = useNavigation();
-
   return (
     <View
       style={{
         flex: 1,
-        backgroundColor: colors.white,
+        backgroundColor: Colors.white,
       }}>
       <View
         style={{
-          backgroundColor: colors.white,
+          backgroundColor: Colors.white,
           paddingBottom: 18,
           elevation: 5,
         }}>
@@ -114,31 +86,22 @@ const AllFoodScreen = () => {
                 fontFamily: fontFamily.poppinRegular,
                 fontSize: 18,
                 fontWeight: 500,
-                color: colors.redish,
+                color: Colors.redish,
               }}>
-              Delicacies
+              History
             </Text>
           </View>
           <View style={{marginRight: 12}}>
-            <BackButton
-              icon={icons.ShoppingCart}
-              border={1}
-              onPress={() => navigation.navigate('CartScreen')}
-            />
+            <BackButton icon={icons.ShoppingCart} border={1} />
           </View>
         </View>
       </View>
       <FlatList
         data={foodCardData}
-        renderItem={({item, index}) => (
-          <FoodCard
-            item={item}
-            heartIcon={item.isFavourite ? icons.fillHeart : icons.heartBrown}
-          />
-        )}
+        renderItem={({item, index}) => <HistoryCard item={item} />}
       />
     </View>
   );
 };
 
-export default AllFoodScreen;
+export default MyOrdersScreen;

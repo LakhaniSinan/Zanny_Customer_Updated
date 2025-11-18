@@ -1,13 +1,21 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import {createStackNavigator} from '@react-navigation/stack';
 import Orders from './../containers/app/orders/index';
 import OrderDetail from './../containers/app/orderDetails/index';
+import MyOrdersScreen from '../containers/app/myOrdersScreen';
 
 const Stack = createStackNavigator();
 
 function CurrentOrdersStack() {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name="MyOrdersScreen"
+        component={MyOrdersScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="MyOrders"
         component={Orders}

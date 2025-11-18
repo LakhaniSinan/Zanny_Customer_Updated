@@ -1,5 +1,6 @@
 import {Text, TouchableOpacity} from 'react-native';
 import React from 'react';
+import {fontFamily} from '../../assets';
 
 const ActionBuuton = ({
   name,
@@ -14,18 +15,17 @@ const ActionBuuton = ({
     <TouchableOpacity
       onPress={onPress}
       style={{
-        height: height ? height : 28,
-        width: width ? width : 85,
         backgroundColor: bgcColor,
         borderRadius: 50,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
+        height: height ? height : 40,
       }}>
       <Text
         style={{
           fontSize: fontSize ? fontSize : 12,
-          fontWeight: 500,
+          fontFamily: fontFamily.poppinBold,
           color: fontColor,
         }}>
         {name}

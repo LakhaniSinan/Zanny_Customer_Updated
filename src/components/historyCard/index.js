@@ -7,16 +7,14 @@ import {colors} from '../../constants';
 import BackButton from '../backIcon';
 import {width} from 'react-native-dimension';
 
-const FoodCard = ({item, heartIcon}) => {
-  console.log(item, 'asdasdas dlkasdnaskdnaskdnasldkna');
-
+const HistoryCard = ({item}) => {
   const navigation = useNavigation();
   return (
     <View
       style={{
         marginTop: width(2),
         borderBottomWidth: 1,
-        borderBlockColor: colors.grey,
+        borderBottomColor: colors.grey, // fix
         paddingBottom: width(5),
         marginHorizontal: width(4),
       }}>
@@ -27,41 +25,36 @@ const FoodCard = ({item, heartIcon}) => {
           justifyContent: 'space-between',
           backgroundColor: '#FFF',
           borderRadius: width(2),
+          paddingRight: width(2),
         }}>
-        <View style={{flexDirection: 'row'}}>
+        {/* Left: image + content */}
+        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
           <Image
             source={item?.foodImage}
-            resizeMode="contain"
-            style={{height: width(20), width: width(20)}}
+            resizeMode="cover"
+            style={{
+              height: width(22),
+              width: width(22),
+              borderRadius: width(2),
+            }}
           />
-          <View style={{marginLeft: 8}}>
+          <View style={{marginLeft: 8, flex: 1}}>
             <Text
               style={{
                 fontSize: 16,
-                color: colors.redish,
+                color: colors.black,
                 fontFamily: fontFamily.poppinBold,
               }}>
               {item?.foodName}
             </Text>
-            <View style={{flexDirection: 'row', gap: 2, marginTop: 5}}>
-              <Image
-                source={icons.yellowStar}
-                resizeMode="contain"
-                style={{height: width(3), width: width(3)}}
-              />
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: fontFamily.poppinRegular,
-                }}>
-                {item?.foodRating}
-              </Text>
-            </View>
+
+            {/* Price row */}
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 10,
+                marginTop: 6,
               }}>
               <Text
                 style={{
@@ -77,52 +70,60 @@ const FoodCard = ({item, heartIcon}) => {
                   textDecorationLine: 'line-through',
                   color: colors.grey,
                 }}>
-                {item?.offPrice ? `$${item?.offPrice}` : ''}
-              </Text>
-              <Image
-                source={icons.clock}
-                resizeMode="contain"
-                style={{height: width(3), width: width(3)}}
-              />
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: fontFamily.poppinRegular,
-                  color: colors.grey,
-                }}>
-                {item?.time}
+                {item?.offPrice ? `${item?.offPrice}` : ''}
               </Text>
             </View>
+
+            {/* Status pill */}
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: width(1),
+                marginTop: 8,
+                gap: 8,
               }}>
-              <View style={{width: width(25)}}>
-                <ActionBuuton
-                  bgcColor={colors.black}
-                  fontColor={colors.white}
-                  name={'View Details'}
-                  onPress={() => navigation.navigate('ProductDetail')}
-                />
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: fontFamily.poppinBold,
+                  color: colors.black,
+                }}>
+                Status
+              </Text>
+              <View
+                style={{
+                  paddingVertical: 2,
+                  paddingHorizontal: 8,
+                  borderRadius: 100,
+                  backgroundColor: 'rgba(255,165,0,0.15)',
+                  borderWidth: 1,
+                  borderColor: colors.primaryOrange,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: colors.primaryOrange,
+                    fontFamily: fontFamily.poppinBold,
+                  }}>
+                  {item?.status || 'In progress'}
+                </Text>
               </View>
-              <View style={{width: width(25)}}>
-                <ActionBuuton
-                  bgcColor={colors.white}
-                  fontColor={colors.black}
-                  name={'Add to cart'}
-                />
-              </View>
+            </View>
+
+            {/* View Details button */}
+            <View style={{width: width(60), marginTop: width(2)}}>
+              <ActionBuuton
+                bgcColor={'#3b0b0b'}
+                fontColor={colors.white}
+                name={'View Details'}
+                onPress={() => navigation.navigate('ProductDetail')}
+              />
             </View>
           </View>
         </View>
-        <View style={{gap: 5, marginTop: -20}}>
-          <BackButton icon={heartIcon} border={1} />
-          <BackButton icon={icons.share} border={1} />
-        </View>
       </View>
+
+      {/* Made by */}
       <Text
         style={{
           fontSize: 12,
@@ -135,8 +136,8 @@ const FoodCard = ({item, heartIcon}) => {
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <Image
           source={images.cheif}
-          resizeMode="contain"
-          style={{height: width(10), width: width(10)}}
+          resizeMode="cover"
+          style={{height: width(10), width: width(10), borderRadius: width(5)}}
         />
         <View style={{marginLeft: 8}}>
           <Text
@@ -172,4 +173,4 @@ const FoodCard = ({item, heartIcon}) => {
   );
 };
 
-export default FoodCard;
+export default HistoryCard;
