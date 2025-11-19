@@ -269,7 +269,13 @@ const Restaurants = ({navigation}) => {
           contentContainerStyle={{paddingRight: width(4)}}
         />
         <View style={{paddingHorizontal: width(3)}}>
-          <SectionHeader name="Category" action="See All" />
+          <SectionHeader
+            name="Category"
+            action="See All"
+            onPress={() =>
+              navigation.navigate('AllCategories', homeData?.foodCategories)
+            }
+          />
           <FlatList
             data={homeData?.foodCategories}
             renderItem={({item}) => <Category item={item} />}

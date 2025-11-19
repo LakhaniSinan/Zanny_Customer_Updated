@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Alert,
   FlatList,
@@ -9,35 +9,36 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { width } from 'react-native-dimension';
-import { icons } from '../../../assets';
+import {width} from 'react-native-dimension';
+import {icons} from '../../../assets';
 import ActionButton from '../../../components/actionButton';
 import ChefsCard from '../../../components/chefsCard';
 import OverLayLoader from '../../../components/loader';
 import ProgressCard from '../../../components/progressCard';
 import SectionHeader from '../../../components/sectionHeader';
 import SegmentedButtons from '../../../components/SegmentedButtons';
-import { Colors } from '../../../constants';
-import { getProductDetailById } from '../../../services/product';
+import {Colors} from '../../../constants';
+import {getProductDetailById} from '../../../services/product';
+import {addToFavFun} from '../../../services/favourite';
+import {useSelector} from 'react-redux';
 
-const ProductDetail = ({ navigation, route }) => {
+const ProductDetail = ({navigation, route}) => {
   const productId = route.params.productId;
   const navigationType = route.params.type;
   const productData = route.params.data;
-console.log(productData,"productDataproductDataproductData");
-
+  const {user} = useSelector(state => state.LoginSlice);
   const [productDetails, setProductDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Nutrition');
   console.log(productDetails, 'productDetailsproductDetailsproductDetails');
 
   const deliveryData = [
-    { icon: icons.package, name: 'Delivery' },
-    { icon: icons.clock, name: '20mins' },
-    { icon: icons.yellowStar, name: '4.8 Rating' },
+    {icon: icons.package, name: 'Delivery'},
+    {icon: icons.clock, name: '20mins'},
+    {icon: icons.yellowStar, name: '4.8 Rating'},
   ];
 
-  const AllergiesData = [{ name: 'Vegan' }, { name: 'Vegetarian' }];
+  const AllergiesData = [{name: 'Vegan'}, {name: 'Vegetarian'}];
 
   useEffect(() => {
     if (productId) fetchProductDetails();
@@ -61,13 +62,12 @@ console.log(productData,"productDataproductDataproductData");
   };
 
   const getFinalPrice = useCallback((price, discount) => {
-    if (navigationType == "normal") {
+    if (navigationType == 'normal') {
       if (!discount) return price;
       const final = price - (price * discount) / 100;
       return Number(final.toFixed(2));
-    }
-    else {
-      return productData?.discountedPrice
+    } else {
+      return productData?.discountedPrice;
     }
   }, []);
 
@@ -98,13 +98,33 @@ ${productDetails?.image}
     }
   };
 
+  const onFavIconPress = async item => {
+    console.log(item, 'itemitemitemitemitemcxvxv');
+    console.log(user, 'responseresponseresponseresponseresponse');
+
+    setIsLoading(true);
+    try {
+      let payload = {
+        userId: user?._id,
+        restaurantId: item?.merchantId,
+        foodId: item?._id,
+      };
+      const response = await addToFavFun(payload);
+      console.log(response.data, 'responseresponseresponseresponseresponse');
+    } catch (error) {
+      console.log(error, 'errorerrorerrorasndalskdnd');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.white }}>
+    <View style={{flex: 1, backgroundColor: Colors.white}}>
       <ScrollView>
         {/* IMAGE */}
         <Image
-          source={{ uri: productDetails?.image }}
-          style={{ height: width(100), width: '100%', marginTop: -45 }}
+          source={{uri: productDetails?.image}}
+          style={{height: width(100), width: '100%', marginTop: -45}}
           resizeMode="cover"
         />
 
@@ -116,6 +136,7 @@ ${productDetails?.image}
           <TitleRow
             productDetails={productDetails}
             onShareProduct={onShareProduct}
+            onFavIconPress={onFavIconPress}
           />
 
           <PriceRow
@@ -134,14 +155,14 @@ ${productDetails?.image}
           {/* Progress */}
           <FlatList
             data={productDetails?.nutritions}
-            renderItem={({ item }) => <ProgressCard item={item} />}
+            renderItem={({item}) => <ProgressCard item={item} />}
             ListEmptyComponent={
               <FlatList
                 data={productDetails?.nutritions}
-                renderItem={({ item }) => <ProgressCard item={item} />}
+                renderItem={({item}) => <ProgressCard item={item} />}
                 ListEmptyComponent={
-                  <View style={{ alignItems: 'center', paddingVertical: 20 }}>
-                    <Text style={{ fontSize: 14, color: '#999' }}>
+                  <View style={{alignItems: 'center', paddingVertical: 20}}>
+                    <Text style={{fontSize: 14, color: '#999'}}>
                       No nutrition data available
                     </Text>
                   </View>
@@ -167,14 +188,14 @@ ${productDetails?.image}
           <FlatList
             horizontal
             data={AllergiesData || []}
-            renderItem={({ item }) => (
+            renderItem={({item}) => (
               <SegmentedButtons
                 item={item}
                 backgroundColor={Colors.softred}
                 color={Colors.red}
               />
             )}
-            ItemSeparatorComponent={<View style={{ width: 10 }} />}
+            ItemSeparatorComponent={<View style={{width: 10}} />}
           />
 
           <SectionHeader name={'Made by'} fontSize={16} />
@@ -192,8 +213,8 @@ ${productDetails?.image}
             horizontal
             showsHorizontalScrollIndicator={false}
             data={productDetails?.otherProducts || []}
-            renderItem={({ item }) => <ChefsCard item={item} />}
-            ItemSeparatorComponent={<View style={{ width: 10 }} />}
+            renderItem={({item}) => <ChefsCard item={item} />}
+            ItemSeparatorComponent={<View style={{width: 10}} />}
             contentContainerStyle={{
               paddingVertical: width(2),
               paddingHorizontal: width(1),
@@ -210,33 +231,35 @@ ${productDetails?.image}
 
 export default ProductDetail;
 
-const HeaderIcons = ({ navigation }) => (
+const HeaderIcons = ({navigation}) => (
   <View style={styles.headerIcons}>
     <IconButton icon={icons.ArrowLeft} onPress={() => navigation.goBack()} />
     <IconButton icon={icons.ShoppingCart} />
   </View>
 );
 
-const IconButton = ({ icon, onPress }) => (
+const IconButton = ({icon, onPress}) => (
   <TouchableOpacity style={styles.iconBtn} onPress={onPress}>
     <Image source={icon} style={styles.iconSize} />
   </TouchableOpacity>
 );
 
-const TitleRow = ({ productDetails, onShareProduct }) => (
+const TitleRow = ({productDetails, onShareProduct, onFavIconPress}) => (
   <View style={styles.titleRow}>
     <Text numberOfLines={2} style={styles.title}>
       {productDetails?.name}
     </Text>
-
     <View style={styles.titleRight}>
-      <IconButton icon={icons.heart} />
+      <IconButton
+        icon={icons.heart}
+        onPress={() => onFavIconPress(productDetails)}
+      />
       <IconButton icon={icons.share} onPress={onShareProduct} />
     </View>
   </View>
 );
 
-const PriceRow = ({ productDetails, getFinalPrice }) => (
+const PriceRow = ({productDetails, getFinalPrice}) => (
   <View style={styles.priceRow}>
     <View style={styles.priceLeft}>
       <Text style={styles.finalPrice}>
@@ -264,13 +287,13 @@ const Location = () => (
   </View>
 );
 
-const Description = ({ text }) => (
-  <View style={{ marginTop: width(2) }}>
+const Description = ({text}) => (
+  <View style={{marginTop: width(2)}}>
     <Text style={styles.description}>{text}</Text>
   </View>
 );
 
-const DeliveryInfo = ({ deliveryData }) => (
+const DeliveryInfo = ({deliveryData}) => (
   <View style={styles.deliveryRow}>
     {deliveryData.map((item, index) => (
       <View key={index} style={styles.deliveryItem}>
@@ -281,7 +304,7 @@ const DeliveryInfo = ({ deliveryData }) => (
   </View>
 );
 
-const Tabs = ({ activeTab, setActiveTab }) => (
+const Tabs = ({activeTab, setActiveTab}) => (
   <View style={styles.tabs}>
     {['Nutrition', 'Customize'].map(tab => (
       <TouchableOpacity
@@ -297,7 +320,7 @@ const Tabs = ({ activeTab, setActiveTab }) => (
         <Text
           style={[
             styles.tabText,
-            { color: activeTab === tab ? Colors.black : Colors.graydark },
+            {color: activeTab === tab ? Colors.black : Colors.graydark},
           ]}>
           {tab}
         </Text>
@@ -306,15 +329,15 @@ const Tabs = ({ activeTab, setActiveTab }) => (
   </View>
 );
 
-const ChefInfo = ({ merchant }) => (
+const ChefInfo = ({merchant}) => (
   <View style={styles.chefRow}>
     <View style={styles.chefLeft}>
       <Image
-        source={{ uri: merchant?.image }}
+        source={{uri: merchant?.image}}
         style={styles.chefImg}
         resizeMode="contain"
       />
-      <View style={{ marginLeft: 8 }}>
+      <View style={{marginLeft: 8}}>
         <Text style={styles.chefLabel}>Chef</Text>
         <View style={styles.chefNameRow}>
           <Text style={styles.chefName}>{merchant?.name}</Text>
@@ -322,28 +345,34 @@ const ChefInfo = ({ merchant }) => (
         </View>
       </View>
     </View>
-    <ActionButton
-      name={'Hire'}
-      bgcColor={Colors.black}
-      fontColor={Colors.white}
-    />
+    <View style={{width: width(20)}}>
+      <ActionButton
+        name={'Hire'}
+        bgcColor={Colors.black}
+        fontColor={Colors.white}
+      />
+    </View>
   </View>
 );
 const BottomButtons = () => (
   <View style={styles.bottomBar}>
-    <ActionButton
-      height={46}
-      width={width(45)}
-      name={'Pre-order'}
-      fontColor={Colors.black}
-    />
-    <ActionButton
-      height={46}
-      width={width(45)}
-      name={'Buy Now'}
-      bgcColor={Colors.black}
-      fontColor={Colors.white}
-    />
+    <View style={{width: width(45)}}>
+      <ActionButton
+        height={46}
+        width={width(45)}
+        name={'Pre-order'}
+        fontColor={Colors.black}
+      />
+    </View>
+    <View style={{width: width(45)}}>
+      <ActionButton
+        height={46}
+        width={width(45)}
+        name={'Buy Now'}
+        bgcColor={Colors.black}
+        fontColor={Colors.white}
+      />
+    </View>
   </View>
 );
 
@@ -374,7 +403,7 @@ const styles = {
     borderWidth: 1,
     borderColor: Colors.clayDark,
   },
-  iconSize: { height: 20, width: 20 },
+  iconSize: {height: 20, width: 20},
 
   /* Title */
   titleRow: {
@@ -401,25 +430,25 @@ const styles = {
     justifyContent: 'space-between',
     marginTop: width(3),
   },
-  priceLeft: { flexDirection: 'row', alignItems: 'center' },
-  finalPrice: { fontSize: 30, fontWeight: '700', color: Colors.red },
+  priceLeft: {flexDirection: 'row', alignItems: 'center'},
+  finalPrice: {fontSize: 30, fontWeight: '700', color: Colors.red},
   oldPrice: {
     fontSize: 16,
     marginLeft: 6,
     textDecorationLine: 'line-through',
     color: Colors.gray,
   },
-  servings: { flexDirection: 'row', alignItems: 'center' },
-  servingsIcon: { height: width(5), width: width(5) },
-  servingsText: { marginLeft: width(2), color: Colors.black },
+  servings: {flexDirection: 'row', alignItems: 'center'},
+  servingsIcon: {height: width(5), width: width(5)},
+  servingsText: {marginLeft: width(2), color: Colors.black},
 
   /* Location */
-  location: { flexDirection: 'row', alignItems: 'center', marginTop: width(1) },
-  locationIcon: { height: 16, width: 16 },
-  locationText: { fontSize: 12, color: Colors.grayyy },
+  location: {flexDirection: 'row', alignItems: 'center', marginTop: width(1)},
+  locationIcon: {height: 16, width: 16},
+  locationText: {fontSize: 12, color: Colors.grayyy, marginLeft: width(1)},
 
   /* Description */
-  description: { fontSize: 12, color: Colors.graydark },
+  description: {fontSize: 12, color: Colors.graydark},
 
   /* Delivery row */
   deliveryRow: {
@@ -431,9 +460,9 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  deliveryItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  deliveryIcon: { height: 16, width: 16 },
-  deliveryText: { fontSize: 12, color: Colors.redish },
+  deliveryItem: {flexDirection: 'row', alignItems: 'center', gap: 8},
+  deliveryIcon: {height: 16, width: 16},
+  deliveryText: {fontSize: 12, color: Colors.redish},
 
   /* Tabs */
   tabs: {
@@ -450,10 +479,10 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tabText: { fontSize: 13, fontWeight: 600 },
+  tabText: {fontSize: 13, fontWeight: 600},
 
   /* Flex wrap */
-  flexWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  flexWrap: {flexDirection: 'row', flexWrap: 'wrap', gap: 10},
 
   /* Chef */
   chefRow: {
@@ -461,12 +490,12 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  chefLeft: { flexDirection: 'row', alignItems: 'center' },
-  chefImg: { height: 34, width: 34, borderRadius: 100 },
-  chefLabel: { fontSize: 11, color: Colors.primaryOrange },
-  chefNameRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  chefName: { fontSize: 13, fontWeight: 600, color: Colors.black },
-  verifyIcon: { height: 15, width: 15 },
+  chefLeft: {flexDirection: 'row', alignItems: 'center'},
+  chefImg: {height: 34, width: 34, borderRadius: 100},
+  chefLabel: {fontSize: 11, color: Colors.primaryOrange},
+  chefNameRow: {flexDirection: 'row', alignItems: 'center', gap: 3},
+  chefName: {fontSize: 13, fontWeight: 600, color: Colors.black},
+  verifyIcon: {height: 15, width: 15},
 
   /* Bottom Bar */
   bottomBar: {

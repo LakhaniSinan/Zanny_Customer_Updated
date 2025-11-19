@@ -1,141 +1,116 @@
-import React, {useState, useEffect} from 'react';
-import {FlatList, Text, View} from 'react-native';
-import FoodCard from '../../../components/foodCard';
-import {fontFamily, icons, images} from '../../../assets';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
+import {ActivityIndicator, Alert, FlatList, View} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {icons} from '../../../assets';
+import FoodCard from '../../../components/foodCard';
+import AppHeader from '../../../components/headerComponent';
 import {colors} from '../../../constants';
-import BackButton from '../../../components/backIcon';
-
-const foodCardData = [
-  {
-    foodImage: images.meal,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-  {
-    foodImage: images.meal1,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-  {
-    foodImage: images.meal2,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-  {
-    foodImage: images.veggie,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-];
+import {setCartData} from '../../../redux/slices/Cart';
+import {getAllProducts} from '../../../services/product';
 
 const AllFoodScreen = () => {
-  const [products, setProducts] = useState([]);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [page, setPage] = useState(1);
+  const [products, setProducts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const {user} = useSelector(state => state.LoginSlice);
+  const {cartData} = useSelector(state => state.CartSlice);
 
   useEffect(() => {
-    // fetchProducts();
+    fetchProducts();
   }, []);
 
-  // const fetchProducts = async () => {
-  //     if (loading || !hasMore) return;
+  const fetchProducts = async () => {
+    if (loading || !hasMore) return;
 
-  //     setLoading(true);
+    setLoading(true);
+    try {
+      const res = await getAllProducts(page);
+      const newProducts = res.data.data; // Assuming your API returns { data: { data: [...] } }
 
-  //     try {
-  //         // let res =
-  //         const newProducts = res.data.data;
-  //         setProducts((prev) => [...prev, ...newProducts]);
-  //         setHasMore(page < res.data.totalPages);
-  //         setPage((prev) => prev + 1);
-  //     } catch (error) {
-  //         console.log("Fetch Error: ", error);
-  //     }
+      setProducts(prev => [...prev, ...newProducts]);
+      setHasMore(page < res.data.totalPages || newProducts.length > 0);
+      setPage(prev => prev + 1);
+    } catch (error) {
+      console.log('Fetch Error: ', error);
+    }
+    setLoading(false);
+  };
 
-  //     setLoading(false);
-  // };
+  const renderFooter = () => {
+    if (!loading) return null;
+    return (
+      <ActivityIndicator
+        size="large"
+        color={colors.redish}
+        style={{margin: 20}}
+      />
+    );
+  };
+  const handleAddToCart = async selectedItem => {
+    if (!user) {
+      Alert.alert('Alert', 'Please login first to add items in your cart', [
+        {text: 'Cancel', style: 'cancel'},
+        {text: 'OK', onPress: () => navigation.navigate('AuthStack')},
+      ]);
+      return;
+    }
 
-  const navigation = useNavigation();
+    try {
+      // Clone cart data
+      let tempArr = [...cartData];
+      let findIndex = tempArr.findIndex(item => item._id === selectedItem._id);
+
+      if (
+        cartData.length === 0 ||
+        cartData[0].merchantId === selectedItem.merchantId
+      ) {
+        if (findIndex !== -1) {
+          tempArr[findIndex] = {
+            ...tempArr[findIndex],
+            selectedQty: (tempArr[findIndex].selectedQty || 1) + 1,
+          };
+        } else {
+          tempArr.push({...selectedItem, selectedQty: 1});
+        }
+
+        dispatch(setCartData(tempArr));
+        await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
+
+        Alert.alert('Success', 'Item added to cart successfully');
+      } else {
+        Alert.alert(
+          'Warning',
+          'You can only add items in cart from one restaurant at a time',
+        );
+      }
+    } catch (err) {
+      console.log(err, 'err');
+      Alert.alert('Error', 'Something went wrong!');
+    }
+  };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: colors.white,
-      }}>
-      <View
-        style={{
-          backgroundColor: colors.white,
-          paddingBottom: 18,
-          elevation: 5,
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingVertical: 12,
-            paddingHorizontal: 10,
-          }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <BackButton
-              height={20}
-              icon={icons.ArrowLeft}
-              onPress={() => navigation.goBack()}
-            />
-            <Text
-              style={{
-                fontFamily: fontFamily.poppinRegular,
-                fontSize: 18,
-                fontWeight: 500,
-                color: colors.redish,
-              }}>
-              Delicacies
-            </Text>
-          </View>
-          <View style={{marginRight: 12}}>
-            <BackButton
-              icon={icons.ShoppingCart}
-              border={1}
-              onPress={() => navigation.navigate('CartScreen')}
-            />
-          </View>
-        </View>
-      </View>
+    <View style={{flex: 1, backgroundColor: colors.white}}>
+      <AppHeader goBack={true} cartIcon={true} text="Delicacies" />
+      {/* Product List */}
       <FlatList
-        data={foodCardData}
-        renderItem={({item, index}) => (
+        data={products}
+        keyExtractor={(item, index) => item._id || index.toString()}
+        renderItem={({item}) => (
           <FoodCard
             item={item}
+            handleAddToCart={handleAddToCart}
             heartIcon={item.isFavourite ? icons.fillHeart : icons.heartBrown}
           />
         )}
+        onEndReached={fetchProducts}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
       />
     </View>
   );

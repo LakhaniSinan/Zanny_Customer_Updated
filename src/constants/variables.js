@@ -26,6 +26,7 @@ export const endPoints = {
   getMerchantProfile: 'getMerchantProfile',
   //product
   getProductsByMerchantId: 'getProduct',
+  getAllProducts: 'getAllProducts',
 
   //admin settings
   getSettings: 'getSettings',
@@ -86,4 +87,7 @@ export const endPoints = {
   homeData: 'homepage',
 
   productDetailById: 'getProductDetails',
+
+  //Favourite
+  favourite: 'createFavourite',
 };

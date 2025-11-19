@@ -12,3 +12,11 @@ export const getProductsByMerchantId = id => {
 export const getProductDetailById = id => {
   return Api(`${endPoints.productDetailById}/${id}`, null, requestType.GET);
 };
+
+export const getAllProducts = (page = 1, limit = 10) => {
+  return Api(
+    `${endPoints.getAllProducts}?page=${page}&limit=${limit}`,
+    null,
+    requestType.GET,
+  );
+};

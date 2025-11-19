@@ -19,6 +19,7 @@ import PaymentOptions from '../containers/app/paymentOptions';
 import ProductDetail from '../containers/app/productDetail';
 import AllFoodScreen from '../containers/app/allFoodScreen';
 import CartScreen from '../containers/app/cartScreen';
+import AllCategories from '../containers/app/allCategories';
 const Stack = createStackNavigator();
 
 function OrderStack() {
@@ -35,6 +36,13 @@ function OrderStack() {
       <Stack.Screen
         name="AllFoodScreen"
         component={AllFoodScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="AllCategories"
+        component={AllCategories}
         options={{
           headerShown: false,
         }}

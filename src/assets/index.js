@@ -85,4 +85,5 @@ export const icons = {
   check: require('../assets/icons/check.png'),
   cross: require('../assets/icons/cross.png'),
   deleteIcon: require('../assets/icons/deleteIcon.png'),
+  bellIcon: require('../assets/icons/bellIcon.png'),
 };

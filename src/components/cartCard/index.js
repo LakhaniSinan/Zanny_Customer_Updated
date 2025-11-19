@@ -1,24 +1,55 @@
-import {View, Text, Image, TouchableOpacity} from 'react-native';
 import React, {useState} from 'react';
-import {fontFamily, icons, images} from '../../assets';
-import ActionBuuton from '../actionButton';
+import {View, Text, Image, TouchableOpacity, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {fontFamily, icons, images} from '../../assets';
 import {colors} from '../../constants';
-import BackButton from '../backIcon';
 import {width} from 'react-native-dimension';
+import BackButton from '../backIcon';
+import {useDispatch, useSelector} from 'react-redux';
+import {setCartData} from '../../redux/slices/Cart';
 
-const CartCard = ({item}) => {
+const CartCard = ({item, index}) => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
+  const {cartData} = useSelector(state => state.CartSlice);
   const [quantity, setQuantity] = useState(item?.quantity ?? 1);
 
-  const increment = () => setQuantity(prev => prev + 1);
-  const decrement = () => setQuantity(prev => (prev > 0 ? prev - 1 : 0));
+  const foodName = item?.name || 'Delicious Food';
+  const foodImage = item?.image ? {uri: item.image} : images.meal;
+  const price = item?.price ? `£${item.price}` : '£0';
+  const offPrice = item?.offPrice ? `£${item.offPrice}` : null;
+  const time = item?.time || '20mins';
+  const rating = item?.rating || 4.8;
+  const ratingCount = item?.ratingCount ? `(${item.ratingCount}+)` : '(120+)';
+  const distance = item?.distance || '2.8 km away';
+  const cheifName = item?.cheifName || 'Chef';
+
+  const updateCartQuantity = newQty => {
+    const updatedCart = [...cartData];
+    updatedCart[index] = {
+      ...updatedCart[index],
+      quantity: newQty,
+    };
+    dispatch(setCartData(updatedCart));
+    setQuantity(newQty);
+  };
+
+  const handleIncrease = () => updateCartQuantity(quantity + 1);
+
+  const handleDecrease = () => {
+    if (quantity <= 1) {
+      Alert.alert('Quantity cannot be less than 1');
+    } else {
+      updateCartQuantity(quantity - 1);
+    }
+  };
+
   return (
     <View
       style={{
         marginTop: width(2),
         borderBottomWidth: 1,
-        borderBottomColor: colors.grey, // fix
+        borderBottomColor: colors.grey,
         paddingBottom: width(5),
         marginHorizontal: width(4),
       }}>
@@ -31,10 +62,9 @@ const CartCard = ({item}) => {
           borderRadius: width(2),
           paddingRight: width(2),
         }}>
-        {/* Left: image + content */}
         <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
           <Image
-            source={item?.foodImage}
+            source={foodImage}
             resizeMode="cover"
             style={{
               height: width(22),
@@ -49,10 +79,9 @@ const CartCard = ({item}) => {
                 color: colors.redish,
                 fontFamily: fontFamily.poppinBold,
               }}>
-              {item?.foodName}
+              {foodName}
             </Text>
 
-            {/* Rating · distance · time */}
             <View
               style={{
                 flexDirection: 'row',
@@ -71,8 +100,7 @@ const CartCard = ({item}) => {
                   color: colors.black,
                   fontFamily: fontFamily.poppinMedium,
                 }}>
-                {item?.foodRating || '4.8'}{' '}
-                {(item?.ratingCount && `(${item?.ratingCount}+)`) || '(120+)'}
+                {rating} {ratingCount}
               </Text>
               <Text
                 style={{
@@ -80,11 +108,10 @@ const CartCard = ({item}) => {
                   color: colors.grey,
                   fontFamily: fontFamily.poppinMedium,
                 }}>
-                · {item?.distance || '2.8 km away'}
+                · {distance}
               </Text>
             </View>
 
-            {/* Price row */}
             <View
               style={{
                 flexDirection: 'row',
@@ -97,17 +124,19 @@ const CartCard = ({item}) => {
                   color: colors.red,
                   fontFamily: fontFamily.poppinBold,
                 }}>
-                {item?.price}
+                {price}
               </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: fontFamily.poppinBold,
-                  textDecorationLine: 'line-through',
-                  color: colors.grey,
-                }}>
-                {item?.offPrice ? `${item?.offPrice}` : ''}
-              </Text>
+              {offPrice && (
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontFamily: fontFamily.poppinBold,
+                    textDecorationLine: 'line-through',
+                    color: colors.grey,
+                  }}>
+                  {offPrice}
+                </Text>
+              )}
               <Image
                 source={icons.clock}
                 resizeMode="contain"
@@ -119,11 +148,10 @@ const CartCard = ({item}) => {
                   color: colors.grey,
                   fontFamily: fontFamily.poppinMedium,
                 }}>
-                {item?.time || '20mins'}
+                {time}
               </Text>
             </View>
 
-            {/* Quantity selector */}
             <View
               style={{
                 flexDirection: 'row',
@@ -137,7 +165,7 @@ const CartCard = ({item}) => {
                 justifyContent: 'space-between',
               }}>
               <TouchableOpacity
-                onPress={decrement}
+                onPress={handleDecrease}
                 activeOpacity={0.8}
                 style={{
                   height: width(8),
@@ -169,7 +197,7 @@ const CartCard = ({item}) => {
               </Text>
 
               <TouchableOpacity
-                onPress={increment}
+                onPress={handleIncrease}
                 activeOpacity={0.8}
                 style={{
                   height: width(8),
@@ -193,13 +221,13 @@ const CartCard = ({item}) => {
             </View>
           </View>
         </View>
+
         <View style={{gap: 8, alignItems: 'center'}}>
           <BackButton icon={icons.deleteIcon} border={1} />
           <BackButton icon={icons.share} border={1} />
         </View>
       </View>
 
-      {/* Made by */}
       <Text
         style={{
           fontSize: 12,
@@ -231,7 +259,7 @@ const CartCard = ({item}) => {
                 fontFamily: fontFamily.poppinBold,
                 color: colors.black,
               }}>
-              {item?.cheifName}
+              {cheifName}
             </Text>
             <Image
               source={icons.objects}

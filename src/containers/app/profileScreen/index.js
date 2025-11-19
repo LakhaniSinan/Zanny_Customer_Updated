@@ -1,5 +1,3 @@
-// Updated Profile Screen UI based on provided design
-
 import React, {useState} from 'react';
 import {
   View,
@@ -29,10 +27,10 @@ const Row = ({iconSet: IconSet, icon, label, onPress, right}) => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: width(3.5),
+        paddingVertical: width(0.5),
       }}>
       <View style={{flexDirection: 'row', alignItems: 'center', gap: 12}}>
-        {IconSet && <IconSet name={icon} size={22} color={colors.redish} />}
+        <IconSet name={icon} size={22} color={colors.redish} />
 
         <Text
           style={{
@@ -59,30 +57,26 @@ const ProfileScreen = () => {
   const [pushEnabled, setPushEnabled] = useState(true);
   const [promoEnabled, setPromoEnabled] = useState(false);
 
+  const logout = async () => {
+    await AsyncStorage.removeItem('user');
+    dispatch(setUserData(null));
+  };
+
   const name =
     user?.name ||
     user?.full_name ||
     `${user?.first_name || 'Timothy'} ${user?.last_name || 'Lankish'}`;
+
   const email = user?.email || 'timothylank@gmail.com';
 
-  const logout = async () => {
-    try {
-      await AsyncStorage.removeItem('user');
-    } catch {}
-    dispatch(setUserData(null));
-  };
-
   return (
-    <View style={{flex: 1, backgroundColor: colors.white}}>
-      {/* Top Section */}
+    <View style={{flex: 1, backgroundColor: '#F6F6F6'}}>
       <View
         style={{
-          backgroundColor: colors.redish,
-          paddingTop: width(12),
-          paddingBottom: width(20),
+          height: width(90),
+          backgroundColor: colors.red,
           alignItems: 'center',
-          borderBottomLeftRadius: width(8),
-          borderBottomRightRadius: width(8),
+          paddingTop: width(5),
         }}>
         <Text
           style={{
@@ -93,19 +87,19 @@ const ProfileScreen = () => {
           Profile
         </Text>
 
-        {/* Notification Button */}
         <TouchableOpacity
-          activeOpacity={0.9}
+          activeOpacity={0.8}
           style={{
             position: 'absolute',
+            top: width(5),
             right: width(4),
-            top: width(12),
-            height: 44,
-            width: 44,
-            borderRadius: 44,
+            height: 45,
+            width: 45,
+            borderRadius: 45,
             backgroundColor: colors.white,
-            alignItems: 'center',
             justifyContent: 'center',
+            alignItems: 'center',
+            elevation: 6,
           }}>
           <MaterialCommunityIcons
             name="bell-outline"
@@ -115,73 +109,81 @@ const ProfileScreen = () => {
           <View
             style={{
               position: 'absolute',
-              top: 10,
-              right: 10,
-              height: 10,
-              width: 10,
-              borderRadius: 10,
+              top: 8,
+              right: 8,
+              height: 12,
+              width: 12,
+              borderRadius: 12,
               backgroundColor: colors.orange,
             }}
           />
         </TouchableOpacity>
 
-        {/* Profile Image */}
-        <Image
-          source={images.userAvatar}
-          resizeMode="cover"
-          style={{
-            height: width(22),
-            width: width(22),
-            borderRadius: width(11),
-            marginTop: width(6),
-            borderWidth: 3,
-            borderColor: colors.white,
-          }}
-        />
+        {user?.customerImage && (
+          <Image
+            source={{uri: user?.customerImage}}
+            style={{
+              height: width(26),
+              width: width(26),
+              borderRadius: width(13),
+              borderWidth: 4,
+              borderColor: colors.white,
+              marginTop: width(6),
+            }}
+          />
+        )}
+        {!user?.customerImage && (
+          <Image
+            source={images.userAvatar}
+            style={{
+              height: width(26),
+              width: width(26),
+              borderRadius: width(13),
+              borderWidth: 4,
+              borderColor: colors.white,
+              marginTop: width(6),
+            }}
+          />
+        )}
 
-        {/* Name + Email */}
         <Text
           style={{
             color: colors.white,
             fontSize: 22,
-            marginTop: width(4),
+            marginTop: width(3),
             fontFamily: fontFamily.poppinBold,
           }}>
           {name}
         </Text>
+
         <Text
           style={{
             color: colors.white,
             opacity: 0.85,
             fontSize: 15,
-            marginTop: 2,
+            marginTop: 4,
             fontFamily: fontFamily.poppinRegular,
           }}>
           {email}
         </Text>
       </View>
 
-      <ScrollView
-        contentContainerStyle={{paddingBottom: width(8)}}
-        showsVerticalScrollIndicator={false}>
-        {/* White Card Section */}
-        <View
-          style={{
-            marginTop: -width(12),
-            marginHorizontal: width(4),
-            padding: width(5),
-            backgroundColor: colors.white,
-            borderRadius: width(4),
-            elevation: 4,
-            shadowColor: '#0003',
-          }}>
-          {/* My Account */}
+      <View
+        style={{
+          marginTop: -width(20),
+          marginHorizontal: width(4),
+          backgroundColor: colors.white,
+          borderRadius: width(5),
+          padding: width(5),
+          elevation: 8,
+          shadowColor: '#0003',
+        }}>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <Text
             style={{
               fontSize: 18,
               color: colors.black,
               fontFamily: fontFamily.poppinBold,
-              marginBottom: width(3),
             }}>
             My Account
           </Text>
@@ -192,36 +194,24 @@ const ProfileScreen = () => {
             label="Personal information"
             onPress={() => navigation.navigate('PersonalInfo')}
           />
-          <Row
-            iconSet={Feather}
-            icon="credit-card"
-            label="Subscriptions"
-            onPress={() => {}}
-          />
+
+          <Row iconSet={Feather} icon="credit-card" label="Subscriptions" />
+
           <Row
             iconSet={Feather}
             icon="file-text"
             label="Special order request"
-            onPress={() => {}}
           />
-          <Row
-            iconSet={Feather}
-            icon="shield"
-            label="Privacy Policy"
-            onPress={() => {}}
-          />
-          <Row
-            iconSet={Feather}
-            icon="settings"
-            label="Settings"
-            onPress={() => {}}
-          />
+
+          <Row iconSet={Feather} icon="shield" label="Privacy Policy" />
+
+          <Row iconSet={Feather} icon="settings" label="Settings" />
 
           {/* Divider */}
           <View
             style={{
               height: 1,
-              backgroundColor: colors.border,
+              backgroundColor: '#E5E5E5',
               marginVertical: width(3),
             }}
           />
@@ -269,7 +259,7 @@ const ProfileScreen = () => {
           <View
             style={{
               height: 1,
-              backgroundColor: colors.border,
+              backgroundColor: '#E5E5E5',
               marginVertical: width(3),
             }}
           />
@@ -298,8 +288,8 @@ const ProfileScreen = () => {
             label="Log Out"
             onPress={logout}
           />
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </View>
   );
 };

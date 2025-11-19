@@ -40,30 +40,10 @@ const CartScreen = () => {
     return {subTotal: sub, delivery: deliveryFee, total: sub + deliveryFee};
   }, [cartData]);
 
-  const renderItem = ({item}) => <CartCard item={item} />;
-
-  const ListEmptyComponent = () => {
-    const mockItem = {
-      foodImage: images.meal2,
-      foodName: 'Caramello Spaghetti',
-      price: '£78',
-      offPrice: '£2.99',
-      time: '20mins',
-      cheifName: 'Leanne Wayne',
-      isFavourite: true,
-    };
-    return (
-      <>
-        <CartCard item={mockItem} />
-        <CartCard item={mockItem} />
-        <CartCard item={mockItem} />
-      </>
-    );
-  };
+  const renderItem = ({item, index}) => <CartCard item={item} index={index} />;
 
   return (
     <View style={{flex: 1, backgroundColor: colors.white}}>
-      {/* Header */}
       <View
         style={{
           flexDirection: 'row',
@@ -94,10 +74,8 @@ const CartScreen = () => {
         data={cartData}
         keyExtractor={(_, index) => `cart-item-${index}`}
         renderItem={renderItem}
-        ListEmptyComponent={ListEmptyComponent}
         ListFooterComponent={
           <View style={{paddingBottom: width(30)}}>
-            {/* Delivery Address */}
             <View
               style={{
                 marginHorizontal: width(4),
