@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -6,18 +6,20 @@ import {
   Image,
   TextInput,
   ScrollView,
-  Alert
+  Alert,
 } from 'react-native';
 import Header from '../../../components/header';
 import Button from '../../../components/button';
-import { colors } from './../../../constants/index';
+import {colors} from './../../../constants/index';
 import styles from './style';
-import { width } from 'react-native-dimension';
-import { updateOrderStatus } from '../../../services/order';
-import { useSelector } from 'react-redux';
+import {width} from 'react-native-dimension';
+import {updateOrderStatus} from '../../../services/order';
+import {useSelector} from 'react-redux';
 
-const OrderDetail = ({ navigation, route }) => {
-  const data = route.params.detail;
+const OrderDetail = ({navigation, route}) => {
+  console.log(route, 'routerouterouteroute');
+
+  const data = route.params;
   const user = useSelector(state => state.LoginSlice.user);
   const [subTotal, setSubTotal] = useState(0);
   const [prepareTime, setPrepareTime] = useState('');
@@ -34,7 +36,7 @@ const OrderDetail = ({ navigation, route }) => {
 
       if (diff <= 0) {
         clearInterval(interval);
-        setRemainingTimes(prev => ({ ...prev, [orderId]: '00:00' }));
+        setRemainingTimes(prev => ({...prev, [orderId]: '00:00'}));
       } else {
         const minutes = Math.floor(diff / 60000);
         const seconds = Math.floor((diff % 60000) / 1000);
@@ -87,21 +89,23 @@ const OrderDetail = ({ navigation, route }) => {
   const handleCancelOrder = () => {
     let payload = {
       Id: data?._id,
-      status: "Rejected",
+      status: 'Rejected',
       userId: user?._id,
-    }
-    
-    updateOrderStatus(payload).then((response) => {
-      if (response?.data?.status == "ok") {
-        alert(response?.data?.message)
-        navigation.goBack()
-      } else {
-        alert(response?.data?.message)
-      }
-    }).catch((error) => {
-      console.log(error, "error");
-    })
-  }
+    };
+
+    updateOrderStatus(payload)
+      .then(response => {
+        if (response?.data?.status == 'ok') {
+          alert(response?.data?.message);
+          navigation.goBack();
+        } else {
+          alert(response?.data?.message);
+        }
+      })
+      .catch(error => {
+        console.log(error, 'error');
+      });
+  };
 
   const cofirmAlert = () => {
     Alert.alert('Are you sure?', 'You want to cancel this order?', [
@@ -110,26 +114,28 @@ const OrderDetail = ({ navigation, route }) => {
         onPress: () => console.log('Cancel Pressed'),
         style: 'cancel',
       },
-      { text: 'Yes', onPress: () => handleCancelOrder() },
+      {text: 'Yes', onPress: () => handleCancelOrder()},
     ]);
-  }
+  };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <Header text="Order Details" goBack={true} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Image
+        {/* <Image
           source={{
-            uri: data.merchantDetails.merchantImage,
+            uri: data.merchantDetails?.merchantImage,
           }}
           style={styles.imageStyle}
           resizeMode="cover"
-        />
+        /> */}
         <Text style={styles.orderheading}>Order Details</Text>
         <View style={styles.borderstyle}>
           <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Order number</Text>
-            <View style={styles.oredernotxt}><Text style={styles.oredernotxt}>{data.orderId}</Text></View>
+            <View style={styles.oredernotxt}>
+              <Text style={styles.oredernotxt}>{data.orderId}</Text>
+            </View>
           </View>
           <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Order Status</Text>
@@ -137,7 +143,7 @@ const OrderDetail = ({ navigation, route }) => {
           </View>
           {data.pickupTimmings && data.orderType == 'pickup' && (
             <View style={styles.ordertxtview}>
-              <Text style={{ color: colors.black }}>Expected Time :</Text>
+              <Text style={{color: colors.black}}>Expected Time :</Text>
               <Text style={styles.oredernotxt}>
                 {remainingTimes[data?._id] || 'Loading...'}
               </Text>
@@ -145,27 +151,31 @@ const OrderDetail = ({ navigation, route }) => {
           )}
           {data.orderType == 'pickup' && (
             <View style={styles.ordertxtview}>
-              <Text style={{ color: colors.black }}>Expected Time :</Text>
+              <Text style={{color: colors.black}}>Expected Time :</Text>
               <Text style={styles.oredernotxt}>
-                {data.orderType == 'pickup' ? 'Pickup' : "Deliver"}
+                {data.orderType == 'pickup' ? 'Pickup' : 'Deliver'}
               </Text>
             </View>
           )}
           {data?.status == 'Completed' ? (
             <View style={styles.ordertxtview}>
               <Text style={styles.subheading}>Delivery Status</Text>
-              <View style={styles.oredernotxt}><Text>{data?.deliveryStatus}</Text></View>
+              <View style={styles.oredernotxt}>
+                <Text>{data?.deliveryStatus}</Text>
+              </View>
             </View>
           ) : null}
           <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Order from</Text>
-            <Text style={styles.orderfromtxt}>{data.merchantDetails.name}</Text>
+            {/* <Text style={styles.orderfromtxt}>
+              {data.merchantDetails?.name}
+            </Text> */}
           </View>
           <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Delivery address:</Text>
             <Text style={styles.deliverytxt}>{data.address}</Text>
           </View>
-          {data?.deliveryStatus == "Collected" ?
+          {data?.deliveryStatus == 'Collected' ? (
             <>
               <Text style={styles.orderheading}>Driver Details</Text>
               <View
@@ -175,8 +185,8 @@ const OrderDetail = ({ navigation, route }) => {
                   justifyContent: 'space-between',
                   marginTop: width(2),
                 }}>
-                <Text style={{ color: colors.black, left: width(4) }}>Name</Text>
-                <Text style={{ color: colors.black, right: width(4) }}>
+                <Text style={{color: colors.black, left: width(4)}}>Name</Text>
+                <Text style={{color: colors.black, right: width(4)}}>
                   {data?.driverDetails?.name}
                 </Text>
               </View>
@@ -187,8 +197,8 @@ const OrderDetail = ({ navigation, route }) => {
                   justifyContent: 'space-between',
                   marginTop: width(2),
                 }}>
-                <Text style={{ color: colors.black, left: width(4) }}>Email</Text>
-                <Text style={{ color: colors.black, right: width(4) }}>
+                <Text style={{color: colors.black, left: width(4)}}>Email</Text>
+                <Text style={{color: colors.black, right: width(4)}}>
                   {data?.driverDetails?.email}
                 </Text>
               </View>
@@ -199,8 +209,10 @@ const OrderDetail = ({ navigation, route }) => {
                   justifyContent: 'space-between',
                   marginTop: width(2),
                 }}>
-                <Text style={{ color: colors.black, left: width(4) }}>Phone No.</Text>
-                <Text style={{ color: colors.black, right: width(4) }}>
+                <Text style={{color: colors.black, left: width(4)}}>
+                  Phone No.
+                </Text>
+                <Text style={{color: colors.black, right: width(4)}}>
                   {data?.driverDetails?.phoneNumber}
                 </Text>
               </View>
@@ -209,11 +221,8 @@ const OrderDetail = ({ navigation, route }) => {
                 <Text style={styles.oredernotxt}>{data?.orderCode}</Text>
               </View>
             </>
-            :
-            null
-          }
+          ) : null}
         </View>
-
 
         <View style={styles.borderstyle}>
           {data.order.map((item, ind) => {
@@ -222,7 +231,9 @@ const OrderDetail = ({ navigation, route }) => {
                 <Text style={styles.subheading}>
                   {item.selectedQty}x {item.name}
                 </Text>
-                <Text style={styles.pricetxt}>£ {item?.discount > 0 ? item?.discount : item?.price}</Text>
+                <Text style={styles.pricetxt}>
+                  £ {item?.discount > 0 ? item?.discount : item?.price}
+                </Text>
               </View>
             );
           })}
@@ -245,24 +256,21 @@ const OrderDetail = ({ navigation, route }) => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}>
-              <Text style={{ left: width(3), color: colors.black }}>
+              <Text style={{left: width(3), color: colors.black}}>
                 Preparation Time
               </Text>
-              <Text style={{ right: width(5), color: 'grey', fontWeight: '600' }}>
+              <Text style={{right: width(5), color: 'grey', fontWeight: '600'}}>
                 {data?.preparationTime} mins
               </Text>
             </View>
           ) : null}
           <View style={styles.ordertxtview}>
             <Text style={styles.subtotaltxt}>Total</Text>
-            <Text style={styles.pricetxt}>
-              £{' '}
-              {data?.totalBill}
-            </Text>
+            <Text style={styles.pricetxt}>£ {data?.totalBill}</Text>
           </View>
         </View>
       </ScrollView>
-      <View style={{ marginTop: width(2), marginBottom: width(2) }}>
+      <View style={{marginTop: width(2), marginBottom: width(2)}}>
         {data.status == 'Pending' ? (
           <Button
             onPress={cofirmAlert}

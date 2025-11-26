@@ -4,138 +4,170 @@ import {fontFamily, icons, images} from '../../assets';
 import ActionBuuton from '../actionButton';
 import {useNavigation} from '@react-navigation/native';
 import {colors} from '../../constants';
-import BackButton from '../backIcon';
 import {width} from 'react-native-dimension';
 
 const HistoryCard = ({item}) => {
   const navigation = useNavigation();
+  const data = item?.order[0];
+  console.log(item, 'itemitemitemitemitemlkasndkla');
+
+  const hasDiscount = data?.discount && data?.discount < data?.price;
+  const getStatusStyle = status => {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return {bg: 'rgba(255,165,0,0.2)', color: '#FFA500'};
+      case 'accepted':
+        return {bg: 'rgba(30,144,255,0.2)', color: '#1E90FF'};
+      case 'rejected':
+        return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
+      case 'completed':
+        return {bg: 'rgba(50,205,50,0.2)', color: '#32CD32'};
+      default:
+        return {bg: 'rgba(144,238,144,0.3)', color: '#32CD32'};
+    }
+  };
+
+  const statusStyle = getStatusStyle(item?.status);
+
   return (
     <View
       style={{
         marginTop: width(2),
         borderBottomWidth: 1,
-        borderBottomColor: colors.grey, // fix
+        borderBottomColor: colors.grey,
         paddingBottom: width(5),
         marginHorizontal: width(4),
+        backgroundColor: colors.white,
+        borderRadius: width(2),
+        padding: width(3),
       }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          backgroundColor: '#FFF',
-          borderRadius: width(2),
-          paddingRight: width(2),
-        }}>
-        {/* Left: image + content */}
-        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-          <Image
-            source={item?.foodImage}
-            resizeMode="cover"
+      {/* Top Row: Image + Info */}
+      <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+        <Image
+          source={{uri: data?.image}}
+          resizeMode="cover"
+          style={{
+            height: width(22),
+            width: width(22),
+            borderRadius: width(2),
+          }}
+        />
+
+        <View style={{flex: 1}}>
+          {/* Name */}
+          <Text
             style={{
-              height: width(22),
-              width: width(22),
-              borderRadius: width(2),
-            }}
-          />
-          <View style={{marginLeft: 8, flex: 1}}>
-            <Text
-              style={{
-                fontSize: 16,
-                color: colors.black,
-                fontFamily: fontFamily.poppinBold,
-              }}>
-              {item?.foodName}
-            </Text>
+              fontSize: 16,
+              color: colors.black,
+              fontFamily: fontFamily.poppinBold,
+            }}>
+            {data?.name}
+          </Text>
 
-            {/* Price row */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 10,
-                marginTop: 6,
-              }}>
-              <Text
-                style={{
-                  color: colors.red,
-                  fontFamily: fontFamily.poppinBold,
-                }}>
-                {item?.price}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: fontFamily.poppinBold,
-                  textDecorationLine: 'line-through',
-                  color: colors.grey,
-                }}>
-                {item?.offPrice ? `${item?.offPrice}` : ''}
-              </Text>
-            </View>
-
-            {/* Status pill */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 8,
-                gap: 8,
-              }}>
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: fontFamily.poppinBold,
-                  color: colors.black,
-                }}>
-                Status
-              </Text>
-              <View
-                style={{
-                  paddingVertical: 2,
-                  paddingHorizontal: 8,
-                  borderRadius: 100,
-                  backgroundColor: 'rgba(255,165,0,0.15)',
-                  borderWidth: 1,
-                  borderColor: colors.primaryOrange,
-                }}>
+          {/* Price */}
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+            {hasDiscount ? (
+              <>
                 <Text
                   style={{
-                    fontSize: 12,
-                    color: colors.primaryOrange,
+                    color: colors.red,
                     fontFamily: fontFamily.poppinBold,
+                    fontSize: 16,
                   }}>
-                  {item?.status || 'In progress'}
+                  £{data?.discount}
                 </Text>
-              </View>
-            </View>
+                <Text
+                  style={{
+                    marginLeft: 10,
+                    fontSize: 12,
+                    textDecorationLine: 'line-through',
+                    color: colors.grey,
+                    fontFamily: fontFamily.poppin,
+                  }}>
+                  £{data?.price}
+                </Text>
+              </>
+            ) : (
+              <Text
+                style={{
+                  color: colors.black,
+                  fontFamily: fontFamily.poppinBold,
+                  fontSize: 16,
+                }}>
+                £{data?.price}
+              </Text>
+            )}
+          </View>
 
-            {/* View Details button */}
-            <View style={{width: width(60), marginTop: width(2)}}>
+          {/* Status */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 8,
+              gap: 8,
+            }}>
+            <Text
+              style={{
+                fontSize: 12,
+                fontFamily: fontFamily.poppinBold,
+                color: colors.black,
+              }}>
+              Status
+            </Text>
+            <View
+              style={{
+                paddingVertical: 2,
+                paddingHorizontal: 8,
+                borderRadius: 100,
+                backgroundColor: statusStyle.bg,
+                borderWidth: 1,
+                borderColor: statusStyle.color,
+              }}>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: statusStyle.color,
+                  fontFamily: fontFamily.poppinBold,
+                }}>
+                {item?.status || 'Delivered'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Button */}
+          <View style={{width: width(50), marginTop: width(3)}}>
+            {item?.status === 'Completed' ? (
               <ActionBuuton
                 bgcColor={'#3b0b0b'}
                 fontColor={colors.white}
-                name={'View Details'}
-                onPress={() => navigation.navigate('ProductDetail')}
+                name={'View details'}
+                onPress={() => navigation.navigate('OrderDetail', item)}
               />
-            </View>
+            ) : (
+              <ActionBuuton
+                bgcColor={'#3b0b0b'}
+                fontColor={colors.white}
+                name={'Order again'}
+                onPress={() =>
+                  navigation.navigate('ProductDetail', {productId: data?._id})
+                }
+              />
+            )}
           </View>
         </View>
       </View>
 
-      {/* Made by */}
-      <Text
+      {/* Chef Info */}
+      <View
         style={{
-          fontSize: 12,
-          fontFamily: fontFamily.poppinBold,
-          color: colors.black,
-          paddingVertical: width(2),
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginTop: width(3),
         }}>
-        Made by
-      </Text>
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <Image
-          source={images.cheif}
+          source={{uri: item?.merchantDetails?.merchantImage || ''}}
           resizeMode="cover"
           style={{height: width(10), width: width(10), borderRadius: width(5)}}
         />
@@ -148,25 +180,14 @@ const HistoryCard = ({item}) => {
             }}>
             Chef
           </Text>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: 3}}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: fontFamily.poppinBold,
-                color: colors.black,
-              }}>
-              {item?.cheifName}
-            </Text>
-            <Image
-              source={icons.objects}
-              resizeMode="contain"
-              style={{
-                height: width(4),
-                width: width(4),
-                marginBottom: width(1),
-              }}
-            />
-          </View>
+          <Text
+            style={{
+              fontSize: 12,
+              fontFamily: fontFamily.poppinBold,
+              color: colors.black,
+            }}>
+            {item?.merchantDetails?.name || 'Leanne Wayne'}
+          </Text>
         </View>
       </View>
     </View>

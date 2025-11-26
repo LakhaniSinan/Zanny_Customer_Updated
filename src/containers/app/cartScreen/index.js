@@ -1,13 +1,14 @@
-import React, {useMemo} from 'react';
-import {View, Text, ScrollView, FlatList, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
-import {colors, Colors} from '../../../constants';
+import React, {useMemo} from 'react';
+import {FlatList, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
-import BackButton from '../../../components/backIcon';
-import {icons, images} from '../../../assets';
-import CartCard from '../../../components/cartCard';
+import {useSelector} from 'react-redux';
+import {icons} from '../../../assets';
 import ActionBuuton from '../../../components/actionButton';
+import BackButton from '../../../components/backIcon';
+import CartCard from '../../../components/cartCard';
+import {colors} from '../../../constants';
+import AppHeader from '../../../components/headerComponent';
 
 const parsePriceToNumber = price => {
   if (typeof price === 'number') {
@@ -42,34 +43,11 @@ const CartScreen = () => {
 
   const renderItem = ({item, index}) => <CartCard item={item} index={index} />;
 
+  console.log(total, 'totaltotaltotaltotaltotal');
+
   return (
     <View style={{flex: 1, backgroundColor: colors.white}}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: width(4),
-          paddingVertical: width(3),
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-          backgroundColor: colors.white,
-        }}>
-        <BackButton
-          icon={icons.ArrowLeft}
-          border={0}
-          onPress={() => navigation.goBack()}
-        />
-        <Text
-          style={{
-            marginLeft: width(3),
-            fontSize: 22,
-            color: colors.redish,
-            fontWeight: '700',
-          }}>
-          Cart
-        </Text>
-      </View>
-
+      <AppHeader goBack={true} notificationsIcon={true} text="Cart" />
       <FlatList
         data={cartData}
         keyExtractor={(_, index) => `cart-item-${index}`}

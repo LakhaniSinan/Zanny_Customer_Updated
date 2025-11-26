@@ -2,6 +2,7 @@ import React from 'react';
 import {Image, Text, TouchableOpacity, View} from 'react-native';
 import {Colors} from '../../constants';
 import {icons} from '../../assets';
+import {width} from 'react-native-dimension';
 
 const Category = ({item}) => {
   return (
@@ -16,6 +17,7 @@ const Category = ({item}) => {
         justifyContent: 'space-between',
         flexDirection: 'row',
         alignItems: 'center',
+        marginTop: width(2),
         paddingRight: 12,
         backgroundColor: Colors.background,
       }}>

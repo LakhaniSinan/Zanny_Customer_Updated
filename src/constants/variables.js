@@ -89,5 +89,6 @@ export const endPoints = {
   productDetailById: 'getProductDetails',
 
   //Favourite
-  favourite: 'createFavourite',
+  addTofavourite: 'createFavourite',
+  getfavourite: 'getFavouritesByUser',
 };

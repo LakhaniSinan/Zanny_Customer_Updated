@@ -9,6 +9,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {setCartData} from '../../redux/slices/Cart';
 
 const CartCard = ({item, index}) => {
+  console.log(item, 'itemitemitemitemitemitemitemasdasd');
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const {cartData} = useSelector(state => state.CartSlice);
@@ -16,7 +18,7 @@ const CartCard = ({item, index}) => {
 
   const foodName = item?.name || 'Delicious Food';
   const foodImage = item?.image ? {uri: item.image} : images.meal;
-  const price = item?.price ? `£${item.price}` : '£0';
+  const price = item?.price ? `£${item?.price}` : `£${item?.foodId?.price}`;
   const offPrice = item?.offPrice ? `£${item.offPrice}` : null;
   const time = item?.time || '20mins';
   const rating = item?.rating || 4.8;

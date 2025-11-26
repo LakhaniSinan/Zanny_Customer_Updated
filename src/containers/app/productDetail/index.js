@@ -24,6 +24,8 @@ import {useSelector} from 'react-redux';
 
 const ProductDetail = ({navigation, route}) => {
   const productId = route.params.productId;
+  console.log(productId, 'productIdproductIdproductIdproductIdproductIdasdasd');
+
   const navigationType = route.params.type;
   const productData = route.params.data;
   const {user} = useSelector(state => state.LoginSlice);
@@ -48,6 +50,7 @@ const ProductDetail = ({navigation, route}) => {
     try {
       setIsLoading(true);
       const response = await getProductDetailById(productId);
+      console.log(response, 'responseresponseresponseresponseresponseresponse');
 
       if (response.status === 200 || response.status === 201) {
         setProductDetails(response?.data?.data);
@@ -244,20 +247,22 @@ const IconButton = ({icon, onPress}) => (
   </TouchableOpacity>
 );
 
-const TitleRow = ({productDetails, onShareProduct, onFavIconPress}) => (
-  <View style={styles.titleRow}>
-    <Text numberOfLines={2} style={styles.title}>
-      {productDetails?.name}
-    </Text>
-    <View style={styles.titleRight}>
-      <IconButton
-        icon={icons.heart}
-        onPress={() => onFavIconPress(productDetails)}
-      />
-      <IconButton icon={icons.share} onPress={onShareProduct} />
+const TitleRow = ({productDetails, onShareProduct, onFavIconPress}) => {
+  return (
+    <View style={styles.titleRow}>
+      <Text numberOfLines={2} style={styles.title}>
+        {productDetails?.name}
+      </Text>
+      <View style={styles.titleRight}>
+        <IconButton
+          icon={icons.heart}
+          onPress={() => onFavIconPress(productDetails)}
+        />
+        <IconButton icon={icons.share} onPress={onShareProduct} />
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const PriceRow = ({productDetails, getFinalPrice}) => (
   <View style={styles.priceRow}>

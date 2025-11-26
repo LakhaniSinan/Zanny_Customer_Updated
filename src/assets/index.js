@@ -45,6 +45,7 @@ export const icons = {
   Receipt: require('../assets/icons/Receipt.png'),
   location: require('../assets/icons/Vector.png'),
   CaretRight: require('../assets/icons/CaretRight.png'),
+  add: require('../assets/icons/add.png'),
   star: require('../assets/icons/star.png'),
   coffee: require('../assets/icons/coffee.png'),
   Cookie: require('../assets/icons/Cookie.png'),

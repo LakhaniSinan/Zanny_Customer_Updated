@@ -48,6 +48,8 @@ const AddEditAddress = ({navigation, route}) => {
   const checkCurrentLocation = async () => {
     setIsLoading(true);
     let location = await helper.getCurrentLocation();
+    console.log(location, 'locationlocationlocationlocation');
+
     let latitude = location?.coords.latitude;
     let longitude = location?.coords.longitude;
     setLocation({
@@ -58,6 +60,9 @@ const AddEditAddress = ({navigation, route}) => {
       latitude,
       longitude,
     );
+
+    console.log(getFormattedAddress, 'getFormattedAddressgetFormattedAddress');
+
     let formattedAddress = getFormattedAddress?.results[0]?.formatted_address;
     setIsLoading(false);
     if ((formattedAddress && type == 'add') || type == 'Select') {

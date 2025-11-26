@@ -1,105 +1,64 @@
-import {useNavigation} from '@react-navigation/native';
-import React from 'react';
-import {FlatList, Text, View} from 'react-native';
-import {fontFamily, icons, images} from '../../../assets';
-import BackButton from '../../../components/backIcon';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import React, {useEffect, useState, useCallback} from 'react';
+import {FlatList, View, RefreshControl} from 'react-native';
+import {images} from '../../../assets';
+import AppHeader from '../../../components/headerComponent';
 import HistoryCard from '../../../components/historyCard';
 import {Colors} from '../../../constants';
-
-const foodCardData = [
-  {
-    foodImage: images.meal,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-  {
-    foodImage: images.meal1,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-  {
-    foodImage: images.meal2,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-  {
-    foodImage: images.veggie,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-];
+import {useSelector} from 'react-redux';
+import {getAllOrdersByCustomerId} from '../../../services/order';
+import OverLayLoader from '../../../components/loader';
 
 const MyOrdersScreen = () => {
   const navigation = useNavigation();
+  const [allOrders, setAllOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const user = useSelector(state => state.LoginSlice.user);
+
+  const handleGetAllOrders = async (isRefresh = false) => {
+    try {
+      if (!isRefresh) setLoading(true);
+
+      const response = await getAllOrdersByCustomerId(user?._id);
+      const data = response?.data?.data || [];
+
+      setAllOrders(data);
+    } catch (error) {
+      console.log(error, 'Error fetching orders');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetAllOrders();
+    }, []),
+  );
+
+  // 🔥 Pull to Refresh
+  const onRefresh = () => {
+    setRefreshing(true);
+    handleGetAllOrders(true);
+  };
+
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: Colors.white,
-      }}>
-      <View
-        style={{
-          backgroundColor: Colors.white,
-          paddingBottom: 18,
-          elevation: 5,
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingVertical: 12,
-            paddingHorizontal: 10,
-          }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <BackButton
-              height={20}
-              icon={icons.ArrowLeft}
-              onPress={() => navigation.goBack()}
-            />
-            <Text
-              style={{
-                fontFamily: fontFamily.poppinRegular,
-                fontSize: 18,
-                fontWeight: 500,
-                color: Colors.redish,
-              }}>
-              History
-            </Text>
-          </View>
-          <View style={{marginRight: 12}}>
-            <BackButton icon={icons.ShoppingCart} border={1} />
-          </View>
-        </View>
-      </View>
+    <View style={{flex: 1, backgroundColor: Colors.white}}>
+      <AppHeader goBack={true} cartIcon={true} text="History" />
+
       <FlatList
-        data={foodCardData}
-        renderItem={({item, index}) => <HistoryCard item={item} />}
+        data={allOrders}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({item}) => <HistoryCard item={item} />}
+        showsVerticalScrollIndicator={false}
+        // Pull To Refresh Setup
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
+      <OverLayLoader isloading={loading} />
     </View>
   );
 };

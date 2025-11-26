@@ -13,7 +13,7 @@ const WelcomeScreen = ({navigation}) => {
   const disptach = useDispatch();
   const handleGetStarted = () => {
     disptach(setGetStarted(true));
-    AsyncStorage.setItem('GetStarted', true);
+    AsyncStorage.setItem('GetStarted', JSON.stringify(true));
   };
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>

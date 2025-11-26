@@ -1,15 +1,15 @@
-import { check, PERMISSIONS, request } from 'react-native-permissions';
+import {check, PERMISSIONS, request} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
-import { Linking, Platform } from 'react-native';
+import {Linking, Platform} from 'react-native';
 import Geocoder from 'react-native-geocoding';
-import { constants } from '../constants';
+import {constants} from '../constants';
 import axios from 'axios';
-import { notification } from '../constants/variables';
+import {notification} from '../constants/variables';
 
 export const helper = {
   async getCurrentLocation() {
     return new Promise((resolve, reject) => {
-      Geolocation.getCurrentPosition(resolve, error => reject(error => { }), {
+      Geolocation.getCurrentPosition(resolve, error => reject(error => {}), {
         enableHighAccuracy: true,
         timeout: 15000,
         maximumAge: 10000,
@@ -90,7 +90,7 @@ export const helper = {
 
   async getLocationAddress(lat, long) {
     return new Promise((resolve, reject) => {
-      Geocoder.init('AIzaSyDgm3VBE9YF9fIYqHU6Cue4OfJBtJBlxj4');
+      Geocoder.init('AIzaSyAvPVhgFVY2qv4c6kvukvIP2krPJe9dZGA');
       Geocoder.from(lat, long)
         .then(json => resolve(json))
         .catch(error => reject(error));

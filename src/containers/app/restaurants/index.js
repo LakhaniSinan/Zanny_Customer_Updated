@@ -6,26 +6,29 @@ import {
   ImageBackground,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  StyleSheet,
 } from 'react-native';
 import {width} from 'react-native-dimension';
 import Carousel from 'react-native-snap-carousel';
-import {icons, images} from '../../../assets';
+
+import {fontFamily, icons, images} from '../../../assets';
 import Category from '../../../components/categoryCard';
 import HireCheifCard from '../../../components/hireChefCard';
 import SectionHeader from '../../../components/sectionHeader';
-import {Colors} from '../../../constants';
+import {Colors, colors} from '../../../constants';
 import {getHomeData} from '../../../services/home';
 
 const Restaurants = ({navigation}) => {
   const carouselRef = useRef();
   const [isLoading, setIsLoading] = useState(false);
-  const [homeData, setHomedata] = useState(null);
+  const [homeData, setHomeData] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Dummy chefs list
   const chefs = [
     {
       id: '1',
@@ -47,59 +50,54 @@ const Restaurants = ({navigation}) => {
     },
   ];
 
-  useEffect(() => {
-    handleFetchHomeData();
-  }, []);
-
+  // Fetch Home API
   const handleFetchHomeData = async () => {
     try {
       setIsLoading(true);
       const response = await getHomeData();
-      if (response.status == 200 || response.status == 201) {
-        setHomedata(response?.data?.data);
+
+      if (response?.status === 200 || response?.status === 201) {
+        setHomeData(response?.data?.data);
       } else {
-        Alert.alert('Error', 'Some thing went wrrong');
+        Alert.alert('Error', 'Something went wrong');
       }
     } catch (error) {
-      console.log(error, 'Home Data Error');
+      console.log('Home Data Error', error);
     } finally {
       setIsLoading(false);
     }
   };
-  const renderStars = rating => {
+
+  useEffect(() => {
+    handleFetchHomeData();
+  }, []);
+
+  // ⭐ Star Renderer
+  const renderStars = useCallback((rating = 5) => {
     const rounded = Math.round(rating);
-    const stars = [];
-
-    for (let i = 1; i <= 1; i++) {
-      stars.push(
-        <Text key={i} style={{fontSize: 14, color: Colors.orange}}>
-          {i <= rounded ? '★' : '☆'}
-        </Text>,
-      );
-    }
-
-    return <View style={{flexDirection: 'row'}}>{stars}</View>;
-  };
-
-  const renderRecommendedItem = ({item}) => {
     return (
+      <View style={styles.starContainer}>
+        <Text style={styles.starText}>{rounded ? '★' : '☆'}</Text>
+      </View>
+    );
+  }, []);
+
+  // Recommended Food Card
+  const renderRecommendedItem = useCallback(
+    ({item}) => (
       <TouchableOpacity
-        style={{width: width(65), marginHorizontal: 10, marginLeft: width(4)}}
+        style={styles.recommendedCard}
         onPress={() =>
           navigation.navigate('ProductDetail', {
             data: item,
-            productId: item._id,
+            productId: item?._id,
             type: 'normal',
           })
         }>
         <Image source={{uri: item?.image}} style={styles.foodImage} />
+
         <View style={styles.foodTextContainer}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
+          <View style={styles.foodHeader}>
             <Text style={styles.foodName}>{item?.name}</Text>
             <Text style={styles.foodPrice}>£{item?.price}</Text>
           </View>
@@ -107,81 +105,57 @@ const Restaurants = ({navigation}) => {
           <Text numberOfLines={2} style={styles.foodDetail}>
             {item?.description}
           </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            {renderStars(5 || 0)}
-            <Text
-              style={{
-                fontSize: 12,
-                color: Colors.graydark,
-                marginLeft: width(2),
-              }}>
-              4.8 (120+) 2.8 km away
-            </Text>
+
+          <View style={styles.foodRatingRow}>
+            {renderStars(5)}
+            <Text style={styles.foodRatingText}>4.8 (120+) • 2.8km</Text>
           </View>
+
           <View style={styles.chefContainer}>
             <Image
               source={{uri: item?.merchantImage}}
               style={styles.chefImage}
-              resizeMode="cover"
             />
-            <View style={{marginLeft: 8}}>
+            <View>
               <Text style={styles.chefLabel}>Chef</Text>
+
               <View style={styles.chefNameContainer}>
                 <Text style={styles.chefName}>{item?.merchantName}</Text>
-                <Image
-                  source={icons.objects}
-                  style={styles.objectsIcon}
-                  resizeMode="contain"
-                />
+                <Image source={icons.objects} style={styles.objectsIcon} />
               </View>
             </View>
           </View>
         </View>
       </TouchableOpacity>
-    );
-  };
+    ),
+    [renderStars],
+  );
 
-  const renderCarousel = useCallback(({item}) => {
-    console.log(item, 'itemitemitemitemitem_CAARRASD');
-
-    return (
+  // Banner Carousel
+  const renderCarousel = useCallback(
+    ({item}) => (
       <TouchableOpacity
+        style={{alignItems: 'center'}}
         onPress={() =>
           navigation.navigate('ProductDetail', {
             data: item,
-            productId: item.productId,
+            productId: item?.productId,
             type: 'banner',
           })
         }>
         <ImageBackground
           source={{uri: item?.image}}
           style={styles.promoBanner}
-          imageStyle={styles.promoImage}>
-          {/* {item?.discountedPrice > 0 && (
-          <View style={styles.discountBadge}>
-            <Text style={styles.discountText}>{item.discountedPrice}% OFF</Text>
-          </View>
-        )} */}
-
-          {/* <View style={styles.promoTextContainer}>
-          <Text style={styles.promoTitle}>
-            Let's grab your breakfast promo!
-          </Text>
-          <View style={styles.orderButton}>
-            <Text style={styles.orderButtonText}>Order Now</Text>
-          </View>
-        </View> */}
-        </ImageBackground>
+          imageStyle={styles.promoImage}
+        />
       </TouchableOpacity>
-    );
-  }, []);
+    ),
+    [],
+  );
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <View style={styles.searchContainer}>
           <Image source={icons.MagnifyingGlass} style={styles.searchIcon} />
@@ -203,6 +177,7 @@ const Restaurants = ({navigation}) => {
         </TouchableOpacity>
       </View>
 
+      {/* MAIN SCROLL */}
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -210,9 +185,9 @@ const Restaurants = ({navigation}) => {
             refreshing={isLoading}
             onRefresh={handleFetchHomeData}
             colors={[Colors.orange]}
-            tintColor={Colors.orange}
           />
         }>
+        {/* Banner Slider */}
         <View style={{}}>
           <Carousel
             ref={carouselRef}
@@ -220,38 +195,54 @@ const Restaurants = ({navigation}) => {
             renderItem={renderCarousel}
             sliderWidth={width(100)}
             itemWidth={width(100)}
-            inactiveSlideOpacity={0.7}
-            inactiveSlideScale={0.5}
             loop
             autoplay
             autoplayInterval={5000}
-            onSnapToItem={index => {
-              setActiveIndex(index);
-            }}
+            inactiveSlideOpacity={0.7}
+            inactiveSlideScale={0.8}
+            onSnapToItem={index => setActiveIndex(index)}
           />
-          <View style={{position: 'absolute', bottom: 20, right: 20}}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-              }}>
-              {homeData?.banners?.map((_, index) => (
-                <View
-                  key={index}
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 4,
-                    marginHorizontal: 5,
+
+          <View style={styles.paginationDots}>
+            {(homeData?.banners || []).map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  {
                     backgroundColor:
                       activeIndex === index ? Colors.white : 'gray',
-                  }}
-                />
-              ))}
-            </View>
+                  },
+                ]}
+              />
+            ))}
           </View>
         </View>
-        <View style={{paddingHorizontal: width(3)}}>
+
+        {/* Delivery Address */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Address')}
+          style={styles.addressContainer}>
+          <View style={styles.addressLeft}>
+            <View style={styles.addressIconContainer}>
+              <Image
+                source={icons.location}
+                style={styles.addressIcon}
+                resizeMode="contain"
+              />
+            </View>
+
+            <View>
+              <Text style={styles.addressTitle}>Delivery Address</Text>
+              <Text style={styles.addressText}>123 Main Street, City</Text>
+            </View>
+          </View>
+
+          <Image source={icons.CaretRight} style={styles.arrowIcon} />
+        </TouchableOpacity>
+
+        {/* Delicacies */}
+        <View style={styles.sectionWrapper}>
           <SectionHeader
             name="Delicacies"
             action="See All"
@@ -265,10 +256,10 @@ const Restaurants = ({navigation}) => {
           horizontal
           showsHorizontalScrollIndicator={false}
           renderItem={renderRecommendedItem}
-          keyExtractor={item => item.id}
-          contentContainerStyle={{paddingRight: width(4)}}
         />
-        <View style={{paddingHorizontal: width(3)}}>
+
+        {/* Categories */}
+        <View style={styles.sectionWrapper}>
           <SectionHeader
             name="Category"
             action="See All"
@@ -276,30 +267,28 @@ const Restaurants = ({navigation}) => {
               navigation.navigate('AllCategories', homeData?.foodCategories)
             }
           />
+
           <FlatList
             data={homeData?.foodCategories}
             renderItem={({item}) => <Category item={item} />}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item?.id}
             numColumns={3}
-            columnWrapperStyle={styles.columnWrapper}
-            contentContainerStyle={styles.categoryList}
+            columnWrapperStyle={styles.categoryRow}
           />
         </View>
-        <View style={{paddingHorizontal: width(3)}}>
+
+        {/* Hire a Chef */}
+        <View style={styles.sectionWrapper}>
           <SectionHeader name="Hire a Chef" action="See All" />
         </View>
+
         <FlatList
           data={chefs}
           horizontal
           showsHorizontalScrollIndicator={false}
-          renderItem={({item}) => <HireCheifCard item={item} />}
-          keyExtractor={item => item.id}
           ItemSeparatorComponent={() => <View style={{width: 10}} />}
-          contentContainerStyle={{
-            paddingHorizontal: width(3),
-            paddingBottom: width(4),
-            flexGrow: 1,
-          }}
+          renderItem={({item}) => <HireCheifCard item={item} />}
+          contentContainerStyle={styles.chefList}
         />
       </ScrollView>
     </View>
@@ -310,25 +299,28 @@ export default memo(Restaurants);
 
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: Colors.white},
+
   header: {
     flexDirection: 'row',
-    alignSelf: 'center',
     gap: 12,
     marginTop: 16,
-    paddingBottom: 12,
+    paddingHorizontal: width(3),
   },
+
   searchContainer: {
+    flex: 1,
     height: 44,
-    width: 231,
     borderRadius: 100,
     borderWidth: 1,
+    borderColor: Colors.border,
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: Colors.border,
     paddingHorizontal: 10,
   },
+
   searchIcon: {height: 24, width: 24, tintColor: Colors.gray},
   searchInput: {flex: 1, fontSize: 14, color: Colors.black},
+
   headerIconButton: {
     height: 44,
     width: 44,
@@ -338,72 +330,130 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   headerIcon: {height: 24, width: 24},
+
+  // Banner
   promoBanner: {
+    width: width(95),
     height: width(45),
-    marginHorizontal: width(2),
     borderRadius: 12,
-    overflow: 'hidden',
+    marginTop: 10,
   },
+
   promoImage: {borderRadius: 12},
-  promoTextContainer: {top: 18, left: 20, gap: 16},
-  promoTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: Colors.white,
-    width: 160,
+
+  paginationDots: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 15,
+    alignSelf: 'center',
   },
-  orderButton: {
-    backgroundColor: Colors.orange,
-    height: 40,
-    width: 126,
-    borderRadius: 23,
+
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+  },
+
+  // Address
+  addressContainer: {
+    marginTop: width(4),
+    marginHorizontal: width(3),
+    height: width(16),
+    backgroundColor: Colors.clay,
+    borderRadius: 100,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: width(4),
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+
+  addressLeft: {flexDirection: 'row', alignItems: 'center', gap: 12},
+
+  addressIconContainer: {
+    height: width(10),
+    width: width(10),
+    borderRadius: 50,
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  orderButtonText: {fontSize: 12, fontWeight: '600', color: Colors.black},
 
-  foodImage: {width: 269, height: 132, borderRadius: 12},
-  foodInfoContainer: {
-    width: 269,
+  addressIcon: {height: width(5), width: width(5)},
+
+  addressTitle: {fontFamily: fontFamily.poppinBold},
+  addressText: {
+    fontFamily: fontFamily.poppinRegular,
+    color: Colors.graydark,
+    fontSize: 12,
+  },
+
+  arrowIcon: {height: 20, width: 20},
+
+  // Section Wrappers
+  sectionWrapper: {paddingHorizontal: width(3), marginTop: width(4)},
+
+  // Food Items
+  recommendedCard: {
+    width: width(65),
+    marginHorizontal: 10,
+    marginLeft: width(4),
+  },
+
+  foodImage: {width: '100%', height: 132, borderRadius: 12},
+
+  foodTextContainer: {marginTop: 6},
+
+  foodHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 8,
+    alignItems: 'center',
   },
-  foodTextContainer: {gap: 6},
+
   foodName: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
     color: Colors.black,
-    width: width(50),
   },
-  ratingContainer: {flexDirection: 'row', alignItems: 'center', gap: 4},
-  starIcon: {height: 14, width: 14},
-  foodDetail: {fontSize: 12, color: Colors.gray},
+
+  foodPrice: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.redish,
+  },
+
+  foodDetail: {fontSize: 12, color: Colors.gray, marginTop: 4},
+
+  foodRatingRow: {flexDirection: 'row', alignItems: 'center', marginTop: 4},
+
+  starContainer: {flexDirection: 'row'},
+
+  starText: {color: Colors.orange, fontSize: 15},
+
+  foodRatingText: {
+    fontSize: 12,
+    color: Colors.graydark,
+    marginLeft: 6,
+  },
+
+  // Chef Info
   chefContainer: {flexDirection: 'row', alignItems: 'center', marginTop: 6},
   chefImage: {height: 34, width: 34, borderRadius: 17},
-  chefLabel: {fontSize: 11, fontWeight: '500', color: Colors.primaryOrange},
-  chefNameContainer: {flexDirection: 'row', alignItems: 'center', gap: 3},
+
+  chefLabel: {fontSize: 11, color: Colors.primaryOrange, fontWeight: '500'},
+
+  chefNameContainer: {flexDirection: 'row', alignItems: 'center', gap: 4},
   chefName: {fontSize: 13, fontWeight: '600', color: Colors.black},
+
   objectsIcon: {height: 15, width: 15},
-  foodPrice: {fontSize: 16, fontWeight: '500', color: Colors.redish},
 
-  categoryList: {paddingHorizontal: width(3), gap: 10, paddingBottom: 10},
-  columnWrapper: {flexWrap: 'wrap', gap: 10},
-  discountBadge: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'rgba(255, 0, 0, 0.85)',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    zIndex: 10,
-  },
-
-  discountText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
+  // Category Grid
+  categoryRow: {flexWrap: 'wrap', gap: 10},
+  chefList: {paddingHorizontal: width(3), paddingBottom: width(4)},
 });

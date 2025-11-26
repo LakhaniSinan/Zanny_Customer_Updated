@@ -1,20 +1,19 @@
+import {useFocusEffect} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {
-  View,
-  Text,
-  SafeAreaView,
-  TouchableOpacity,
   FlatList,
-  TextInput,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {addReview, getAllOrdersByCustomerId} from '../../../services/order';
-import {useFocusEffect} from '@react-navigation/native';
 import {width} from 'react-native-dimension';
-import styles from './style';
-import CartImage from '../../../components/cartImage';
 import {useSelector} from 'react-redux';
+import CartImage from '../../../components/cartImage';
 import OverLayLoader from '../../../components/loader';
 import {colors} from '../../../constants';
+import {getAllOrdersByCustomerId} from '../../../services/order';
+import styles from './style';
 
 const CurrentOrders = ({navigation, route}) => {
   let user = useSelector(state => state.LoginSlice.user);
@@ -211,87 +210,3 @@ const CurrentOrders = ({navigation, route}) => {
 };
 
 export default CurrentOrders;
-
-const asdasd = {
-  __v: 0,
-  _id: '67acb1834946c6b3d240594e',
-  address:
-    'XX4V+XMG, Sector 14-E Sector 14 E Shamsi Colony, Karachi, Karachi City, Sindh, Pakistan',
-  createdAt: '2025-02-12T14:34:43.651Z',
-  customerDistance: 0,
-  date: '12-02-2025',
-  deliveryCharges: 2.5,
-  deliveryStatus: 'Pending',
-  discount: 0,
-  driverId: '',
-  isPaid: false,
-  isPaidDelivery: false,
-  isPicked: false,
-  latitude: '24.9578464',
-  longitude: '66.9937953',
-  merchantDetails: {
-    _id: '6780fc5251b6e53631f2e0e3',
-    address:
-      '352, Soldier Bazaar Garden East, Karachi, Karachi City, Sindh, Pakistan',
-    email: 'roundtablepizza@gmail.com',
-    isApprove: true,
-    isOnline: true,
-    isPickUp: true,
-    latitude: '24.8792546',
-    licenseImage:
-      'https://res.cloudinary.com/dcmawlfn2/image/upload/v1736494084/oltdckolzxtnfgeg0eto.jpg',
-    longitude: '67.0363655',
-    merchantImage:
-      'https://res.cloudinary.com/dcmawlfn2/image/upload/v1736501455/pexels-photo-262978_pq4su9.jpg',
-    name: 'Round Table Pizza',
-    phoneNumber: '3007890123',
-    pickupTimmings: 40,
-    reviews: [],
-    safetyCertificate:
-      'https://res.cloudinary.com/dcmawlfn2/image/upload/v1736494098/mersn0pcjrna7odwpulk.jpg',
-    subscribers: [],
-  },
-  merchantDistance: 0,
-  merchantId: '6780fc5251b6e53631f2e0e3',
-  msgToMerchant: 'testing note',
-  order: [
-    {
-      __v: 0,
-      _id: '6784091bd78c77246859182b',
-      allergiesData: [Array],
-      category: 'Fast Food',
-      date: '2025-01-12',
-      description: 'A pizza piled high with meats, veggies, and cheese',
-      discount: 0,
-      image:
-        'https://res.cloudinary.com/dcmawlfn2/image/upload/v1736706294/rqoz6q5szpfnirwco9qv.jpg',
-      isShow: true,
-      merchantId: '6780fc5251b6e53631f2e0e3',
-      name: 'Supreme Pizza with All the Toppings',
-      price: 13,
-      selectedQty: 1,
-    },
-  ],
-  orderCode: '86678',
-  orderId: '484965',
-  orderType: 'delivery',
-  paymentType: 'COD',
-  pickupTimmings: 40,
-  preparationTime: '',
-  review: '',
-  reviewStatus: false,
-  serviceCharges: 5,
-  status: 'Pending',
-  subTotal: 13,
-  tip: 0,
-  totalBill: 16.49,
-  updatedAt: '2025-02-12T14:34:43.651Z',
-  userCardDetails: null,
-  userDetails: {
-    email: 'starkstony189@gmail.com',
-    name: 'Tony Starks',
-    phone: '0315428796',
-  },
-  userId: '6723381c3c60a60d246389a8',
-  videoUrl: '',
-};

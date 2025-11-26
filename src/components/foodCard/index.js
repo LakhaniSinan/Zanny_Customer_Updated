@@ -7,17 +7,37 @@ import {Colors, colors} from '../../constants';
 import BackButton from '../backIcon';
 import {width} from 'react-native-dimension';
 
-const FoodCard = ({item, heartIcon, handleAddToCart}) => {
-  const navigation = useNavigation();
+const FoodCard = ({item, handleAddToCart, onFavPress}) => {
+  console.log(item, 'itemitemitemitemitem');
 
+  const navigation = useNavigation();
+  // Map your API response properly
   const foodData = {
-    foodImage: item.image ? {uri: item.image} : images.meal,
-    foodName: item.name || 'Delicious Food',
+    foodImage: item.foodId?.image
+      ? {uri: item.foodId.image}
+      : item.image
+      ? {uri: item.image}
+      : images.meal,
+    foodName: item.foodId?.name || item.name || 'Delicious Food',
     foodRating: '4.8 (120+)  2.8 km away', // default
-    price: item.price ? `$${item.price}` : '$0',
-    offPrice: item.discount ? `$${item.discount}` : null,
-    time: '20 mins', // default
-    cheifName: 'Leanne Wayne', // default
+    price:
+      item.foodId?.price !== undefined
+        ? `$${item.foodId.price}`
+        : item.price !== undefined
+        ? `$${item.price}`
+        : '$0',
+    offPrice:
+      item.foodId?.discount !== undefined
+        ? `$${item.foodId.discount}`
+        : item.discount !== undefined
+        ? `$${item.discount}`
+        : null,
+    time:
+      item.foodId?.deliveryTime !== undefined
+        ? `${item.foodId.deliveryTime} mins`
+        : item.time || '20 mins',
+    cheifName: item.restaurantId?.name || item.cheifName || 'Leanne Wayne',
+    isFavourite: item.isFav === true, // always boolean
   };
 
   return (
@@ -110,7 +130,9 @@ const FoodCard = ({item, heartIcon, handleAddToCart}) => {
                 fontColor={colors.white}
                 name="View Details"
                 onPress={() =>
-                  navigation.navigate('ProductDetail', {productId: item._id})
+                  navigation.navigate('ProductDetail', {
+                    productId: item.foodId._id,
+                  })
                 }
               />
             </View>
@@ -127,7 +149,11 @@ const FoodCard = ({item, heartIcon, handleAddToCart}) => {
 
         {/* Heart & Share Icons */}
         <View style={{marginLeft: 8, alignItems: 'center', gap: 5}}>
-          <BackButton icon={heartIcon} border={1} />
+          <BackButton
+            icon={foodData.isFavourite ? icons.fillHeart : icons.heartBrown}
+            border={1}
+            onPress={() => onFavPress(item)}
+          />
           <BackButton icon={icons.share} border={1} />
         </View>
       </View>

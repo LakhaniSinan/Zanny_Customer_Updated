@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {CommonActions} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {
   Alert,
@@ -13,10 +14,11 @@ import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
 import AddressCard from '../../../components/addressCard';
 import Button from '../../../components/button';
-import Header from '../../../components/header';
+import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import {colors} from '../../../constants/index';
 import {handelGetAddress} from '../../../redux/slices/Address';
+import {setCartData} from '../../../redux/slices/Cart';
 import {setCurrentLocation} from '../../../redux/slices/Location';
 import {setOrderType} from '../../../redux/slices/OrderType';
 import {setPaymentType} from '../../../redux/slices/PaymentType';
@@ -25,8 +27,6 @@ import {
   checkAddressCahngeIsPossible,
   deleteAddress,
 } from '../../../services/address';
-import {setCartData} from '../../../redux/slices/Cart';
-import {CommonActions} from '@react-navigation/native';
 
 const Address = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -35,6 +35,7 @@ const Address = ({navigation, route}) => {
   const type = route?.params?.type ? route?.params?.type : null;
   const user = useSelector(state => state.LoginSlice.user);
   const [current, setCurrent] = useState(null);
+  const [showAddressPopup, setShowAddressPopup] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -105,6 +106,8 @@ const Address = ({navigation, route}) => {
   };
 
   const handleAddressChange = async item => {
+    console.log(item, 'itemitemitemitemitem');
+
     if (type == 'privateOrder') {
       Alert.alert(
         'Confirm',
@@ -125,6 +128,7 @@ const Address = ({navigation, route}) => {
           latitude: item?.latitude,
           longitude: item?.longitude,
         };
+
         setIsLoading(true);
         const response = await checkAddressCahngeIsPossible(params);
         setIsLoading(false);
@@ -175,6 +179,8 @@ const Address = ({navigation, route}) => {
       } catch (error) {
         setIsLoading(false);
         console.log('🚀 ~ error:', error);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -204,11 +210,13 @@ const Address = ({navigation, route}) => {
         style={{flex: 1, marginBottom: 5, backgroundColor: colors.white}}>
         <OverLayLoader isloading={isLoading} />
 
-        {type == 'checkout' || type == 'privateOrder' ? (
-          <Header text="Select Address" goBack={true} />
-        ) : (
-          <Header text="Address" drawer={true} />
-        )}
+        <AppHeader
+          goBack={true}
+          addressPlus={true}
+          text="Address"
+          onPressAddress={() => setShowAddressPopup(true)}
+        />
+
         <ScrollView style={{flex: 1, backgroundColor: '#FFF'}}>
           {current?.address && type == 'checkout' && (
             <View
@@ -261,9 +269,7 @@ const Address = ({navigation, route}) => {
               return (
                 <AddressCard
                   item={val}
-                  addressname={val?.label}
-                  address={val?.address}
-                  handleSelectAddress={handleSelectAddress}
+                  onPressdelete={() => showAlert(val._id)}
                   handleAddressChange={handleAddressChange}
                   onPressEdit={() =>
                     navigation.navigate('AddEditAddress', {
@@ -271,9 +277,6 @@ const Address = ({navigation, route}) => {
                       data: val,
                     })
                   }
-                  onPressdelete={() => showAlert(val._id)}
-                  type={type}
-                  navigation={navigation}
                 />
               );
             })
@@ -290,7 +293,7 @@ const Address = ({navigation, route}) => {
               </Text>
             </View>
           )}
-          <View style={styles.btnview}>
+          {/* <View style={styles.btnview}>
             <Button
               heading="Add new address"
               color={colors.themeColor}
@@ -298,7 +301,7 @@ const Address = ({navigation, route}) => {
                 navigation.navigate('AddEditAddress', {type: 'add'})
               }
             />
-          </View>
+          </View> */}
         </ScrollView>
       </SafeAreaView>
     </>

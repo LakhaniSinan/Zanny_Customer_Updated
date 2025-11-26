@@ -11,12 +11,13 @@ const AppHeader = ({
   goBack,
   notificationsIcon,
   cartIcon,
+  addressPlus,
+  onPressAddress,
   onCartIconPress,
   logout,
   drawer,
   address,
   handlePress,
-  onPressAddress,
 }) => {
   const navigation = useNavigation();
   const {cartData} = useSelector(state => state.CartSlice);
@@ -58,6 +59,22 @@ const AppHeader = ({
           <TouchableOpacity
             style={styles.cartIconBtn}
             onPress={() => navigation.navigate('CartScreen')}>
+            <Image
+              source={icons.ShoppingCart}
+              resizeMode="contain"
+              style={styles.backIcon}
+            />
+            {cartData.length > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{cartData.length}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+      {addressPlus && (
+        <View style={styles.cartIconWrapper}>
+          <TouchableOpacity style={styles.cartIconBtn} onPress={onPressAddress}>
             <Image
               source={icons.ShoppingCart}
               resizeMode="contain"

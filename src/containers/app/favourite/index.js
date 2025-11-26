@@ -1,110 +1,181 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
-import {FlatList, Text, View} from 'react-native';
-import {fontFamily, icons, images} from '../../../assets';
-import BackButton from '../../../components/backIcon';
+import React, {useEffect, useState, useCallback} from 'react';
+import {FlatList, View, Text} from 'react-native';
+import {useSelector, useDispatch} from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import FoodCard from '../../../components/foodCard';
+import AppHeader from '../../../components/headerComponent';
+import CustomModal from '../../../components/customModal';
+import OverLayLoader from '../../../components/loader';
 import {Colors} from '../../../constants';
-
-const foodCardData = [
-  {
-    foodImage: images.meal,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-  {
-    foodImage: images.meal1,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-  {
-    foodImage: images.meal2,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-  {
-    foodImage: images.veggie,
-    foodName: 'Caramello Spaghetti',
-    foodRating: '4.8 (120+)  2.8 km away',
-    price: '£78',
-    offPrice: '£2.99',
-    time: '20mins',
-    cheifName: 'Leanne Wayne',
-    isFavourite: true,
-  },
-];
+import {getUserFavProFun, addToFavFun} from '../../../services/favourite';
+import {setCartData} from '../../../redux/slices/Cart';
 
 const Favourite = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const {user} = useSelector(state => state.LoginSlice);
+  const {cartData} = useSelector(state => state.CartSlice);
+
+  const [favoritesData, setFavoritesData] = useState([]);
+  console.log(favoritesData, 'favoritesDatafavoritesDatafavoritesDataasdasd');
+
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState({
+    Icon: '',
+    name: '',
+    detail: '',
+    buttonName: 'Okay',
+    onPress: () => setModalVisible(false),
+  });
+
+  const showModal = (type, message) => {
+    setModalData({
+      Icon:
+        type === 'success'
+          ? require('../../../assets/icons/check.png')
+          : require('../../../assets/icons/cross.png'),
+      name: type === 'success' ? 'Success' : 'Error',
+      detail: message,
+      buttonName: 'Okay',
+      onPress: () => setModalVisible(false),
+    });
+    setModalVisible(true);
+  };
+
+  const fetchFavorites = useCallback(async () => {
+    if (!user?._id) return;
+    setLoading(true);
+    try {
+      const res = await getUserFavProFun(user._id);
+      if (res.status === 200 || res.status === 201) {
+        setFavoritesData(res.data.data || []);
+      } else {
+        showModal('error', res?.data?.message || 'Failed to fetch favorites');
+      }
+    } catch (err) {
+      console.log('Fetch Favorites Error:', err);
+      showModal('error', 'Something went wrong while fetching favorites');
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchFavorites();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    fetchFavorites();
+  }, [fetchFavorites]);
+
+  const handleAddToCart = async selectedItem => {
+    if (!user)
+      return showModal('error', 'Please login first to add items in your cart');
+
+    try {
+      let tempArr = [...cartData];
+      const findIndex = tempArr.findIndex(i => i._id === selectedItem._id);
+
+      if (
+        cartData.length === 0 ||
+        cartData[0].merchantId === selectedItem.merchantId
+      ) {
+        if (findIndex !== -1) {
+          tempArr[findIndex].selectedQty =
+            (tempArr[findIndex].selectedQty || 1) + 1;
+        } else {
+          tempArr.push({...selectedItem, selectedQty: 1});
+        }
+
+        dispatch(setCartData(tempArr));
+        await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
+        showModal('success', 'Item added to cart successfully');
+      } else {
+        showModal(
+          'error',
+          'You can only add items from one restaurant at a time',
+        );
+      }
+    } catch (err) {
+      console.log('Add to Cart Error:', err);
+      showModal('error', 'Something went wrong while adding to cart');
+    }
+  };
+
+  const handleFavToggle = async item => {
+    console.log(item, 'alksndjalkdnlasdlkasnd');
+
+    if (!user)
+      return showModal('error', 'Please login first to manage favorites');
+
+    setLoading(true);
+    try {
+      const payload = {
+        userId: user._id,
+        restaurantId: item?.foodId?.merchantId,
+        foodId: item?.foodId._id,
+      };
+
+      const res = await addToFavFun(payload);
+      const updatedIsFav = res?.data?.isFav;
+      if (res.status == 200 || res.status == 201) {
+        setFavoritesData(prev =>
+          prev.map(p => (p._id === item._id ? {...p, isFav: updatedIsFav} : p)),
+        );
+        await fetchFavorites();
+        showModal('success', res?.data?.message);
+      } else {
+        showModal('error', res?.data?.message);
+      }
+    } catch (err) {
+      console.log('Fav Toggle Error:', err);
+      showModal('error', 'Failed to update favorites');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: Colors.white,
-      }}>
-      <View
-        style={{
-          backgroundColor: Colors.white,
-          paddingBottom: 18,
-          elevation: 5,
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingVertical: 12,
-            paddingHorizontal: 10,
-          }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <BackButton
-              height={20}
-              icon={icons.ArrowLeft}
-              onPress={() => navigation.goBack()}
-            />
-            <Text
-              style={{
-                fontFamily: fontFamily.poppinRegular,
-                fontSize: 18,
-                fontWeight: 500,
-                color: Colors.redish,
-              }}>
-              Favorites
-            </Text>
-          </View>
-          <View style={{marginRight: 12}}>
-            <BackButton icon={icons.ShoppingCart} border={1} />
-          </View>
-        </View>
-      </View>
+    <View style={{flex: 1, backgroundColor: Colors.white}}>
+      <AppHeader goBack={true} cartIcon={true} text="Favorites" />
+
       <FlatList
-        data={foodCardData}
-        renderItem={({item, index}) => (
+        data={favoritesData}
+        keyExtractor={item => item._id}
+        renderItem={({item}) => (
           <FoodCard
             item={item}
-            heartIcon={item.isFavourite ? icons.fillHeart : icons.heartBrown}
+            handleAddToCart={handleAddToCart}
+            onFavPress={handleFavToggle}
           />
         )}
+        ListEmptyComponent={
+          !loading && (
+            <View style={{alignItems: 'center', marginTop: 50}}>
+              <Text>No favorite products found</Text>
+            </View>
+          )
+        }
+        refreshing={refreshing}
+        onRefresh={onRefresh}
       />
+
+      <CustomModal
+        visible={modalVisible}
+        Icon={modalData.Icon}
+        name={modalData.name}
+        detail={modalData.detail}
+        buttonName={modalData.buttonName}
+        onPress={modalData.onPress}
+        close={() => setModalVisible(false)}
+      />
+
+      <OverLayLoader isloading={loading} />
     </View>
   );
 };

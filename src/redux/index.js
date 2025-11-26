@@ -11,7 +11,8 @@ import AddressSlice from './slices/Address';
 import OrderType from './slices/OrderType';
 import PaymentType from './slices/PaymentType';
 import thunk from 'redux-thunk';
-import GetStarted from './slices/GetStarted';
+import GetStarted, {setGetStarted} from './slices/GetStarted';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const reducer = combineReducers({
   LoginSlice,
   CartSlice,
@@ -37,3 +38,10 @@ const store = configureStore({
 
 export default store;
 
+const handleGetStarted = async () => {
+  let data = await AsyncStorage.getItem('GetStarted');
+  const parsed = data ? JSON.parse(data) : false;
+  store.dispatch(setGetStarted(parsed));
+};
+
+handleGetStarted();

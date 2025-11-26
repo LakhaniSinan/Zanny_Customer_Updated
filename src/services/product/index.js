@@ -13,9 +13,9 @@ export const getProductDetailById = id => {
   return Api(`${endPoints.productDetailById}/${id}`, null, requestType.GET);
 };
 
-export const getAllProducts = (page = 1, limit = 10) => {
+export const getAllProducts = (userId, page = 1, limit = 10) => {
   return Api(
-    `${endPoints.getAllProducts}?page=${page}&limit=${limit}`,
+    `${endPoints.getAllProducts}?userId=${userId}&page=${page}&limit=${limit}`,
     null,
     requestType.GET,
   );
