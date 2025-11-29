@@ -21,7 +21,7 @@ const AddressCard = ({
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        onPress={() => handleAddressChange({...item, asdasd: 'asdasd'})}
+        onPress={() => handleAddressChange({...item})}
         style={styles.radioOuter}>
         {isSelected && <View style={styles.radioInner} />}
       </TouchableOpacity>

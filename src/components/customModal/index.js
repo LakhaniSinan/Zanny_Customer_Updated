@@ -1,12 +1,15 @@
 import React, {memo} from 'react';
-import {Image, Modal, Text, View, StyleSheet} from 'react-native';
+import {Image, Modal, StyleSheet, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {Colors} from '../../constants';
 import PrimaryButton from '../primaryButton';
 
 const CustomModal = ({
+  type,
   visible = false,
   onPress = () => {},
+  onConfirm = null,
+  onCancel = null,
   name = '',
   detail = '',
   buttonName = 'OK',
@@ -15,6 +18,8 @@ const CustomModal = ({
   colors,
   Icon,
 }) => {
+  const primaryAction = onConfirm || onPress;
+  const cancelAction = onCancel || close;
   return (
     <Modal
       transparent
@@ -32,8 +37,20 @@ const CustomModal = ({
             {detail}
           </Text>
 
-          <View style={styles.btnWrapper}>
-            <PrimaryButton name={buttonName} onPress={onPress} />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 10,
+            }}>
+            {type === 'confirmation' && (
+              <View style={styles.btnWrapper}>
+                <PrimaryButton name={'Cancel'} onPress={cancelAction} />
+              </View>
+            )}
+            <View style={styles.btnWrapper}>
+              <PrimaryButton name={buttonName} onPress={primaryAction} />
+            </View>
           </View>
         </View>
       </View>
@@ -78,7 +95,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   btnWrapper: {
-    width: '100%',
+    width: '45%',
     marginTop: width(6),
     height: width(15),
   },

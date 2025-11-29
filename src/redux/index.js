@@ -1,7 +1,7 @@
 import {configureStore} from '@reduxjs/toolkit';
-import {applyMiddleware, combineReducers} from 'redux';
+import {combineReducers} from 'redux';
 import LoginSlice from './slices/Login';
-import CartSlice from './slices/Cart';
+import CartSlice, {setCartData} from './slices/Cart';
 import QuestionsSlice from './slices/Questions';
 import MerchantSlice from './slices/Merchant';
 import LocationSlice from './slices/Location';
@@ -10,9 +10,10 @@ import AllergiesSlice from './slices/userAllergies';
 import AddressSlice from './slices/Address';
 import OrderType from './slices/OrderType';
 import PaymentType from './slices/PaymentType';
-import thunk from 'redux-thunk';
 import GetStarted, {setGetStarted} from './slices/GetStarted';
+import thunk from 'redux-thunk';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const reducer = combineReducers({
   LoginSlice,
   CartSlice,
@@ -28,7 +29,7 @@ const reducer = combineReducers({
 });
 
 const store = configureStore({
-  reducer: reducer,
+  reducer,
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       thunk,
@@ -36,12 +37,26 @@ const store = configureStore({
     }),
 });
 
-export default store;
+// -----------------------------
+// 🔥 LOAD DATA FROM STORAGE HERE
+// -----------------------------
 
-const handleGetStarted = async () => {
-  let data = await AsyncStorage.getItem('GetStarted');
-  const parsed = data ? JSON.parse(data) : false;
-  store.dispatch(setGetStarted(parsed));
+const loadInitialData = async () => {
+  try {
+    const cart = await AsyncStorage.getItem('cartData');
+    const parsedCart = cart ? JSON.parse(cart) : [];
+
+    store.dispatch(setCartData(parsedCart));
+
+    const started = await AsyncStorage.getItem('GetStarted');
+    const parsedStart = started ? JSON.parse(started) : false;
+
+    store.dispatch(setGetStarted(parsedStart));
+  } catch (err) {
+    console.log('Error loading initial data:', err);
+  }
 };
 
-handleGetStarted();
+loadInitialData();
+
+export default store;

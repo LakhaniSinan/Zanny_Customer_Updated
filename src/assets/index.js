@@ -33,6 +33,7 @@ export const images = {
   onionRing: require('../assets/images/onionRing.png'),
   pasta: require('../assets/images/pasta.png'),
   first: require('../assets/images/first.png'),
+  mapImage: require('../assets/images/mapImage.png'),
 };
 
 export const icons = {
@@ -44,6 +45,7 @@ export const icons = {
   Envelope: require('../assets/icons/Envelope.png'),
   Receipt: require('../assets/icons/Receipt.png'),
   location: require('../assets/icons/Vector.png'),
+  alertIcon: require('../assets/icons/alertIcon.png'),
   CaretRight: require('../assets/icons/CaretRight.png'),
   add: require('../assets/icons/add.png'),
   star: require('../assets/icons/star.png'),
@@ -61,6 +63,7 @@ export const icons = {
   Discount: require('../assets/icons/Discount.png'),
   facebook: require('../assets/icons/facebook.png'),
   Google: require('../assets/icons/Google.png'),
+  cardIcon: require('../assets/icons/cardIcon.png'),
   hi: require('../assets/icons/hi.png'),
   heart: require('../assets/icons/heart.png'),
   heartBrown: require('../assets/icons/heart-brown.png'),

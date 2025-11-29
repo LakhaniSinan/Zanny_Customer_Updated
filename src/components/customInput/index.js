@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
   },
   multilineAlign: {
     alignItems: 'flex-start',
+    borderRadius: 12,
   },
   input: {
     flex: 1,

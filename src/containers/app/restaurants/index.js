@@ -21,12 +21,16 @@ import HireCheifCard from '../../../components/hireChefCard';
 import SectionHeader from '../../../components/sectionHeader';
 import {Colors, colors} from '../../../constants';
 import {getHomeData} from '../../../services/home';
+import {useSelector} from 'react-redux';
 
 const Restaurants = ({navigation}) => {
   const carouselRef = useRef();
   const [isLoading, setIsLoading] = useState(false);
   const [homeData, setHomeData] = useState(null);
+  const {address} = useSelector(state => state.AddressSlice);
   const [activeIndex, setActiveIndex] = useState(0);
+  const {cartData} = useSelector(state => state.CartSlice);
+  console.log(address, 'userAddressuserAddressuserAddressuserAddress');
 
   // Dummy chefs list
   const chefs = [
@@ -175,6 +179,11 @@ const Restaurants = ({navigation}) => {
           style={styles.headerIconButton}>
           <Image source={icons.ShoppingCart} style={styles.headerIcon} />
         </TouchableOpacity>
+        {cartData?.length > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{cartData.length}</Text>
+          </View>
+        )}
       </View>
 
       {/* MAIN SCROLL */}
@@ -233,8 +242,10 @@ const Restaurants = ({navigation}) => {
             </View>
 
             <View>
-              <Text style={styles.addressTitle}>Delivery Address</Text>
-              <Text style={styles.addressText}>123 Main Street, City</Text>
+              <Text style={styles.addressTitle}>Dselivery Address</Text>
+              <Text style={styles.addressText} numberOfLines={1}>
+                {address[0]?.address || 'No address available'}
+              </Text>
             </View>
           </View>
 
@@ -392,6 +403,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.poppinRegular,
     color: Colors.graydark,
     fontSize: 12,
+    width: width(60),
   },
 
   arrowIcon: {height: 20, width: 20},
@@ -456,4 +468,21 @@ const styles = StyleSheet.create({
   // Category Grid
   categoryRow: {flexWrap: 'wrap', gap: 10},
   chefList: {paddingHorizontal: width(3), paddingBottom: width(4)},
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 10,
+    backgroundColor: colors.redish,
+    width: width(4),
+    height: width(4),
+    borderRadius: width(2),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  badgeText: {
+    color: colors.white,
+    fontSize: 10,
+    fontFamily: fontFamily.poppinBold,
+  },
 });

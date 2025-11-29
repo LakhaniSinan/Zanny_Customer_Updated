@@ -17,7 +17,7 @@ export const getPerKmCharges = () => {
 };
 
 export const getCalculatedDeliveryFee = params => {
-  return Api(`${endPoints.getCalculatedDeliveryFee}`, params, requestType.POST);
+  return Api(endPoints.getCalculatedDeliveryFee, params, requestType.POST);
 };
 export const addReview = (id, params) => {
   return Api(`${endPoints.addReview}/${id}`, params, requestType.POST);

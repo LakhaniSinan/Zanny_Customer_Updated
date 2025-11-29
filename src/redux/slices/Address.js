@@ -45,6 +45,8 @@ export function handelGetAddress(place) {
         .then(response => {
           if (response?.data?.status == 'ok') {
             let data = response?.data?.data;
+            console.log(data, 'datadatadatadatadatadataasdasd');
+
             dispatch(getAddressSuccess(data));
           } else {
             dispatch(getAddressFailure(response.data));

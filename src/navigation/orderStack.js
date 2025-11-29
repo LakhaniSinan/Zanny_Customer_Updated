@@ -20,6 +20,7 @@ import ProductDetail from '../containers/app/productDetail';
 import AllFoodScreen from '../containers/app/allFoodScreen';
 import CartScreen from '../containers/app/cartScreen';
 import AllCategories from '../containers/app/allCategories';
+import PaymentScreen from '../components/stripePayment/PaymentScreen';
 const Stack = createStackNavigator();
 
 function OrderStack() {
@@ -58,6 +59,13 @@ function OrderStack() {
       <Stack.Screen
         name="Products"
         component={Products}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="PaymentScreen"
+        component={PaymentScreen}
         options={{
           headerShown: false,
         }}

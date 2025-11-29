@@ -13,9 +13,9 @@ import {
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
 import AddressCard from '../../../components/addressCard';
-import Button from '../../../components/button';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
+import ChangeAddressModal from '../../../components/modalComponent';
 import {colors} from '../../../constants/index';
 import {handelGetAddress} from '../../../redux/slices/Address';
 import {setCartData} from '../../../redux/slices/Cart';
@@ -27,16 +27,39 @@ import {
   checkAddressCahngeIsPossible,
   deleteAddress,
 } from '../../../services/address';
+import CustomModal from '../../../components/customModal';
+import {icons} from '../../../assets';
 
 const Address = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const userAddress = useSelector(state => state.AddressSlice.address);
+  const {address} = useSelector(state => state.AddressSlice);
   const cartData = useSelector(state => state.CartSlice.cartData);
   const type = route?.params?.type ? route?.params?.type : null;
   const user = useSelector(state => state.LoginSlice.user);
   const [current, setCurrent] = useState(null);
-  const [showAddressPopup, setShowAddressPopup] = useState(null);
+  const [showAddressPopup, setShowAddressPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [modalMode, setModalMode] = useState('add');
+  const [editData, setEditData] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState({
+    Icon: '',
+    title: '',
+    detail: '',
+    buttonName: 'Okay',
+    onPress: () => setModalVisible(false),
+  });
+
+  const showError = message => {
+    setModalData({
+      Icon: icons.cross,
+      title: 'Validation Error',
+      detail: message,
+      buttonName: 'Okay',
+      onPress: () => setModalVisible(false),
+    });
+    setModalVisible(true);
+  };
 
   useEffect(() => {
     if (user) {
@@ -69,7 +92,7 @@ const Address = ({navigation, route}) => {
   const handleDelete = val => {
     deleteAddress(val)
       .then(response => {
-        alert(response?.data?.message);
+        Alert.alert(response?.data?.message);
         dispatch(handelGetAddress());
       })
       .catch(error => {});
@@ -197,11 +220,103 @@ const Address = ({navigation, route}) => {
     };
     addAddress(payload).then(response => {
       if (response.data.status == 'error') {
-        alert(response.data.message);
+        Alert.alert(response.data.message);
       } else {
-        addressGet();
+        // addressGet();
       }
     });
+  };
+
+  const handleEditAddress = item => {
+    setModalMode('edit');
+    setEditData(item);
+    setShowAddressPopup(true);
+  };
+
+  const handleAddOrUpdate = formData => {
+    console.log(formData, 'handleAddOrUpdatehandleAddOrUpdate');
+    const payload = {
+      address: formData?.fullAddress,
+      street: formData?.street,
+      // floor,
+      // latitude,
+      // longitude,
+      userId: user?._id,
+    };
+    if (address == '') {
+      alert('Address is required');
+    } else if (street == '') {
+      alert('Street is required');
+    } else {
+      if (type == 'add') {
+        setIsLoading(true);
+        addAddress(payload)
+          .then(response => {
+            setIsLoading(false);
+            if (response.data.status == 'error') {
+              alert(response.data.message);
+            } else {
+              setInputs({
+                placeType: '',
+                address: '',
+                street: '',
+                floor: '',
+                noteToRider: '',
+              });
+              alert(response.data.message);
+              dispatch(handelGetAddress());
+              navigation.navigate('Address');
+            }
+          })
+          .catch(error => {
+            setIsLoading(false);
+            console.log(error, 'error=====>');
+          });
+      } else if (type == 'Select') {
+        setIsLoading(true);
+        console.log(payload, 'payloaddddd');
+        addAddress(payload)
+          .then(response => {
+            setIsLoading(false);
+            if (response.data.status == 'error') {
+              alert(response.data.message);
+            } else {
+              setInputs({
+                placeType: '',
+                address: '',
+                street: '',
+                floor: '',
+                noteToRider: '',
+              });
+              alert(response.data.message);
+              navigation.goBack();
+              dispatch(handelGetAddress());
+              AsyncStorage.setItem(
+                'userCurrentAddress',
+                JSON.stringify(payload),
+              );
+              dispatch(setCurrentLocation(payload));
+            }
+          })
+          .catch(error => {
+            setIsLoading(false);
+            console.log(error, 'error=====>');
+          });
+      } else {
+        setIsLoading(true);
+        updateAddress(addressId, payload)
+          .then(response => {
+            setIsLoading(false);
+            alert(response.data.message);
+            dispatch(handelGetAddress());
+            navigation.navigate('Address');
+          })
+          .catch(error => {
+            setIsLoading(false);
+            alert(error.response.message);
+          });
+      }
+    }
   };
 
   return (
@@ -264,19 +379,14 @@ const Address = ({navigation, route}) => {
               </TouchableOpacity>
             </View>
           )}
-          {userAddress?.length > 0 ? (
-            userAddress.map(val => {
+          {address?.length > 0 ? (
+            address?.map(val => {
               return (
                 <AddressCard
                   item={val}
                   onPressdelete={() => showAlert(val._id)}
                   handleAddressChange={handleAddressChange}
-                  onPressEdit={() =>
-                    navigation.navigate('AddEditAddress', {
-                      type: 'edit',
-                      data: val,
-                    })
-                  }
+                  onPressEdit={() => handleEditAddress(val)}
                 />
               );
             })
@@ -303,6 +413,22 @@ const Address = ({navigation, route}) => {
             />
           </View> */}
         </ScrollView>
+        <ChangeAddressModal
+          visible={showAddressPopup}
+          onClose={() => setShowAddressPopup(false)}
+          mode={modalMode}
+          data={editData}
+          onUpdate={handleAddOrUpdate}
+        />
+        <CustomModal
+          visible={modalVisible}
+          Icon={modalData.Icon}
+          name={modalData.title}
+          detail={modalData.detail}
+          buttonName={modalData.buttonName}
+          onPress={modalData.onPress}
+          close={() => setModalVisible(false)}
+        />
       </SafeAreaView>
     </>
   );

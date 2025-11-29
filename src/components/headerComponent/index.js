@@ -76,15 +76,10 @@ const AppHeader = ({
         <View style={styles.cartIconWrapper}>
           <TouchableOpacity style={styles.cartIconBtn} onPress={onPressAddress}>
             <Image
-              source={icons.ShoppingCart}
+              source={icons.add}
               resizeMode="contain"
               style={styles.backIcon}
             />
-            {cartData.length > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{cartData.length}</Text>
-              </View>
-            )}
           </TouchableOpacity>
         </View>
       )}

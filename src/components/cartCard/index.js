@@ -1,20 +1,86 @@
-import React, {useState} from 'react';
-import {View, Text, Image, TouchableOpacity, Alert} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
+import React, {useState} from 'react';
+import {Alert, Image, Text, TouchableOpacity, View} from 'react-native';
+import {width} from 'react-native-dimension';
+import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons, images} from '../../assets';
 import {colors} from '../../constants';
-import {width} from 'react-native-dimension';
-import BackButton from '../backIcon';
-import {useDispatch, useSelector} from 'react-redux';
 import {setCartData} from '../../redux/slices/Cart';
+import BackButton from '../backIcon';
+import CustomModal from '../customModal';
 
 const CartCard = ({item, index}) => {
-  console.log(item, 'itemitemitemitemitemitemitemasdasd');
+  console.log(item, 'itemitemitemitemitemitemitem');
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const {cartData} = useSelector(state => state.CartSlice);
   const [quantity, setQuantity] = useState(item?.quantity ?? 1);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [modalData, setModalData] = useState({
+    type: 'default',
+    Icon: null,
+    name: '',
+    detail: '',
+    onConfirm: () => {},
+    onCancel: () => {},
+  });
+
+  const openDeleteModal = itemToRemove => {
+    setDeleteItem(itemToRemove);
+
+    setModalData({
+      type: 'confirmation',
+      Icon: icons.alertIcon,
+      name: 'Confirmation',
+      detail: 'Are you sure you want to remove this item?',
+      onConfirm: confirmDelete,
+      onCancel: () => setModalVisible(false),
+    });
+
+    setModalVisible(true);
+  };
+
+  const confirmDelete = () => {
+    // close modal immediately to avoid UI overlap or touch issues
+    setModalVisible(false);
+    let updatedCart = [];
+    try {
+      if (deleteItem && (deleteItem._id || deleteItem.id)) {
+        const idKey = deleteItem._id ? '_id' : 'id';
+        updatedCart = cartData.filter(
+          cartItem => cartItem[idKey] !== deleteItem[idKey],
+        );
+      } else if (deleteItem && deleteItem.foodId) {
+        // if item stores nested foodId
+        const fid =
+          typeof deleteItem.foodId === 'object'
+            ? deleteItem.foodId._id || deleteItem.foodId
+            : deleteItem.foodId;
+        updatedCart = cartData.filter(cartItem => {
+          const cartFid =
+            cartItem.foodId &&
+            (typeof cartItem.foodId === 'object'
+              ? cartItem.foodId._id || cartItem.foodId
+              : cartItem.foodId);
+          return cartFid !== fid;
+        });
+      } else {
+        // fallback to reference equality
+        updatedCart = cartData.filter(cartItem => cartItem !== deleteItem);
+      }
+
+      dispatch(setCartData(updatedCart));
+      AsyncStorage.setItem('cartData', JSON.stringify(updatedCart));
+      // clear deleteItem reference
+      setDeleteItem(null);
+    } catch (err) {
+      console.log('confirmDelete error', err);
+    }
+  };
 
   const foodName = item?.name || 'Delicious Food';
   const foodImage = item?.image ? {uri: item.image} : images.meal;
@@ -33,6 +99,7 @@ const CartCard = ({item, index}) => {
       quantity: newQty,
     };
     dispatch(setCartData(updatedCart));
+    AsyncStorage.setItem('cartData', JSON.stringify(updatedCart));
     setQuantity(newQty);
   };
 
@@ -225,7 +292,11 @@ const CartCard = ({item, index}) => {
         </View>
 
         <View style={{gap: 8, alignItems: 'center'}}>
-          <BackButton icon={icons.deleteIcon} border={1} />
+          <BackButton
+            icon={icons.deleteIcon}
+            border={1}
+            onPress={() => openDeleteModal(item)}
+          />
           <BackButton icon={icons.share} border={1} />
         </View>
       </View>
@@ -275,6 +346,16 @@ const CartCard = ({item, index}) => {
           </View>
         </View>
       </View>
+      <CustomModal
+        visible={modalVisible}
+        type={modalData.type}
+        Icon={modalData.Icon}
+        name={modalData.name}
+        detail={modalData.detail}
+        onConfirm={modalData.onConfirm}
+        onCancel={modalData.onCancel}
+        close={() => setModalVisible(false)}
+      />
     </View>
   );
 };
