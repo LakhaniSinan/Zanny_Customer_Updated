@@ -1,7 +1,7 @@
 import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {width} from 'react-native-dimension';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import AntDesign from 'react-native-vector-icons';
 import {useSelector} from 'react-redux';
 import {icons} from '../../assets';
 import {colors} from '../../constants';

@@ -3,7 +3,7 @@ import axios from 'axios';
 // let baseUrl = 'https://czmgcw3c-4000.inc1.devtunnels.ms/api/';
 // let baseUrl = 'https://sirldigital.com/zannyFoods/api/';
 // let baseUrl = 'https://0g01d8wd-4000.inc1.devtunnels.ms/api/';
-let baseUrl = 'https://1qsx0vd0-4000.inc1.devtunnels.ms/api/';
+let baseUrl = 'https://tk4c2l16-4000.euw.devtunnels.ms/api/';
 
 const api = async (path, params, method) => {
   let options;

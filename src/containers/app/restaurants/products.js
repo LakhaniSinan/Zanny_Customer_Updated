@@ -1,32 +1,33 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
-  View,
-  Text,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
   ActivityIndicator,
   Alert,
+  Image,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {height, width} from 'react-native-dimension';
-import styles from './style';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Entypo from 'react-native-vector-icons/Entypo';
+import {width} from 'react-native-dimension';
 import {FlatList} from 'react-native-gesture-handler';
-import {Rating, AirbnbRating} from 'react-native-ratings';
+import {AirbnbRating} from 'react-native-ratings';
+import AntDesign from 'react-native-vector-icons';
+import styles from './style';
 // import {getProductsById} from '../../../../services/product';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CommonModal from './../../../components/modal/index';
-import CartModal from './cartModal';
-import {colors} from './../../../constants/index';
-import {getProductsByMerchantId} from '../../../services/product';
+import {useDispatch, useSelector} from 'react-redux';
 import OverLayLoader from '../../../components/loader';
-import {setMerchantDetail} from '../../../redux/slices/Merchant';
 import {setCartData} from '../../../redux/slices/Cart';
-import {useSelector, useDispatch} from 'react-redux';
-import {addSubscribers, removeSubscribers} from '../../../services/merchant';
-import {color} from 'react-native-reanimated';
-import {getMerchantProfile} from '../../../services/merchant';
+import {setMerchantDetail} from '../../../redux/slices/Merchant';
+import {
+  addSubscribers,
+  getMerchantProfile,
+  removeSubscribers,
+} from '../../../services/merchant';
+import {getProductsByMerchantId} from '../../../services/product';
+import CommonModal from './../../../components/modal/index';
+import {colors} from './../../../constants/index';
+import CartModal from './cartModal';
 
 function formatTime(minutes) {
   const hours = Math.floor(minutes / 60);

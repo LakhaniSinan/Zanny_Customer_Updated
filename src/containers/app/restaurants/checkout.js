@@ -1,12 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import {
   PlatformPay,
   StripeProvider,
   usePlatformPay,
 } from '@stripe/stripe-react-native';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Keyboard,
@@ -17,18 +17,20 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { height, width } from 'react-native-dimension';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import EvilIcons from 'react-native-vector-icons/EvilIcons';
-import { useDispatch, useSelector } from 'react-redux';
+import {height, width} from 'react-native-dimension';
+import {
+  default as AntDesign,
+  default as EvilIcons,
+} from 'react-native-vector-icons';
+import {useDispatch, useSelector} from 'react-redux';
 import Button from '../../../components/button';
 import Header from '../../../components/header';
 import OverLayLoader from '../../../components/loader';
-import { setCartData } from '../../../redux/slices/Cart';
-import { setMerchantDetail } from '../../../redux/slices/Merchant';
-import { setOrderType } from '../../../redux/slices/OrderType';
-import { STRIPE_PUBLISH_TEST, colors } from './../../../constants/index';
-import { getAdminSettings } from './../../../services/adminSettings/index';
+import {setCartData} from '../../../redux/slices/Cart';
+import {setMerchantDetail} from '../../../redux/slices/Merchant';
+import {setOrderType} from '../../../redux/slices/OrderType';
+import {STRIPE_PUBLISH_TEST, colors} from './../../../constants/index';
+import {getAdminSettings} from './../../../services/adminSettings/index';
 import {
   createStripeClientSecret,
   getCalculatedDeliveryFee,
@@ -37,12 +39,12 @@ import {
 import OrderSummaryCard from './orderSumaryCard';
 import styles from './style';
 
-const Checkout = ({ navigation }) => {
+const Checkout = ({navigation}) => {
   const [rideTip, setRideTip] = useState('0');
   const dispatch = useDispatch();
   const user = useSelector(state => state.LoginSlice.user);
-  const { orderType } = useSelector(state => state.OrderType);
-  const { paymentType } = useSelector(state => state.PaymentType);
+  const {orderType} = useSelector(state => state.OrderType);
+  const {paymentType} = useSelector(state => state.PaymentType);
 
   const wallet = useSelector(
     state => state.PaymentCardSlice.currentPaymentCard,
@@ -64,14 +66,14 @@ const Checkout = ({ navigation }) => {
   const [settingsData, setSettingsData] = useState(null);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
   const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
-  const { isPlatformPaySupported, confirmPlatformPayPayment } = usePlatformPay();
+  const {isPlatformPaySupported, confirmPlatformPayPayment} = usePlatformPay();
 
   useEffect(() => {
     getAdminSettings()
       .then(response => {
         setSettingsData(response.data.data);
       })
-      .catch(errrr => { });
+      .catch(errrr => {});
   }, []);
 
   useEffect(() => {
@@ -274,7 +276,7 @@ const Checkout = ({ navigation }) => {
     createStripeClientSecret(payload)
       .then(async ressss => {
         let clientSecret = ressss.data.secretKey;
-        const { error } = await confirmPlatformPayPayment(clientSecret, {
+        const {error} = await confirmPlatformPayPayment(clientSecret, {
           googlePay: {
             testEnv: true,
             merchantName: 'My merchant name',
@@ -311,7 +313,9 @@ const Checkout = ({ navigation }) => {
             });
         }
       })
-      .catch(errr => { setIsLoading(false); });
+      .catch(errr => {
+        setIsLoading(false);
+      });
   };
 
   const payWithApple = async orderPayload => {
@@ -323,7 +327,7 @@ const Checkout = ({ navigation }) => {
     createStripeClientSecret(payload).then(async ressss => {
       setIsLoading(false);
       let clientSecret = ressss.data.secretKey;
-      const { error } = await confirmPlatformPayPayment(clientSecret, {
+      const {error} = await confirmPlatformPayPayment(clientSecret, {
         applePay: {
           cartItems: [
             {
@@ -370,14 +374,14 @@ const Checkout = ({ navigation }) => {
     <>
       <OverLayLoader isloading={isLoading} />
 
-      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <StripeProvider
           publishableKey={STRIPE_PUBLISH_TEST}
           merchantIdentifier="merchant.com.zannycustomer">
           <Header text="Checkout" goBack={true} />
           <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1 }}
+            style={{flex: 1}}
+            contentContainerStyle={{flexGrow: 1}}
             automaticallyAdjustKeyboardInsets={true}>
             {orderType !== 'pickup' && (
               <View
@@ -505,7 +509,7 @@ const Checkout = ({ navigation }) => {
                 {paymentType !== 'COD' ? (
                   <>
                     {wallet?.cardNo == 'Google Pay' ||
-                      wallet?.cardNo == 'Apple Pay' ? (
+                    wallet?.cardNo == 'Apple Pay' ? (
                       <Text
                         style={{
                           marginLeft: 10,
@@ -556,7 +560,7 @@ const Checkout = ({ navigation }) => {
                 )}
               </View>
             </View>
-            <View style={{ marginTop: width(4) }}>
+            <View style={{marginTop: width(4)}}>
               <OrderSummaryCard
                 orderType={orderType}
                 orderBill={orderBill}
@@ -610,11 +614,11 @@ const Checkout = ({ navigation }) => {
                   justifyContent: 'space-between',
                 }}>
                 <Text
-                  style={{ fontSize: 18, color: 'black', fontWeight: 'bold' }}>
+                  style={{fontSize: 18, color: 'black', fontWeight: 'bold'}}>
                   Total
                 </Text>
                 <Text
-                  style={{ fontSize: 16, color: 'black', fontWeight: 'bold' }}>
+                  style={{fontSize: 16, color: 'black', fontWeight: 'bold'}}>
                   £
                   {Number(orderBill.subTotal) +
                     Number(deliveryCharges) +

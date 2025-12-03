@@ -7,7 +7,7 @@ import {useSelector} from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import {getDietRequirements} from '../../../services/dietRequirement';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import AntDesign from 'react-native-vector-icons';
 
 const Allergies = ({route}) => {
   const navigation = useNavigation();

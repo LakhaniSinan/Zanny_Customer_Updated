@@ -3,7 +3,7 @@ import {View, Text, SafeAreaView, Alert} from 'react-native';
 import {width} from 'react-native-dimension';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import Header from '../../../components/header';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import AntDesign from 'react-native-vector-icons';
 import {useNavigation} from '@react-navigation/native';
 import profileStyles from './style';
 import LinearGradient from 'react-native-linear-gradient';

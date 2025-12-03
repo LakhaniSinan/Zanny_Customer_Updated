@@ -1,25 +1,39 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, Image, Platform } from 'react-native';
-import Header from '../../../components/header';
-import { width, height } from 'react-native-dimension';
-import { colors, STRIPE_PUBLISH_TEST } from '../../../constants';
-import { FlatList } from 'react-native-gesture-handler';
-import DatePicker from 'react-native-date-picker';
-import Button from '../../../components/button';
+import {
+  PlatformPay,
+  StripeProvider,
+  usePlatformPay,
+} from '@stripe/stripe-react-native';
 import moment from 'moment/moment';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+  Image,
+  Platform,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import DatePicker from 'react-native-date-picker';
+import {height, width} from 'react-native-dimension';
+import {FlatList} from 'react-native-gesture-handler';
+import {
+  default as AntDesign,
+  default as EvilIcons,
+} from 'react-native-vector-icons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { color, set } from 'react-native-reanimated';
-import CommonModal from '../../../components/modal';
-import { useSelector } from 'react-redux';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import EvilIcons from 'react-native-vector-icons/EvilIcons';
-import { addPrivateOrder } from '../../../services/privateOrder';
-import { useFocusEffect } from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+import Button from '../../../components/button';
+import Header from '../../../components/header';
 import OverLayLoader from '../../../components/loader';
-import { PlatformPay, StripeProvider, usePlatformPay } from '@stripe/stripe-react-native';
-import { createStripeClientSecret, placeUserOrder } from '../../../services/order';
+import CommonModal from '../../../components/modal';
+import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
+import {
+  createStripeClientSecret,
+  placeUserOrder,
+} from '../../../services/order';
+import {addPrivateOrder} from '../../../services/privateOrder';
 
-const PrivateOrder = ({ route, navigation }) => {
+const PrivateOrder = ({route, navigation}) => {
   const ref = useRef();
   const wallet = useSelector(
     state => state.PaymentCardSlice.currentPaymentCard,
@@ -42,7 +56,7 @@ const PrivateOrder = ({ route, navigation }) => {
   });
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
   const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
-  const { isPlatformPaySupported, confirmPlatformPayPayment } = usePlatformPay();
+  const {isPlatformPaySupported, confirmPlatformPayPayment} = usePlatformPay();
 
   useEffect(() => {
     (async function () {
@@ -115,7 +129,7 @@ const PrivateOrder = ({ route, navigation }) => {
     let temp = [...selectedDate];
     let foramtedDate = moment(date).format('DD-MM-YYYY hh:mm a');
     setShowPicker(false);
-    temp.push({ time: foramtedDate });
+    temp.push({time: foramtedDate});
     setSelectedDate(temp);
   };
 
@@ -139,15 +153,14 @@ const PrivateOrder = ({ route, navigation }) => {
   };
 
   const payWithApple = async orderPayload => {
-
-    let passedAmount = orderBill.subTotal
+    let passedAmount = orderBill.subTotal;
     createStripeClientSecret({
-      amount: orderBill.subTotal
+      amount: orderBill.subTotal,
     }).then(async ressss => {
       setIsLoading(false);
       console.log(ressss.data.secretKey, 'RESSSS');
       let clientSecret = ressss.data.secretKey;
-      const { error } = await confirmPlatformPayPayment(clientSecret, {
+      const {error} = await confirmPlatformPayPayment(clientSecret, {
         applePay: {
           cartItems: [
             {
@@ -261,7 +274,7 @@ const PrivateOrder = ({ route, navigation }) => {
             marginHorizontal: width(2),
             shadowColor: 'black',
             shadowOpacity: 0.1,
-            shadowOffset: { width: 0, height: 1 },
+            shadowOffset: {width: 0, height: 1},
             shadowRadius: 30,
           }}>
           <View
@@ -296,12 +309,12 @@ const PrivateOrder = ({ route, navigation }) => {
                     navigation.navigate('PaymentOptions', {
                       isGooglePaySupported,
                       isApplePaySupported,
-                    })
+                    });
                   } else {
                     alert('Please login first to add card');
                   }
                 }}
-              //   onPress={() => navigation.navigate('Addresses')}
+                //   onPress={() => navigation.navigate('Addresses')}
               />
             </View>
           </View>
@@ -326,10 +339,15 @@ const PrivateOrder = ({ route, navigation }) => {
                 marginLeft: width(2),
                 letterSpacing: 3,
               }}>
-              {wallet?.cardNo == "Apple Pay" ? "Apple Pay" : <>{wallet?.cardNo
-                ? '****' + wallet?.cardNo.toString().slice(12, 16)
-                : 'Please select card'}</>}
-
+              {wallet?.cardNo == 'Apple Pay' ? (
+                'Apple Pay'
+              ) : (
+                <>
+                  {wallet?.cardNo
+                    ? '****' + wallet?.cardNo.toString().slice(12, 16)
+                    : 'Please select card'}
+                </>
+              )}
             </Text>
             {/* <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Text style={{fontWeight: 'bold'}}>
@@ -430,8 +448,9 @@ const PrivateOrder = ({ route, navigation }) => {
   return (
     <>
       <OverLayLoader isloading={isloading} />
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
-        <StripeProvider publishableKey={STRIPE_PUBLISH_TEST}
+      <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
+        <StripeProvider
+          publishableKey={STRIPE_PUBLISH_TEST}
           merchantIdentifier="merchant.com.zannycustomer">
           <Header goBack={true} text={'Private Order'} />
           <DatePicker
@@ -449,8 +468,8 @@ const PrivateOrder = ({ route, navigation }) => {
           <FlatList
             data={selectedProduct}
             ListHeaderComponent={<AllHeaderData />}
-            style={{ marginBottom: width(3) }}
-            renderItem={({ item, index }) => {
+            style={{marginBottom: width(3)}}
+            renderItem={({item, index}) => {
               if (item.isShow) {
                 let result = item.allergiesData.some(item =>
                   user?.allergies.includes(item.name),
@@ -493,14 +512,16 @@ const PrivateOrder = ({ route, navigation }) => {
                               borderWidth: 0.5,
                             }}></View>
                         </TouchableOpacity>
-                        <View style={{ marginHorizontal: width(3) }}>
-                          <Text style={{ fontWeight: 'bold', color: 'black' }}>
+                        <View style={{marginHorizontal: width(3)}}>
+                          <Text style={{fontWeight: 'bold', color: 'black'}}>
                             {item?.name}
                           </Text>
-                          <Text style={{ color: 'grey' }}>{item?.description}</Text>
+                          <Text style={{color: 'grey'}}>
+                            {item?.description}
+                          </Text>
                           {item.discount > 0 ? (
-                            <View style={{ flexDirection: 'row' }}>
-                              <Text style={{ color: 'grey' }}>
+                            <View style={{flexDirection: 'row'}}>
+                              <Text style={{color: 'grey'}}>
                                 £{item.discount}
                               </Text>
                               <Text
@@ -528,7 +549,7 @@ const PrivateOrder = ({ route, navigation }) => {
                             marginRight: 10,
                           }}>
                           <Image
-                            source={{ uri: item?.image }}
+                            source={{uri: item?.image}}
                             resizeMode="stretch"
                             style={{
                               height: width(20),
@@ -558,7 +579,9 @@ const PrivateOrder = ({ route, navigation }) => {
                                   : colors.orangeColor,
                               height: width(7),
                             }}>
-                            <Text style={{ color: 'white', fontSize: 20 }}>-</Text>
+                            <Text style={{color: 'white', fontSize: 20}}>
+                              -
+                            </Text>
                           </View>
                         </TouchableOpacity>
                         <Text
@@ -580,7 +603,9 @@ const PrivateOrder = ({ route, navigation }) => {
                               backgroundColor: colors.orangeColor,
                               height: width(7),
                             }}>
-                            <Text style={{ color: 'white', fontSize: 20 }}>+</Text>
+                            <Text style={{color: 'white', fontSize: 20}}>
+                              +
+                            </Text>
                           </View>
                         </TouchableOpacity>
                       </View>
@@ -612,7 +637,7 @@ const PrivateOrder = ({ route, navigation }) => {
                   name="cancel"
                   size={25}
                   color={colors.yellow}
-                  style={{ right: width(5) }}
+                  style={{right: width(5)}}
                   onPress={() => ref.current.hide()}
                 />
               </View>
@@ -644,18 +669,18 @@ const PrivateOrder = ({ route, navigation }) => {
                         name="cancel"
                         size={20}
                         color={colors.white}
-                        style={{ right: width(2) }}
+                        style={{right: width(2)}}
                         onPress={() => handleRemoveDate(ind)}
                       />
                     </View>
                   );
                 })
               ) : (
-                <Text style={{ color: colors.black, alignSelf: 'center' }}>
+                <Text style={{color: colors.black, alignSelf: 'center'}}>
                   Please Select Date & Time for your Order
                 </Text>
               )}
-              <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+              <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                 <TouchableOpacity
                   style={{
                     backgroundColor: colors.yellow,
@@ -697,7 +722,7 @@ const PrivateOrder = ({ route, navigation }) => {
               </View>
             </View>
           </CommonModal>
-          <View style={{ marginBottom: width(2) }}>
+          <View style={{marginBottom: width(2)}}>
             <View
               style={{
                 flexDirection: 'row',

@@ -14,7 +14,7 @@ import {colors} from '../../../constants';
 import {fontFamily, images} from '../../../assets';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import AntDesign from 'react-native-vector-icons';
 import {setUserData} from '../../../redux/slices/Login';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
