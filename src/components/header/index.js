@@ -1,18 +1,16 @@
-import React from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
-import {colors} from '../../constants';
-import AntDesign from 'react-native-vector-icons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {width} from 'react-native-dimension';
-import {useDispatch} from 'react-redux';
-import {setUserData} from '../../redux/slices/Login';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LinearGradient from 'react-native-linear-gradient';
-import {useSelector} from 'react-redux';
-import Octicons from 'react-native-vector-icons/Octicons';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {useNavigation} from '@react-navigation/native';
+import React from 'react';
+import {Text, TouchableOpacity, View} from 'react-native';
+import {width} from 'react-native-dimension';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Octicons from 'react-native-vector-icons/Octicons';
+import {useDispatch, useSelector} from 'react-redux';
+import {colors} from '../../constants';
+import {setUserData} from '../../redux/slices/Login';
 
 const Header = ({
   skip,

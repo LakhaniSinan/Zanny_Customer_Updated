@@ -11,7 +11,7 @@ import {
 import {width} from 'react-native-dimension';
 import {FlatList} from 'react-native-gesture-handler';
 import {AirbnbRating} from 'react-native-ratings';
-import AntDesign from 'react-native-vector-icons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import styles from './style';
 // import {getProductsById} from '../../../../services/product';
 import AsyncStorage from '@react-native-async-storage/async-storage';

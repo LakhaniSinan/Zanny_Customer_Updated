@@ -18,10 +18,8 @@ import {
   View,
 } from 'react-native';
 import {height, width} from 'react-native-dimension';
-import {
-  default as AntDesign,
-  default as EvilIcons,
-} from 'react-native-vector-icons';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useDispatch, useSelector} from 'react-redux';
 import Button from '../../../components/button';
 import Header from '../../../components/header';

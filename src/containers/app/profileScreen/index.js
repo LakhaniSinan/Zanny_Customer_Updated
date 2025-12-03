@@ -14,7 +14,7 @@ import {colors} from '../../../constants';
 import {fontFamily, images} from '../../../assets';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
-import AntDesign from 'react-native-vector-icons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {setUserData} from '../../../redux/slices/Login';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -70,7 +70,7 @@ const ProfileScreen = () => {
   const email = user?.email || 'timothylank@gmail.com';
 
   return (
-    <View style={{flex: 1, backgroundColor: '#F6F6F6'}}>
+    <ScrollView style={{flex: 1, backgroundColor: '#F6F6F6'}}>
       <View
         style={{
           height: width(90),
@@ -290,7 +290,7 @@ const ProfileScreen = () => {
           />
         </ScrollView>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

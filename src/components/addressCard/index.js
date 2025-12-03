@@ -1,7 +1,6 @@
 import React from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {width} from 'react-native-dimension';
-import AntDesign from 'react-native-vector-icons';
 import {useSelector} from 'react-redux';
 import {icons} from '../../assets';
 import {colors} from '../../constants';
@@ -25,7 +24,6 @@ const AddressCard = ({
         style={styles.radioOuter}>
         {isSelected && <View style={styles.radioInner} />}
       </TouchableOpacity>
-
       <View style={styles.card}>
         <Text style={styles.title}>{item?.label || 'Address'}</Text>
 
@@ -44,12 +42,10 @@ const AddressCard = ({
         </View>
         <View style={styles.actionRow}>
           <TouchableOpacity onPress={onPressdelete} style={styles.removeBtn}>
-            <AntDesign name="delete" size={16} color="#fff" />
             <Text style={styles.removeTxt}>Remove</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.editBtn} onPress={onPressEdit}>
-            <AntDesign name="edit" size={16} color={colors.white} />
             <Text style={styles.removeTxt}>Edit</Text>
           </TouchableOpacity>
         </View>

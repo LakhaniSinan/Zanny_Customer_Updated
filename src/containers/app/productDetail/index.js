@@ -21,6 +21,7 @@ import {Colors} from '../../../constants';
 import {getProductDetailById} from '../../../services/product';
 import {addToFavFun} from '../../../services/favourite';
 import {useSelector} from 'react-redux';
+import {helper} from '../../../helper';
 
 const ProductDetail = ({navigation, route}) => {
   const productId = route.params.productId;
@@ -75,36 +76,14 @@ const ProductDetail = ({navigation, route}) => {
   }, []);
 
   if (!productDetails) return <OverLayLoader isloading={true} />;
-  const onShareProduct = async () => {
-    try {
-      const message = `
-${productDetails?.name}
 
-Price: £${productDetails?.price}
-Discount Price: £${getFinalPrice(
-        productDetails?.price,
-        productDetails?.discount,
-      )}
-
-Description:
-${productDetails?.description}
-
-Image:
-${productDetails?.image}
-    `;
-
-      const result = await Share.share({
-        message,
-      });
-    } catch (error) {
-      console.log(error);
-    }
+  const handleShareProduct = () => {
+    helper.handleShare(
+      `Check this product: https://zannysfood.com/app/ProductDetail/${productId}`,
+    );
   };
 
   const onFavIconPress = async item => {
-    console.log(item, 'itemitemitemitemitemcxvxv');
-    console.log(user, 'responseresponseresponseresponseresponse');
-
     setIsLoading(true);
     try {
       let payload = {
@@ -138,7 +117,7 @@ ${productDetails?.image}
         <View style={styles.contentContainer}>
           <TitleRow
             productDetails={productDetails}
-            onShareProduct={onShareProduct}
+            onShareProduct={handleShareProduct}
             onFavIconPress={onFavIconPress}
           />
 

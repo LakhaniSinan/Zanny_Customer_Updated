@@ -13,12 +13,12 @@ import OverLayLoader from '../../../components/loader';
 import {colors} from '../../../constants';
 import {setCartData} from '../../../redux/slices/Cart';
 import {getAdminSettings} from '../../../services/adminSettings';
+import {getMerchantProfile} from '../../../services/merchant';
 import {
   createStripeClientSecret,
   getCalculatedDeliveryFee,
   placeUserOrder,
 } from '../../../services/order';
-import {getMerchantProfile} from '../../../services/merchant';
 
 const parsePriceToNumber = price => {
   const numeric = String(price ?? '').replace(/[^0-9.]/g, '');
@@ -26,26 +26,26 @@ const parsePriceToNumber = price => {
 };
 
 const CartScreen = () => {
-  const navigation = useNavigation();
   const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const [details, setDetails] = useState(0);
   const [loading, setLoading] = useState(false);
   const [settingsData, setSettingsData] = useState(null);
-  const [deliveryCharges, setDeliveryCharges] = useState(0);
   const [serviceCharges, setServiceCharges] = useState(0);
-  const [details, setDetails] = useState(0);
+  const [deliveryCharges, setDeliveryCharges] = useState(0);
   const cartData = useSelector(s => s.CartSlice.cartData) || [];
-  const addresses = useSelector(s => s.AddressSlice.address) || [];
-  const {user} = useSelector(s => s.LoginSlice);
   const location = useSelector(s => s.LocationSlice.currentLocation);
-  console.log(details, 'merchantmerchantmerchantmerchantmerchant');
-
+  const {user} = useSelector(s => s.LoginSlice);
   const wallet = useSelector(s => s.PaymentCardSlice.currentPaymentCard);
-  const {isPlatformPaySupported, confirmPlatformPayPayment} = usePlatformPay();
+  console.log(address, 'cartDatacartDatacartDatacartDatacartData');
+  console.log(details, 'merchantmerchantmerchantmerchantmerchant');
+  // const {isPlatformPaySupported, confirmPlatformPayPayment} = usePlatformPay();
+
   const {address} = useSelector(state => state.AddressSlice);
   const selectedAddress = address[0];
 
   const addressLine =
-    addresses?.[0]?.address || addresses?.[0]?.full_address || 'No address';
+    address?.[0]?.address || address?.[0]?.full_address || 'No address';
   const {subTotal, total} = useMemo(() => {
     const st = cartData.reduce((acc, item) => {
       return acc + parsePriceToNumber(item?.price) * (item?.quantity ?? 1);
@@ -55,7 +55,6 @@ const CartScreen = () => {
       total: st + Number(deliveryCharges) + Number(serviceCharges),
     };
   }, [cartData, deliveryCharges, serviceCharges]);
-
   useEffect(() => {
     setLoading(true);
     getAdminSettings()
@@ -67,14 +66,8 @@ const CartScreen = () => {
     getMerchantDetials();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      await isPlatformPaySupported();
-    })();
-  }, []);
-
   const getMerchantDetials = () => {
-    let restId = cartData[0]?.merchantId;
+    let restId = cartData[0]?.merchantId || '';
     setLoading(true);
     getMerchantProfile(restId)
       .then(response => {
@@ -89,7 +82,6 @@ const CartScreen = () => {
         setLoading(false);
       });
   };
-
   const fetchDeliveryCharges = async () => {
     if (!details || !address?.length > 0) return;
 
@@ -128,6 +120,12 @@ const CartScreen = () => {
     const updated = fee > 4.5 ? 4.5 : fee < 0.99 ? 0.99 : fee;
 
     setServiceCharges(updated);
+  };
+  const afterOrderSuccess = message => {
+    Alert.alert(message);
+    dispatch(setCartData([]));
+    AsyncStorage.setItem('cartData', JSON.stringify([]));
+    navigation.navigate('AllRestaurants');
   };
 
   useFocusEffect(
@@ -199,47 +197,6 @@ const CartScreen = () => {
         Alert.alert(err?.response?.data?.message);
       });
   };
-
-  const handleGooglePay = async payload => {
-    try {
-      const amountPayload = {
-        amount: subTotal + deliveryCharges + serviceCharges,
-      };
-
-      const res = await createStripeClientSecret(amountPayload);
-      const clientSecret = res.data.secretKey;
-
-      const {error} = await confirmPlatformPayPayment(clientSecret, {
-        googlePay: {
-          testEnv: true,
-          merchantName: 'Jarvis Store',
-          merchantCountryCode: 'GB',
-          currencyCode: 'GBP',
-        },
-      });
-
-      if (error) return Alert.alert(error.message);
-
-      placeUserOrder(payload).then(res => {
-        setLoading(false);
-        afterOrderSuccess(res.data.message);
-      });
-    } catch (e) {
-      setLoading(false);
-    }
-  };
-
-  const handleApplePay = async payload => {
-    Alert.alert('Apple Pay Coming Soon!');
-  };
-
-  const afterOrderSuccess = message => {
-    Alert.alert(message);
-    dispatch(setCartData([]));
-    AsyncStorage.setItem('cartData', JSON.stringify([]));
-    navigation.navigate('AllRestaurants');
-  };
-
   const renderItem = ({item, index}) => <CartCard item={item} index={index} />;
 
   return (
@@ -376,7 +333,6 @@ const CartScreen = () => {
     </View>
   );
 };
-
 const Row = ({label, value, bold}) => (
   <View
     style={{

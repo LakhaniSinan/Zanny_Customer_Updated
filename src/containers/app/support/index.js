@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
-import AntDesign from 'react-native-vector-icons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useSelector} from 'react-redux';
 import Header from '../../../components/header';
 import OverLayLoader from '../../../components/loader';

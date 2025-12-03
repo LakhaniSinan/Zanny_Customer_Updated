@@ -131,7 +131,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress}) => {
                 name="View Details"
                 onPress={() =>
                   navigation.navigate('ProductDetail', {
-                    productId: item.foodId._id,
+                    productId: item?.foodId?._id || item._id,
                   })
                 }
               />

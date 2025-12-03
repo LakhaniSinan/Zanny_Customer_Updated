@@ -16,10 +16,8 @@ import {
 import DatePicker from 'react-native-date-picker';
 import {height, width} from 'react-native-dimension';
 import {FlatList} from 'react-native-gesture-handler';
-import {
-  default as AntDesign,
-  default as EvilIcons,
-} from 'react-native-vector-icons';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useSelector} from 'react-redux';
 import Button from '../../../components/button';

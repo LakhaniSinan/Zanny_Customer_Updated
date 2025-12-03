@@ -1,6 +1,6 @@
 import {check, PERMISSIONS, request} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
-import {Linking, Platform} from 'react-native';
+import {Linking, Platform, Share} from 'react-native';
 import Geocoder from 'react-native-geocoding';
 import {constants} from '../constants';
 import axios from 'axios';
@@ -17,6 +17,25 @@ export const helper = {
     }).catch(err => {
       console.log(err, 'errrr');
     });
+  },
+  async handleShare(valueee) {
+    try {
+      const result = await Share.share({
+        message: valueee,
+        // url: activeMedia
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      alert(error.message);
+    }
   },
 
   async checkLocation() {

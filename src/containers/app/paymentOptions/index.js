@@ -98,18 +98,28 @@ const PaymentOptions = ({navigation}) => {
   };
 
   const createTokenForStripe = async details => {
+    console.log(details, 'detailsdetailsdetailsdetailsdetailsadasd');
+
     if (!details.complete) return;
     try {
       setIsLoading(true);
-      const tokenResponse = await createToken({type: 'Card', ...details});
+      const tokenResponse = await createToken({
+        type: 'Card',
+        number: details.number,
+        expMonth: details.expiryMonth,
+        expYear: details.expiryYear,
+        cvc: details.cvc,
+      });
       if (tokenResponse.error) {
         console.error('Token creation failed', tokenResponse.error);
         return;
       }
+
       console.log(
         tokenResponse.token,
         'tokenResponsetokentokenResponsetokentokenResponsetoken',
       );
+      return;
       let payload = {
         cardName: tokenResponse.token?.card?.brand,
         cardNo: tokenResponse.token?.card.last4,
@@ -180,7 +190,7 @@ const PaymentOptions = ({navigation}) => {
         </StripeProvider>
 
         {/* Add New Card */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           activeOpacity={0.7}
           style={{
             flexDirection: 'row',
@@ -200,7 +210,7 @@ const PaymentOptions = ({navigation}) => {
             size={18}
             color={colors.black}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Saved Cards */}
         {paymentCards.length > 0 ? (
