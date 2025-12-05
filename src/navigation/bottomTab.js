@@ -1,14 +1,15 @@
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import React from 'react';
-import {Platform, Image} from 'react-native';
+import {Image, Platform} from 'react-native';
 import {useSelector} from 'react-redux';
-import {Colors} from './../constants/index';
 import {icons} from '../assets';
+import {Colors} from './../constants/index';
 import AuthStack from './AuthStack';
+import FavouriteStack from './FavouriteStack';
 import CurrentOrdersStack from './currentOrdersStack';
+import ExploreStack from './exploreStack';
 import OrderStack from './orderStack';
 import ProfileStack from './profileStack';
-import FavouriteStack from './FavouriteStack';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -65,7 +66,7 @@ const BottomNavigation = () => {
 
       <Tab.Screen
         name="Explore"
-        component={OrderStack}
+        component={ExploreStack}
         options={{
           tabBarLabel: 'Explore',
           tabBarIcon: ({color}) => (

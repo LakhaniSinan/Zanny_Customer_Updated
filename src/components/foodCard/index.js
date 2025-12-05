@@ -7,7 +7,7 @@ import {Colors, colors} from '../../constants';
 import BackButton from '../backIcon';
 import {width} from 'react-native-dimension';
 
-const FoodCard = ({item, handleAddToCart, onFavPress}) => {
+const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
   console.log(item, 'itemitemitemitemitem');
 
   const navigation = useNavigation();
@@ -154,7 +154,11 @@ const FoodCard = ({item, handleAddToCart, onFavPress}) => {
             border={1}
             onPress={() => onFavPress(item)}
           />
-          <BackButton icon={icons.share} border={1} />
+          <BackButton
+            icon={icons.share}
+            border={1}
+            onPress={() => handleShareProduct(item)}
+          />
         </View>
       </View>
 

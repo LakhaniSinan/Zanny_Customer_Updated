@@ -63,6 +63,7 @@ export const icons = {
   Discount: require('../assets/icons/Discount.png'),
   facebook: require('../assets/icons/facebook.png'),
   Google: require('../assets/icons/Google.png'),
+  chipIcon: require('../assets/icons/chipIcon.png'),
   cardIcon: require('../assets/icons/cardIcon.png'),
   hi: require('../assets/icons/hi.png'),
   heart: require('../assets/icons/heart.png'),
@@ -90,4 +91,5 @@ export const icons = {
   cross: require('../assets/icons/cross.png'),
   deleteIcon: require('../assets/icons/deleteIcon.png'),
   bellIcon: require('../assets/icons/bellIcon.png'),
+  emptyCartIcon: require('../assets/icons/emptyCartIcon.png'),
 };

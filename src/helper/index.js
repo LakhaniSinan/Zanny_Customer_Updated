@@ -14,9 +14,37 @@ export const helper = {
         timeout: 15000,
         maximumAge: 10000,
       });
-    }).catch(err => {
-      console.log(err, 'errrr');
     });
+  },
+
+  async checkLocation() {
+    if (Platform.OS == 'android') {
+      return check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION).then(
+        async status => {
+          if (status == 'granted') {
+            return 'granted';
+          } else if (status == 'denied') {
+            return 'denied';
+          } else if (status == 'blocked') {
+            return 'blocked';
+          }
+        },
+      );
+    } else {
+      return await Geolocation.requestAuthorization('whenInUse')
+        .then(async status => {
+          if (status == 'granted') {
+            return 'granted';
+          } else if (status == 'denied') {
+            return 'denied';
+          } else if (status == 'blocked') {
+            return 'blocked';
+          }
+        })
+        .catch(err => {
+          console.log(err, 'err');
+        });
+    }
   },
   async handleShare(valueee) {
     try {
@@ -38,81 +66,57 @@ export const helper = {
     }
   },
 
-  async checkLocation() {
-    if (Platform.OS == 'android') {
-      return await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION).then(
-        async status => {
-          if (status == 'granted') {
-            return 'granted';
-          } else if (status == 'denied') {
-            console.log('DENIED');
-            let result = await request(
-              PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
+  async getLocationAddress(lat, lng) {
+    return new Promise((resolve, reject) => {
+      console.log(`Attempting geocoding for coordinates: ${lat}, ${lng}`);
+
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyAvPVhgFVY2qv4c6kvukvIP2krPJe9dZGA`;
+
+      axios
+        .get(url)
+        .then(response => {
+          const data = response.data;
+          console.log('Geocoding API response status:', data.status);
+          console.log('Full API response:', JSON.stringify(data, null, 2));
+
+          if (data.status === 'OK' && data.results.length > 0) {
+            const location = data.results[0].formatted_address;
+            console.log('Geocoding successful:', location);
+            resolve(location);
+          } else if (data.status === 'ZERO_RESULTS') {
+            console.log('No results found for these coordinates');
+            reject('No address found for these coordinates');
+          } else if (data.status === 'REQUEST_DENIED') {
+            console.log('API request denied:', data.error_message);
+            reject(`API request denied: ${data.error_message}`);
+          } else if (data.status === 'OVER_QUERY_LIMIT') {
+            console.log('API quota exceeded');
+            reject('API quota exceeded. Please try again later.');
+          } else if (data.status === 'INVALID_REQUEST') {
+            console.log('Invalid request parameters');
+            reject('Invalid coordinates provided');
+          } else {
+            console.log('Geocoding failed - API response:', data);
+            reject(
+              `Geocoding failed. Status: ${data.status}, Error: ${
+                data.error_message || 'Unknown error'
+              }`,
             );
-            console.log(result, 'resultresultresult');
-            if (result === 'granted') {
-              return 'granted';
-            } else if (result == 'blocked') {
-              constants?.confirmationModal.isVisible({
-                message:
-                  'Please turn On your Location from settings in order to get Resturants Near You',
-                NegText: 'Later',
-                PosText: 'Open Settings',
-                PosPress: () => Linking.openSettings(),
-              });
-            } else {
-              request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
-            }
-          } else if (status == 'blocked') {
-            console.log('BLOCKED');
-            return 'blocked';
-          } else {
-            request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
-          }
-        },
-      );
-    } else {
-      return await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE)
-        .then(async status => {
-          console.log(status, 'STATUS_IOS');
-          if (status == 'granted') {
-            return 'granted';
-          } else if (status == 'denied') {
-            console.log('DENIED');
-            let result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-            console.log(result, 'resultresultresult');
-            if (result === 'granted') {
-              return 'granted';
-            } else if (result == 'blocked') {
-              constants?.confirmationModal.isVisible({
-                message:
-                  'Please turn On your Location from settings in order to get Resturants Near You',
-                NegText: 'Later',
-                PosText: 'Open Settings',
-                PosPress: () => Linking.openSettings(),
-              });
-            } else {
-              request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-            }
-          } else if (status == 'blocked') {
-            console.log('BLOCKED');
-            return 'blocked';
-          } else {
-            request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
           }
         })
-        .catch(err => {
-          console.log(err, 'err');
+        .catch(error => {
+          console.log(
+            'Geocoding request error:',
+            error.response?.data || error.message,
+          );
+          if (error.response?.status === 403) {
+            reject('API key is invalid or restricted');
+          } else if (error.response?.status === 429) {
+            reject('Too many requests. Please try again later.');
+          } else {
+            reject(`Geocoding request failed. Network error: ${error.message}`);
+          }
         });
-    }
-  },
-
-  async getLocationAddress(lat, long) {
-    return new Promise((resolve, reject) => {
-      Geocoder.init('AIzaSyAvPVhgFVY2qv4c6kvukvIP2krPJe9dZGA');
-      Geocoder.from(lat, long)
-        .then(json => resolve(json))
-        .catch(error => reject(error));
     });
   },
 

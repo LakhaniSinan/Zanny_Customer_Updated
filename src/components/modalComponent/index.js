@@ -1,49 +1,57 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
-import Modal from 'react-native-modal';
+import React, {useEffect, useState} from 'react';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {width} from 'react-native-dimension';
-import {useSelector} from 'react-redux';
-import {fontFamily, icons, images} from '../../assets';
+import Modal from 'react-native-modal';
+import {icons} from '../../assets';
 import {Colors} from '../../constants';
 import CustomInput from '../customInput';
+import GooglePlacesInput from '../googlePlaceInput';
 
 const ChangeAddressModal = ({
   visible,
-  onClose,
+  onClose = () => {},
   onUpdate = () => {},
-  mode = 'add', // 'add' | 'edit'
-  data = null, // data for edit mode
+  mode = 'add',
+  data = null,
 }) => {
-  const {address} = useSelector(state => state.AddressSlice);
-
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [form, setForm] = useState({
-    fullAddress: '',
     street: '',
     city: '',
   });
 
   useEffect(() => {
-    // For edit mode, populate fields from data
-    if (mode === 'edit' && data) {
+    if (data && mode == 'edit') {
+      setSelectedLocation({
+        userAddress: data?.address,
+        latLng: {
+          lat: data?.latitude,
+          lng: data?.longitude,
+        },
+      });
       setForm({
-        fullAddress: data.address || '',
-        street: data.street || '',
-        city: data.city || '',
+        street: data?.street,
+        city: data?.city,
       });
     } else {
-      // Clear form for add mode
-      setForm({
-        fullAddress: '',
-        street: '',
-        city: '',
-      });
+      resetForm();
     }
-  }, [mode, data, visible]);
+  }, [data, mode == 'edit', visible]);
+
+  const resetForm = () => {
+    setSelectedLocation(null);
+    setForm({street: '', city: ''});
+  };
 
   const handleChange = (key, val) => setForm(prev => ({...prev, [key]: val}));
 
   const handleUpdate = () => {
-    onUpdate(form);
+    onUpdate({...selectedLocation, ...form, type: mode, ...data});
+    handleClose();
+  };
+
+  const handleClose = () => {
+    resetForm();
     onClose();
   };
 
@@ -53,7 +61,7 @@ const ChangeAddressModal = ({
       animationIn="slideInUp"
       animationOut="slideOutDown"
       backdropOpacity={0.5}
-      onBackdropPress={onClose}
+      onBackdropPress={handleClose}
       style={styles.modal}>
       <View style={styles.container}>
         {/* Header */}
@@ -61,46 +69,22 @@ const ChangeAddressModal = ({
           <Text style={styles.headerTitle}>
             {mode === 'edit' ? 'Edit Address' : 'Add Address'}
           </Text>
-          <TouchableOpacity onPress={onClose}>
+          <TouchableOpacity onPress={handleClose}>
             <Image source={icons.cross} style={styles.closeIcon} />
           </TouchableOpacity>
         </View>
 
         {/* Current Address */}
         <Text style={styles.sectionTitle}>Current Address</Text>
-        <View style={styles.addressContainer}>
-          <View style={styles.addressLeft}>
-            <View style={styles.addressIconContainer}>
-              <Image
-                source={icons.location}
-                style={styles.addressIcon}
-                resizeMode="contain"
-              />
-            </View>
-            <View>
-              <Text style={styles.addressTitle}>Delivery Address</Text>
-              <Text style={styles.addressText} numberOfLines={1}>
-                {address[0]?.address || 'No address available'}
-              </Text>
-            </View>
-          </View>
-          <Image
-            source={images.mapImage}
-            resizeMode="contain"
-            style={styles.arrowIcon}
-          />
-        </View>
-        <View style={{height: width(4)}} />
+        <View style={{height: width(2)}} />
 
-        {/* Form Fields */}
-        <CustomInput
-          title="Full Address"
-          value={form.fullAddress}
-          onChangeText={txt => handleChange('fullAddress', txt)}
-          placeholder="Enter Full Address"
-          multiline
-          maxLength={250}
+        <GooglePlacesInput
+          showLeftIcon
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}
+          placeholder="Select your location"
         />
+
         <View style={{height: width(4)}} />
         <CustomInput
           title="Street Number"
@@ -153,37 +137,4 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   updateButtonText: {color: 'white', textAlign: 'center', fontSize: 16},
-  // Address styles
-  addressContainer: {
-    marginTop: width(4),
-    height: width(16),
-    backgroundColor: Colors.clay,
-    borderRadius: 100,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: width(4),
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  addressLeft: {flexDirection: 'row', alignItems: 'center', gap: 12},
-  addressIconContainer: {
-    height: width(10),
-    width: width(10),
-    borderRadius: 50,
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addressIcon: {height: width(5), width: width(5)},
-  addressTitle: {fontFamily: fontFamily.poppinBold},
-  addressText: {
-    fontFamily: fontFamily.poppinRegular,
-    color: Colors.graydark,
-    fontSize: 12,
-    width: width(60),
-  },
-  arrowIcon: {height: 30, width: 30},
 });

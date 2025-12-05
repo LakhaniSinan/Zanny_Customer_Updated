@@ -9,17 +9,14 @@ import {colors} from '../../constants';
 import {setCartData} from '../../redux/slices/Cart';
 import BackButton from '../backIcon';
 import CustomModal from '../customModal';
+import {helper} from '../../helper';
 
 const CartCard = ({item, index}) => {
-  console.log(item, 'itemitemitemitemitemitemitem');
-
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const {cartData} = useSelector(state => state.CartSlice);
   const [quantity, setQuantity] = useState(item?.quantity ?? 1);
-
   const [modalVisible, setModalVisible] = useState(false);
-  const [deleteItem, setDeleteItem] = useState(null);
   const [modalData, setModalData] = useState({
     type: 'default',
     Icon: null,
@@ -30,56 +27,26 @@ const CartCard = ({item, index}) => {
   });
 
   const openDeleteModal = itemToRemove => {
-    setDeleteItem(itemToRemove);
-
     setModalData({
       type: 'confirmation',
       Icon: icons.alertIcon,
       name: 'Confirmation',
       detail: 'Are you sure you want to remove this item?',
-      onConfirm: confirmDelete,
+      onConfirm: () => confirmDelete(itemToRemove),
       onCancel: () => setModalVisible(false),
     });
 
     setModalVisible(true);
   };
 
-  const confirmDelete = () => {
-    // close modal immediately to avoid UI overlap or touch issues
+  const confirmDelete = item => {
     setModalVisible(false);
-    let updatedCart = [];
-    try {
-      if (deleteItem && (deleteItem._id || deleteItem.id)) {
-        const idKey = deleteItem._id ? '_id' : 'id';
-        updatedCart = cartData.filter(
-          cartItem => cartItem[idKey] !== deleteItem[idKey],
-        );
-      } else if (deleteItem && deleteItem.foodId) {
-        // if item stores nested foodId
-        const fid =
-          typeof deleteItem.foodId === 'object'
-            ? deleteItem.foodId._id || deleteItem.foodId
-            : deleteItem.foodId;
-        updatedCart = cartData.filter(cartItem => {
-          const cartFid =
-            cartItem.foodId &&
-            (typeof cartItem.foodId === 'object'
-              ? cartItem.foodId._id || cartItem.foodId
-              : cartItem.foodId);
-          return cartFid !== fid;
-        });
-      } else {
-        // fallback to reference equality
-        updatedCart = cartData.filter(cartItem => cartItem !== deleteItem);
-      }
-
-      dispatch(setCartData(updatedCart));
-      AsyncStorage.setItem('cartData', JSON.stringify(updatedCart));
-      // clear deleteItem reference
-      setDeleteItem(null);
-    } catch (err) {
-      console.log('confirmDelete error', err);
-    }
+    if (!item) return;
+    const updatedCart = cartData.filter(cartItem => {
+      return cartItem?._id !== item?._id;
+    });
+    dispatch(setCartData(updatedCart));
+    AsyncStorage.setItem('cartData', JSON.stringify(updatedCart));
   };
 
   const foodName = item?.name || 'Delicious Food';
@@ -111,6 +78,12 @@ const CartCard = ({item, index}) => {
     } else {
       updateCartQuantity(quantity - 1);
     }
+  };
+
+  const handleShareProduct = () => {
+    helper.handleShare(
+      `Check this product: https://zannysfood.com/app/ProductDetail/${item?._id}`,
+    );
   };
 
   return (
@@ -297,7 +270,11 @@ const CartCard = ({item, index}) => {
             border={1}
             onPress={() => openDeleteModal(item)}
           />
-          <BackButton icon={icons.share} border={1} />
+          <BackButton
+            icon={icons.share}
+            border={1}
+            onPress={handleShareProduct}
+          />
         </View>
       </View>
 

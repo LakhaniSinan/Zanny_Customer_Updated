@@ -26,3 +26,6 @@ export const addReview = (id, params) => {
 export const createStripeClientSecret = params => {
   return Api(`${endPoints.createPaymentIntent}`, params, requestType.POST);
 };
+export const applyPromoCode = params => {
+  return Api(`${endPoints.applyPromoCode}`, params, requestType.POST);
+};

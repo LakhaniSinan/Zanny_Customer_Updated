@@ -1,17 +1,14 @@
-import {View, Text, Image} from 'react-native';
+import {View, Text, Image, FlatList} from 'react-native';
 import React from 'react';
-import {fontFamily, icons, images} from '../../assets';
-import ActionBuuton from '../actionButton';
+import {fontFamily} from '../../assets';
+import ActionButton from '../actionButton';
 import {useNavigation} from '@react-navigation/native';
 import {colors} from '../../constants';
 import {width} from 'react-native-dimension';
 
 const HistoryCard = ({item}) => {
   const navigation = useNavigation();
-  const data = item?.order[0];
-  console.log(item, 'itemitemitemitemitemlkasndkla');
 
-  const hasDiscount = data?.discount && data?.discount < data?.price;
   const getStatusStyle = status => {
     switch (status?.toLowerCase()) {
       case 'pending':
@@ -35,141 +32,142 @@ const HistoryCard = ({item}) => {
         marginTop: width(2),
         borderBottomWidth: 1,
         borderBottomColor: colors.grey,
-        paddingBottom: width(5),
+        paddingBottom: width(4),
         marginHorizontal: width(4),
         backgroundColor: colors.white,
         borderRadius: width(2),
         padding: width(3),
       }}>
-      {/* Top Row: Image + Info */}
-      <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-        <Image
-          source={{uri: data?.image}}
-          resizeMode="cover"
+      {/* ================= TOP SUMMARY ================= */}
+      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <Text
           style={{
-            height: width(22),
-            width: width(22),
-            borderRadius: width(2),
-          }}
-        />
+            fontSize: 16,
+            fontFamily: fontFamily.poppinBold,
+            color: colors.black,
+          }}>
+          Order #{item?.orderCode}
+        </Text>
 
-        <View style={{flex: 1}}>
-          {/* Name */}
+        <View
+          style={{
+            paddingVertical: 2,
+            paddingHorizontal: 8,
+            borderRadius: 100,
+            backgroundColor: statusStyle.bg,
+            borderWidth: 1,
+            borderColor: statusStyle.color,
+          }}>
           <Text
             style={{
-              fontSize: 16,
-              color: colors.black,
+              fontSize: 12,
+              color: statusStyle.color,
               fontFamily: fontFamily.poppinBold,
             }}>
-            {data?.name}
+            {item?.status}
           </Text>
+        </View>
+      </View>
 
-          {/* Price */}
-          <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
-            {hasDiscount ? (
-              <>
-                <Text
-                  style={{
-                    color: colors.red,
-                    fontFamily: fontFamily.poppinBold,
-                    fontSize: 16,
-                  }}>
-                  £{data?.discount}
-                </Text>
-                <Text
-                  style={{
-                    marginLeft: 10,
-                    fontSize: 12,
-                    textDecorationLine: 'line-through',
-                    color: colors.grey,
-                    fontFamily: fontFamily.poppin,
-                  }}>
-                  £{data?.price}
-                </Text>
-              </>
-            ) : (
-              <Text
-                style={{
-                  color: colors.black,
-                  fontFamily: fontFamily.poppinBold,
-                  fontSize: 16,
-                }}>
-                £{data?.price}
-              </Text>
-            )}
-          </View>
+      {/* DATE */}
+      <Text
+        style={{
+          marginTop: 3,
+          fontSize: 12,
+          color: colors.grey,
+          fontFamily: fontFamily.poppin,
+        }}>
+        {item?.date}
+      </Text>
 
-          {/* Status */}
+      {/* ================= PRODUCTS LIST ================= */}
+      <FlatList
+        data={item?.order}
+        scrollEnabled={false}
+        keyExtractor={(i, index) => index.toString()}
+        style={{marginTop: width(3)}}
+        renderItem={({item: product}) => (
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              marginTop: 8,
-              gap: 8,
+              marginBottom: width(3),
             }}>
-            <Text
+            <Image
+              source={{uri: product?.image}}
               style={{
-                fontSize: 12,
-                fontFamily: fontFamily.poppinBold,
-                color: colors.black,
-              }}>
-              Status
-            </Text>
-            <View
-              style={{
-                paddingVertical: 2,
-                paddingHorizontal: 8,
-                borderRadius: 100,
-                backgroundColor: statusStyle.bg,
-                borderWidth: 1,
-                borderColor: statusStyle.color,
-              }}>
+                height: width(18),
+                width: width(18),
+                borderRadius: width(2),
+              }}
+              resizeMode="cover"
+            />
+
+            <View style={{marginLeft: 10, flex: 1}}>
               <Text
                 style={{
-                  fontSize: 12,
-                  color: statusStyle.color,
+                  fontSize: 14,
                   fontFamily: fontFamily.poppinBold,
+                  color: colors.black,
                 }}>
-                {item?.status || 'Delivered'}
+                {product?.name}
+              </Text>
+
+              <Text
+                style={{
+                  marginTop: 3,
+                  fontSize: 12,
+                  color: colors.grey,
+                  fontFamily: fontFamily.poppin,
+                }}>
+                Qty: {product?.quantity}
+              </Text>
+
+              <Text
+                style={{
+                  marginTop: 2,
+                  fontSize: 14,
+                  fontFamily: fontFamily.poppinBold,
+                  color: colors.black,
+                }}>
+                £{product?.price}
               </Text>
             </View>
           </View>
+        )}
+      />
 
-          {/* Button */}
-          <View style={{width: width(50), marginTop: width(3)}}>
-            {item?.status === 'Completed' ? (
-              <ActionBuuton
-                bgcColor={'#3b0b0b'}
-                fontColor={colors.white}
-                name={'View details'}
-                onPress={() => navigation.navigate('OrderDetail', item)}
-              />
-            ) : (
-              <ActionBuuton
-                bgcColor={'#3b0b0b'}
-                fontColor={colors.white}
-                name={'Order again'}
-                onPress={() =>
-                  navigation.navigate('ProductDetail', {productId: data?._id})
-                }
-              />
-            )}
-          </View>
-        </View>
+      <View
+        style={{
+          marginTop: width(2),
+          paddingVertical: width(2),
+          borderTopWidth: 1,
+          borderColor: colors.lightGrey,
+        }}>
+        <Text
+          style={{
+            alignSelf: 'flex-end',
+            fontSize: 14,
+            fontFamily: fontFamily.poppinBold,
+            color: colors.black,
+          }}>
+          Total Paid: £{item?.totalBill}
+        </Text>
       </View>
 
-      {/* Chef Info */}
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          marginTop: width(3),
+          marginTop: width(2),
         }}>
         <Image
-          source={{uri: item?.merchantDetails?.merchantImage || ''}}
-          resizeMode="cover"
-          style={{height: width(10), width: width(10), borderRadius: width(5)}}
+          source={{uri: item?.merchantDetails?.merchantImage}}
+          style={{
+            height: width(10),
+            width: width(10),
+            borderRadius: width(5),
+          }}
         />
         <View style={{marginLeft: 8}}>
           <Text
@@ -186,10 +184,32 @@ const HistoryCard = ({item}) => {
               fontFamily: fontFamily.poppinBold,
               color: colors.black,
             }}>
-            {item?.merchantDetails?.name || 'Leanne Wayne'}
+            {item?.merchantDetails?.name}
           </Text>
         </View>
       </View>
+
+      {/* ================= BUTTON ================= */}
+      {item?.status == 'Completed' && (
+        <View style={{marginTop: width(3)}}>
+          <ActionButton
+            bgcColor={'#3b0b0b'}
+            fontColor={colors.white}
+            name={'Order Again'}
+            onPress={() => navigation.navigate('OrderDetail', item)}
+          />
+        </View>
+      )}
+      {item?.status !== 'Completed' && (
+        <View style={{marginTop: width(3)}}>
+          <ActionButton
+            bgcColor={'#3b0b0b'}
+            fontColor={colors.white}
+            name={'View details'}
+            onPress={() => navigation.navigate('OrderDetail', item)}
+          />
+        </View>
+      )}
     </View>
   );
 };

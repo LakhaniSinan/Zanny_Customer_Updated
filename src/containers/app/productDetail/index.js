@@ -4,36 +4,45 @@ import {
   FlatList,
   Image,
   ScrollView,
-  Share,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
+import {useDispatch, useSelector} from 'react-redux';
 import {icons} from '../../../assets';
 import ActionButton from '../../../components/actionButton';
 import ChefsCard from '../../../components/chefsCard';
+import CustomModal from '../../../components/customModal';
 import OverLayLoader from '../../../components/loader';
 import ProgressCard from '../../../components/progressCard';
 import SectionHeader from '../../../components/sectionHeader';
 import SegmentedButtons from '../../../components/SegmentedButtons';
 import {Colors} from '../../../constants';
-import {getProductDetailById} from '../../../services/product';
-import {addToFavFun} from '../../../services/favourite';
-import {useSelector} from 'react-redux';
 import {helper} from '../../../helper';
+import {setCartData} from '../../../redux/slices/Cart';
+import {addToFavFun} from '../../../services/favourite';
+import {getProductDetailById} from '../../../services/product';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProductDetail = ({navigation, route}) => {
   const productId = route.params.productId;
-  console.log(productId, 'productIdproductIdproductIdproductIdproductIdasdasd');
-
+  const dispatch = useDispatch();
   const navigationType = route.params.type;
   const productData = route.params.data;
   const {user} = useSelector(state => state.LoginSlice);
   const [productDetails, setProductDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Nutrition');
-  console.log(productDetails, 'productDetailsproductDetailsproductDetails');
+  const {cartData} = useSelector(state => state.CartSlice);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState({
+    Icon: '',
+    name: '',
+    detail: '',
+    buttonName: 'Okay',
+    onPress: () => setModalVisible(false),
+  });
 
   const deliveryData = [
     {icon: icons.package, name: 'Delivery'},
@@ -51,7 +60,6 @@ const ProductDetail = ({navigation, route}) => {
     try {
       setIsLoading(true);
       const response = await getProductDetailById(productId);
-      console.log(response, 'responseresponseresponseresponseresponseresponse');
 
       if (response.status === 200 || response.status === 201) {
         setProductDetails(response?.data?.data);
@@ -92,13 +100,88 @@ const ProductDetail = ({navigation, route}) => {
         foodId: item?._id,
       };
       const response = await addToFavFun(payload);
-      console.log(response.data, 'responseresponseresponseresponseresponse');
     } catch (error) {
       console.log(error, 'errorerrorerrorasndalskdnd');
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleAddToCart = async () => {
+    if (!user)
+      return showModal('error', 'Please login first to add items in your cart');
+
+    try {
+      let tempArr = [...cartData];
+
+      const findIndex = tempArr.findIndex(i => i._id === productData._id);
+
+      if (
+        cartData.length === 0 ||
+        cartData[0].merchantId === productData.merchantId
+      ) {
+        if (findIndex !== -1) {
+          // Copy the object before modifying
+          tempArr[findIndex] = {
+            ...tempArr[findIndex],
+            selectedQty: (tempArr[findIndex].selectedQty || 1) + 1,
+          };
+        } else {
+          tempArr.push({...productData, selectedQty: 1});
+        }
+
+        dispatch(setCartData(tempArr));
+        await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
+        navigation.navigate('CartScreen');
+      } else {
+        showModal(
+          'error',
+          'You can only add items from one restaurant at a time',
+        );
+      }
+    } catch (err) {
+      console.log('Add to Cart Error:', err);
+      showModal('error', 'Something went wrong while adding to cart');
+    }
+  };
+
+  const showModal = (type, message) => {
+    setModalData({
+      Icon:
+        type === 'success'
+          ? require('../../../assets/icons/check.png')
+          : require('../../../assets/icons/cross.png'),
+      name: type === 'success' ? 'Success' : 'Error',
+      detail: message,
+      buttonName: 'Okay',
+      onPress: () => setModalVisible(false),
+    });
+    setModalVisible(true);
+  };
+
+  const BottomButtons = () => (
+    <View style={styles.bottomBar}>
+      <View style={{width: width(45)}}>
+        <ActionButton
+          onPress={() => Alert.alert('Alert', 'This Feature Will Enable Soon')}
+          height={46}
+          width={width(45)}
+          name={'Pre-order'}
+          fontColor={Colors.black}
+        />
+      </View>
+      <View style={{width: width(45)}}>
+        <ActionButton
+          height={46}
+          width={width(45)}
+          name={'Buy Now'}
+          bgcColor={Colors.black}
+          fontColor={Colors.white}
+          onPress={handleAddToCart}
+        />
+      </View>
+    </View>
+  );
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
@@ -205,7 +288,15 @@ const ProductDetail = ({navigation, route}) => {
         </View>
         <BottomButtons />
       </ScrollView>
-
+      <CustomModal
+        visible={modalVisible}
+        Icon={modalData.Icon}
+        name={modalData.title}
+        detail={modalData.detail}
+        buttonName={modalData.buttonName}
+        onPress={modalData.onPress}
+        close={() => setModalVisible(false)}
+      />
       <OverLayLoader isloading={isLoading} />
     </View>
   );
@@ -332,27 +423,6 @@ const ChefInfo = ({merchant}) => (
     <View style={{width: width(20)}}>
       <ActionButton
         name={'Hire'}
-        bgcColor={Colors.black}
-        fontColor={Colors.white}
-      />
-    </View>
-  </View>
-);
-const BottomButtons = () => (
-  <View style={styles.bottomBar}>
-    <View style={{width: width(45)}}>
-      <ActionButton
-        height={46}
-        width={width(45)}
-        name={'Pre-order'}
-        fontColor={Colors.black}
-      />
-    </View>
-    <View style={{width: width(45)}}>
-      <ActionButton
-        height={46}
-        width={width(45)}
-        name={'Buy Now'}
         bgcColor={Colors.black}
         fontColor={Colors.white}
       />

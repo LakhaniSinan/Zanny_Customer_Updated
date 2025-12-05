@@ -36,10 +36,12 @@
                 <data android:scheme="zanny" android:host="product" />
                 <data android:scheme="zanny" android:host="app" />
 
-                <data
-                    android:scheme="https"
-                    android:host="zannysfood.com"
-                    android:pathPrefix="/app" />
+                <data android:scheme="https" android:host="zannysfood.com" android:pathPrefix="/app" />
+                <data android:scheme="https" android:host="www.zannysfood.com" android:pathPrefix="/app" />
+                <data android:scheme="https" android:host="zannysfood.com" android:pathPrefix="/app/ProductDetail" />
+                <data android:scheme="https" android:host="zannysfood.com" android:pathPrefix="/app/ProductDetail/" />
+                <data android:scheme="https" android:host="www.zannysfood.com" android:pathPrefix="/app/ProductDetail" />
+                <data android:scheme="https" android:host="www.zannysfood.com" android:pathPrefix="/app/ProductDetail/" />
             </intent-filter>
         </activity>
 

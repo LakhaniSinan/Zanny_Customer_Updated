@@ -10,6 +10,7 @@ import OverLayLoader from '../../../components/loader';
 import {Colors} from '../../../constants';
 import {getUserFavProFun, addToFavFun} from '../../../services/favourite';
 import {setCartData} from '../../../redux/slices/Cart';
+import {helper} from '../../../helper';
 
 const Favourite = () => {
   const navigation = useNavigation();
@@ -140,6 +141,12 @@ const Favourite = () => {
     }
   };
 
+  const handleShareProduct = item => {
+    helper.handleShare(
+      `Check this product: https://zannysfood.com/app/ProductDetail/${item?.foodId._id}`,
+    );
+  };
+
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
       <AppHeader goBack={true} cartIcon={true} text="Favorites" />
@@ -152,6 +159,7 @@ const Favourite = () => {
             item={item}
             handleAddToCart={handleAddToCart}
             onFavPress={handleFavToggle}
+            handleShareProduct={handleShareProduct}
           />
         )}
         ListEmptyComponent={

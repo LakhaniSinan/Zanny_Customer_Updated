@@ -72,9 +72,10 @@ export const endPoints = {
 
   //payment card
   addPaymentCard: 'addPaymentCard',
-  getPaymentCardById: 'getPaymentCardById',
-  deletePaymentCard: 'deletePaymentCard',
+  getPaymentCardById: 'user/fetch-saved-cards',
+  deletePaymentCard: 'user/remove-card',
   updatePaymentCard: 'updatePaymentCard',
+  addCard: '/user/save-card',
 
   //allergiesss
   getAllergiesCategories: 'getAllergiesCategories',
@@ -91,4 +92,8 @@ export const endPoints = {
   //Favourite
   addTofavourite: 'createFavourite',
   getfavourite: 'getFavouritesByUser',
+
+  //Orders
+
+  applyPromoCode: 'applyPromo',
 };
