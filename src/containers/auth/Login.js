@@ -25,6 +25,8 @@ import appleAuth, {
   AppleAuthRequestScope,
 } from '@invertase/react-native-apple-authentication';
 import OverLayLoader from '../../components/loader';
+import AppHeader from '../../components/headerComponent';
+import {CommonActions} from '@react-navigation/native';
 
 const Login = ({navigation}) => {
   const dispatch = useDispatch();
@@ -224,10 +226,6 @@ const Login = ({navigation}) => {
       if (credentialState === AppleAuthCredentialState.AUTHORIZED) {
         const {email, fullName, identityToken, nonce} =
           appleAuthRequestResponse;
-        console.log(
-          appleAuthRequestResponse,
-          'appleAuthRequestResponseappleAuthRequestResponse',
-        );
 
         let params = {
           name: fullName,
@@ -248,10 +246,10 @@ const Login = ({navigation}) => {
           AsyncStorage.setItem('user_token', response.data.data.token);
           AsyncStorage.setItem('user', JSON.stringify(newObj));
           dispatch(setUserData(newObj));
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'UserAllergies'}],
-          });
+          // navigation.reset({
+          //   index: 0,
+          //   routes: [{name: 'UserAllergies'}],
+          // });
         } else {
           Alert.alert(response?.data?.message);
         }
@@ -265,6 +263,36 @@ const Login = ({navigation}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
+      <TouchableOpacity
+        style={{
+          height: width(13),
+          width: width(13),
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onPress={() => {
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'BottomStack',
+                state: {
+                  index: 0,
+                  routes: [{name: 'Home'}],
+                },
+              },
+            ],
+          });
+        }}>
+        <Image
+          source={icons.ArrowLeft}
+          resizeMode="contain"
+          style={{
+            height: width(5),
+            width: width(5),
+          }}
+        />
+      </TouchableOpacity>
       <View style={{marginLeft: 15}}>
         <View
           style={{

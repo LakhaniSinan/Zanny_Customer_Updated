@@ -116,7 +116,7 @@ const Restaurants = ({navigation}) => {
               source={{uri: item?.merchantImage}}
               style={styles.chefImage}
             />
-            <View>
+            <View style={{marginLeft: width(2)}}>
               <Text style={styles.chefLabel}>Chef</Text>
 
               <View style={styles.chefNameContainer}>

@@ -17,6 +17,7 @@ import {colors} from '../../../constants';
 import {setCartData} from '../../../redux/slices/Cart';
 import {addToFavFun} from '../../../services/favourite';
 import {getAllProducts} from '../../../services/product';
+import {helper} from '../../../helper';
 
 const AllFoodScreen = ({route}) => {
   const data = route.params;
@@ -207,7 +208,11 @@ const AllFoodScreen = ({route}) => {
       setLoading(false);
     }
   };
-
+  const handleShareProduct = item => {
+    helper.handleShare(
+      `Check this product: https://zannysfood.com/portal/#/app?ProductDetail/${item?._id}`,
+    );
+  };
   return (
     <View style={{flex: 1, backgroundColor: colors.white}}>
       <AppHeader goBack={true} cartIcon={true} text="Delicacies" />
@@ -220,6 +225,7 @@ const AllFoodScreen = ({route}) => {
             item={item}
             handleAddToCart={handleAddToCart}
             onFavPress={onFavPress}
+            handleShareProduct={() => handleShareProduct(item)}
           />
         )}
         ListEmptyComponent={<ListEmpty />}

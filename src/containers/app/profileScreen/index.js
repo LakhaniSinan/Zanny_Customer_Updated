@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Image,
   ScrollView,
@@ -56,13 +56,11 @@ const ProfileScreen = () => {
   const [promoEnabled, setPromoEnabled] = useState(false);
 
   // 🔹 Redirect to Login if user is not logged in
-  useFocusEffect(
-    useCallback(() => {
-      if (!user) {
-        navigation.navigate('Login');
-      }
-    }, [user, navigation]),
-  );
+  useEffect(() => {
+    if (!user) {
+      navigation.navigate('Login');
+    }
+  }, []);
 
   const logout = async () => {
     await AsyncStorage.removeItem('user');
@@ -70,7 +68,7 @@ const ProfileScreen = () => {
     navigation.replace('Login'); // ensure user goes to login and cannot back
   };
 
-  if (!user) return null; // 👈 Prevent rendering Bottom Tab content if not logged in
+  // if (!user) return null; // 👈 Prevent rendering Bottom Tab content if not logged in
 
   const name =
     user?.name ||

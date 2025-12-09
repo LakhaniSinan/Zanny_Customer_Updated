@@ -7,7 +7,6 @@ import PrimaryButton from '../primaryButton';
 const CustomModal = ({
   type,
   visible = false,
-  onPress = () => {},
   onConfirm = null,
   onCancel = null,
   name = '',
@@ -18,8 +17,9 @@ const CustomModal = ({
   colors,
   Icon,
 }) => {
-  const primaryAction = onConfirm || onPress;
-  const cancelAction = onCancel || close;
+  const primaryAction = onConfirm ? onConfirm : close;
+  const cancelAction = onCancel ? onCancel : close;
+
   return (
     <Modal
       transparent
@@ -29,6 +29,7 @@ const CustomModal = ({
       <View style={styles.overlay}>
         <View style={styles.container}>
           {Icon && <Image source={Icon} style={styles.icon} />}
+
           <Text style={[styles.title, {color: color || Colors.black}]}>
             {name}
           </Text>
@@ -37,17 +38,13 @@ const CustomModal = ({
             {detail}
           </Text>
 
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 10,
-            }}>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
             {type === 'confirmation' && (
               <View style={styles.btnWrapper}>
                 <PrimaryButton name={'Cancel'} onPress={cancelAction} />
               </View>
             )}
+
             <View style={styles.btnWrapper}>
               <PrimaryButton name={buttonName} onPress={primaryAction} />
             </View>

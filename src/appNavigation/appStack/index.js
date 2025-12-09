@@ -4,7 +4,7 @@ import {
   TransitionSpecs,
   createStackNavigator,
 } from '@react-navigation/stack';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import PaymentScreen from '../../components/stripePayment/PaymentScreen';
 import Address from '../../containers/app/address';
 import AddEditAddress from '../../containers/app/address/addEditAddress';
@@ -40,6 +40,8 @@ import CodeVerification from '../../containers/auth/Codeverification';
 import ForgotPassword from '../../containers/auth/forgotPassword';
 import ResetPassword from '../../containers/auth/resetPassword';
 import restaurants from '../../containers/app/restaurants';
+import {handelGetAddress} from '../../redux/slices/Address';
+import {useEffect} from 'react';
 
 const Stack = createStackNavigator();
 
@@ -73,8 +75,14 @@ export const MyTransition = {
 };
 
 export function CustomerStack() {
+  const dispatch = useDispatch(null);
   const {user} = useSelector(state => state.LoginSlice);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    if (user) dispatch(handelGetAddress());
+  }, [dispatch, user]);
+
   // useEffect(() => {
   //   getLinkingData();
   // }, []);
