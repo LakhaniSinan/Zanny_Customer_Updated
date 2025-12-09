@@ -25,14 +25,13 @@ import {useSelector} from 'react-redux';
 
 const Restaurants = ({navigation}) => {
   const carouselRef = useRef();
+  const {user} = useSelector(state => state.LoginSlice);
   const [isLoading, setIsLoading] = useState(false);
   const [homeData, setHomeData] = useState(null);
   const {address} = useSelector(state => state.AddressSlice);
   const [activeIndex, setActiveIndex] = useState(0);
   const {cartData} = useSelector(state => state.CartSlice);
-  console.log(address, 'userAddressuserAddressuserAddressuserAddress');
 
-  // Dummy chefs list
   const chefs = [
     {
       id: '1',
@@ -54,7 +53,6 @@ const Restaurants = ({navigation}) => {
     },
   ];
 
-  // Fetch Home API
   const handleFetchHomeData = async () => {
     try {
       setIsLoading(true);
@@ -76,7 +74,6 @@ const Restaurants = ({navigation}) => {
     handleFetchHomeData();
   }, []);
 
-  // ⭐ Star Renderer
   const renderStars = useCallback((rating = 5) => {
     const rounded = Math.round(rating);
     return (
@@ -86,7 +83,6 @@ const Restaurants = ({navigation}) => {
     );
   }, []);
 
-  // Recommended Food Card
   const renderRecommendedItem = useCallback(
     ({item}) => (
       <TouchableOpacity
@@ -170,7 +166,9 @@ const Restaurants = ({navigation}) => {
           />
         </View>
 
-        <TouchableOpacity style={styles.headerIconButton}>
+        <TouchableOpacity
+          style={styles.headerIconButton}
+          onPress={() => navigation.navigate('AllVouchers')}>
           <Image source={icons.Ticket} style={styles.headerIcon} />
         </TouchableOpacity>
 
@@ -230,7 +228,11 @@ const Restaurants = ({navigation}) => {
 
         {/* Delivery Address */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('Address')}
+          onPress={
+            user
+              ? () => navigation.navigate('Address')
+              : () => navigation.navigate('Profile')
+          }
           style={styles.addressContainer}>
           <View style={styles.addressLeft}>
             <View style={styles.addressIconContainer}>
@@ -242,7 +244,7 @@ const Restaurants = ({navigation}) => {
             </View>
 
             <View>
-              <Text style={styles.addressTitle}>Dselivery Address</Text>
+              <Text style={styles.addressTitle}>Delivery Address</Text>
               <Text style={styles.addressText} numberOfLines={1}>
                 {address[0]?.address || 'No address available'}
               </Text>
@@ -263,7 +265,7 @@ const Restaurants = ({navigation}) => {
         </View>
 
         <FlatList
-          data={homeData?.products || []}
+          data={homeData?.products?.slice(0, 6) || []} // take first 6 items
           horizontal
           showsHorizontalScrollIndicator={false}
           renderItem={renderRecommendedItem}
@@ -280,15 +282,19 @@ const Restaurants = ({navigation}) => {
           />
 
           <FlatList
-            data={homeData?.foodCategories}
-            renderItem={({item}) => <Category item={item} />}
+            data={homeData?.foodCategories?.slice(0, 6) || []}
+            renderItem={({item}) => (
+              <Category
+                item={item}
+                onPress={item => navigation.navigate('AllFoodScreen', item)}
+              />
+            )}
             keyExtractor={item => item?.id}
             numColumns={3}
             columnWrapperStyle={styles.categoryRow}
           />
         </View>
 
-        {/* Hire a Chef */}
         <View style={styles.sectionWrapper}>
           <SectionHeader name="Hire a Chef" action="See All" />
         </View>

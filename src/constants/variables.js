@@ -96,4 +96,5 @@ export const endPoints = {
   //Orders
 
   applyPromoCode: 'applyPromo',
+  getAllPromo: "getAllPromo",
 };

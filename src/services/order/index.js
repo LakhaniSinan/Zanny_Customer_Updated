@@ -29,3 +29,6 @@ export const createStripeClientSecret = params => {
 export const applyPromoCode = params => {
   return Api(`${endPoints.applyPromoCode}`, params, requestType.POST);
 };
+export const getAllPromo = () => {
+  return Api(endPoints.getAllPromo, null, requestType.GET);
+};

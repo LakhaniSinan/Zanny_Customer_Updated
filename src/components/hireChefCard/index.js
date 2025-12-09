@@ -1,9 +1,9 @@
-import {View, Text, Image, Alert} from 'react-native';
 import React from 'react';
-import {Colors} from '../../constants';
-import {icons} from '../../assets';
-import PrimaryButton from '../primaryButton';
+import {Alert, Image, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
+import {icons} from '../../assets';
+import {Colors} from '../../constants';
+import PrimaryButton from '../primaryButton';
 
 const HireCheifCard = ({item}) => {
   return (
@@ -105,7 +105,7 @@ const HireCheifCard = ({item}) => {
           paddingHorizontal: width(3),
         }}>
         <PrimaryButton
-          name={'Hair'}
+          name={'Hire'}
           onPress={() =>
             Alert.alert(
               'Coming Soon',

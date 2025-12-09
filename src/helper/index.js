@@ -1,6 +1,6 @@
 import {check, PERMISSIONS, request} from 'react-native-permissions';
 import Geolocation from 'react-native-geolocation-service';
-import {Linking, Platform, Share} from 'react-native';
+import {Linking, Platform, Share, Alert} from 'react-native';
 import Geocoder from 'react-native-geocoding';
 import {constants} from '../constants';
 import axios from 'axios';
@@ -46,23 +46,75 @@ export const helper = {
         });
     }
   },
-  async handleShare(valueee) {
+  /**
+   * Share helper
+   * valueee: main text message or object with { title?, text? }
+   * options: { webLink, deepLink, title }
+   */
+  async handleShare(valueee, options = {}) {
     try {
-      const result = await Share.share({
-        message: valueee,
-        // url: activeMedia
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
+      const title = options.title || (typeof valueee === 'string' ? null : valueee.title) || '';
+      const text = typeof valueee === 'string' ? valueee : valueee.text || '';
+
+      // prefer webLink for url (receivers expect https links), include deepLink in message as fallback
+      const webLink = options.webLink || options.url;
+      const deepLink = options.deepLink;
+
+      let message = text || '';
+      if (webLink) {
+        message += (message ? '\n\n' : '') + webLink;
+      }
+      if (deepLink) {
+        message += '\n\nOpen in app: ' + deepLink;
+      }
+
+      console.log('Sharing message, title=', title, 'webLink=', webLink, 'deepLink=', deepLink);
+
+      const payload = {
+        message,
+      };
+      if (title) payload.title = title;
+      // Some platforms accept `url` separately
+      if (webLink) payload.url = webLink;
+
+      const result = await Share.share(payload);
+      console.log('Share result', result);
+
+      if (result.action === Share.dismissedAction) {
+        // dismissed — show fallback
+        if (deepLink) {
+          Alert.alert('Open app', 'Open the product in app?', [
+            {text: 'Open App', onPress: () => Linking.openURL(deepLink)},
+            {text: 'Cancel', style: 'cancel'},
+          ]);
         }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
       }
     } catch (error) {
-      alert(error.message);
+      console.log('Share error', error);
+      // Fallback: show link and option to open app or copy link (if clipboard lib installed)
+      const deepLink = options?.deepLink || options?.url;
+      if (deepLink) {
+        let ClipboardLib = null;
+        try {
+          // try optional clipboard package if installed
+          // eslint-disable-next-line global-require
+          ClipboardLib = require('@react-native-clipboard/clipboard').default;
+        } catch (e) {
+          ClipboardLib = null;
+        }
+
+        const buttons = [
+          {text: 'Open App', onPress: () => Linking.openURL(deepLink)},
+          {text: 'Cancel', style: 'cancel'},
+        ];
+        if (ClipboardLib) {
+          buttons.unshift({text: 'Copy Link', onPress: () => ClipboardLib.setString(deepLink)});
+        }
+
+        Alert.alert('Share failed', 'You can open or copy the link manually.', buttons);
+      } else {
+        Alert.alert('Share failed', error.message || String(error));
+      }
     }
   },
 

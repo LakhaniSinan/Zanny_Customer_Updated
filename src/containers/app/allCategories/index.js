@@ -12,12 +12,14 @@ import {fontFamily, icons} from '../../../assets';
 import AppHeader from '../../../components/headerComponent';
 import {Colors} from '../../../constants';
 
-const AllCategories = ({route}) => {
+const AllCategories = ({route, navigation}) => {
   const data = route?.params || [];
 
   const renderItem = useCallback(({item}) => {
     return (
-      <TouchableOpacity style={styles.card}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => navigation.navigate('AllFoodScreen', item)}>
         <View style={styles.iconContainer}>
           <Image source={icons.rice} resizeMode="contain" style={styles.icon} />
         </View>

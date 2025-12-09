@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   Alert,
@@ -23,7 +24,6 @@ import {helper} from '../../../helper';
 import {setCartData} from '../../../redux/slices/Cart';
 import {addToFavFun} from '../../../services/favourite';
 import {getProductDetailById} from '../../../services/product';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProductDetail = ({navigation, route}) => {
   const productId = route.params.productId;
@@ -92,6 +92,11 @@ const ProductDetail = ({navigation, route}) => {
   };
 
   const onFavIconPress = async item => {
+    if (!user)
+      return showModal(
+        'error',
+        'Please login first to add items in your favourite list',
+      );
     setIsLoading(true);
     try {
       let payload = {
@@ -100,8 +105,13 @@ const ProductDetail = ({navigation, route}) => {
         foodId: item?._id,
       };
       const response = await addToFavFun(payload);
+      if (response?.status == 200 || response?.status == 201) {
+        fetchProductDetails();
+      } else {
+        return showModal('error', response.data?.message);
+      }
     } catch (error) {
-      console.log(error, 'errorerrorerrorasndalskdnd');
+      console.log(error, 'errorerrorerrorasndalskdndaas');
     } finally {
       setIsLoading(false);
     }
@@ -110,12 +120,9 @@ const ProductDetail = ({navigation, route}) => {
   const handleAddToCart = async () => {
     if (!user)
       return showModal('error', 'Please login first to add items in your cart');
-
     try {
       let tempArr = [...cartData];
-
       const findIndex = tempArr.findIndex(i => i._id === productData._id);
-
       if (
         cartData.length === 0 ||
         cartData[0].merchantId === productData.merchantId
@@ -129,7 +136,6 @@ const ProductDetail = ({navigation, route}) => {
         } else {
           tempArr.push({...productData, selectedQty: 1});
         }
-
         dispatch(setCartData(tempArr));
         await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
         navigation.navigate('CartScreen');

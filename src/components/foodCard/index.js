@@ -8,8 +8,6 @@ import BackButton from '../backIcon';
 import {width} from 'react-native-dimension';
 
 const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
-  console.log(item, 'itemitemitemitemitem');
-
   const navigation = useNavigation();
   // Map your API response properly
   const foodData = {
@@ -170,7 +168,11 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
           marginTop: width(3),
         }}>
         <Image
-          source={images.cheif}
+          source={
+            item?.merchant?.merchantImage
+              ? {uri: item?.merchant?.merchantImage}
+              : images.cheif
+          }
           style={{height: width(10), width: width(10), borderRadius: width(5)}}
           resizeMode="cover"
         />
@@ -189,7 +191,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
               fontFamily: fontFamily.poppinBold,
               color: colors.black,
             }}>
-            {foodData.cheifName}
+            {item?.merchant?.name || foodData.cheifName}
           </Text>
         </View>
       </View>

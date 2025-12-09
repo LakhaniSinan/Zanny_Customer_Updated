@@ -4,9 +4,10 @@ import {Colors} from '../../constants';
 import {icons} from '../../assets';
 import {width} from 'react-native-dimension';
 
-const Category = ({item}) => {
+const Category = ({item, onPress}) => {
   return (
     <TouchableOpacity
+      onPress={() => onPress(item)}
       style={{
         height: 40,
         width: 'auto',

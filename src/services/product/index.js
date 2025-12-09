@@ -13,10 +13,15 @@ export const getProductDetailById = id => {
   return Api(`${endPoints.productDetailById}/${id}`, null, requestType.GET);
 };
 
-export const getAllProducts = (userId, page = 1, limit = 10) => {
-  return Api(
-    `${endPoints.getAllProducts}?userId=${userId}&page=${page}&limit=${limit}`,
-    null,
-    requestType.GET,
-  );
+export const getAllProducts = params => {
+  const query = [];
+
+  if (params.page) query.push(`page=${params.page}`);
+  if (params.limit) query.push(`limit=${params.limit}`);
+  if (params.categoryId) query.push(`categoryId=${params.categoryId}`);
+  if (params.userId) query.push(`userId=${params.userId}`);
+
+  const finalURL = `${endPoints.getAllProducts}?${query.join('&')}`;
+
+  return Api(finalURL, null, requestType.GET);
 };

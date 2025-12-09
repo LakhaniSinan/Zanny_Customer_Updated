@@ -21,6 +21,8 @@ import AllFoodScreen from '../containers/app/allFoodScreen';
 import CartScreen from '../containers/app/cartScreen';
 import AllCategories from '../containers/app/allCategories';
 import PaymentScreen from '../components/stripePayment/PaymentScreen';
+import AllVouchers from '../containers/app/vouchers';
+import ProductsByCategory from '../containers/app/productsByCategory';
 const Stack = createStackNavigator();
 
 function OrderStack() {
@@ -42,6 +44,13 @@ function OrderStack() {
         }}
       />
       <Stack.Screen
+        name="ProductsByCategory"
+        component={ProductsByCategory}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="AllCategories"
         component={AllCategories}
         options={{
@@ -51,6 +60,13 @@ function OrderStack() {
       <Stack.Screen
         name="AllRestaurants"
         component={Restaurants}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="AllVouchers"
+        component={AllVouchers}
         options={{
           headerShown: false,
         }}

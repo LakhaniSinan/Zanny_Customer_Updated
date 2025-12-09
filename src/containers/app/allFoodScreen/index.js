@@ -1,7 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import React, {useCallback, useEffect, useState} from 'react';
-import {ActivityIndicator, FlatList, View} from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  View,
+  Text,
+  RefreshControl,
+} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {icons} from '../../../assets';
 import CustomModal from '../../../components/customModal';
@@ -12,7 +18,8 @@ import {setCartData} from '../../../redux/slices/Cart';
 import {addToFavFun} from '../../../services/favourite';
 import {getAllProducts} from '../../../services/product';
 
-const AllFoodScreen = () => {
+const AllFoodScreen = ({route}) => {
+  const data = route.params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {user} = useSelector(state => state.LoginSlice);
@@ -22,6 +29,7 @@ const AllFoodScreen = () => {
   const [products, setProducts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -43,28 +51,73 @@ const AllFoodScreen = () => {
     setModalVisible(true);
   };
 
+  // ⭐ EMPTY VIEW WHILE LOADING FIRST TIME
+  const ListEmpty = () =>
+    loading ? (
+      <View style={{alignItems: 'center', marginTop: 50}}>
+        <ActivityIndicator size="large" color={colors.redish} />
+        <View style={{height: 10}} />
+        <Text style={{fontSize: 16, color: colors.black}}>
+          Fetching products...
+        </Text>
+      </View>
+    ) : (
+      <View style={{alignItems: 'center', marginTop: 50}}>
+        <Text style={{fontSize: 18, fontWeight: '600', color: colors.black}}>
+          No products found
+        </Text>
+        <Text style={{fontSize: 14, color: colors.gray}}>
+          Please try another category
+        </Text>
+      </View>
+    );
+
+  // ⭐ FETCH PRODUCTS
   const fetchProducts = useCallback(
     async (reset = false) => {
-      if (loading || !hasMore) return;
+      if (loading || (!hasMore && !reset)) return;
+
       setLoading(true);
+      if (reset) {
+        setRefreshing(true);
+        setPage(1);
+        setHasMore(true);
+      }
 
       try {
-        const res = await getAllProducts(user?._id, page);
-        if (res.status === 200 || res.status === 201) {
+        const params = {
+          page: reset ? 1 : page,
+          limit: 10,
+        };
+
+        if (data?._id) params.categoryId = data._id;
+        if (user?._id) params.userId = user._id;
+
+        const res = await getAllProducts(params);
+
+        if (res.status === 200) {
           const newProducts = res?.data?.data || [];
           const totalPages = res?.data?.totalPages || 1;
 
-          if (reset) setProducts(newProducts);
-          else setProducts(prev => [...prev, ...newProducts]);
+          if (reset) {
+            setProducts(newProducts);
+            setPage(2);
+          } else {
+            setProducts(prev => [...prev, ...newProducts]);
+            setPage(prev => prev + 1);
+          }
 
-          if (page >= totalPages || newProducts.length === 0) setHasMore(false);
-          else setPage(prev => prev + 1);
+          if (newProducts.length === 0 || page >= totalPages) {
+            setHasMore(false);
+          }
         }
       } catch (error) {
         console.log('Fetch Error:', error);
         showModal('error', 'Failed to fetch products!');
       }
+
       setLoading(false);
+      setRefreshing(false);
     },
     [page, loading, hasMore, user?._id],
   );
@@ -73,6 +126,22 @@ const AllFoodScreen = () => {
     fetchProducts(true);
   }, []);
 
+  // ⭐ REFRESH HANDLER
+  const onRefresh = () => {
+    fetchProducts(true);
+  };
+
+  // ⭐ FOOTER LOADER
+  const renderFooter = () =>
+    loading && !refreshing ? (
+      <ActivityIndicator
+        size="large"
+        color={colors.redish}
+        style={{margin: 20}}
+      />
+    ) : null;
+
+  // ⭐ ADD TO CART
   const handleAddToCart = async selectedItem => {
     if (!user) {
       showModal('error', 'Please login first to add items in your cart');
@@ -108,6 +177,7 @@ const AllFoodScreen = () => {
     }
   };
 
+  // ⭐ MARK FAV
   const onFavPress = async item => {
     if (!user) {
       showModal('error', 'Please login first to add favorites');
@@ -125,7 +195,6 @@ const AllFoodScreen = () => {
       const res = await addToFavFun(payload);
       const updatedIsFav = res?.data?.isFav;
 
-      // Update product in state
       setProducts(prev =>
         prev.map(p => (p._id === item._id ? {...p, isFav: updatedIsFav} : p)),
       );
@@ -138,15 +207,6 @@ const AllFoodScreen = () => {
       setLoading(false);
     }
   };
-
-  const renderFooter = () =>
-    loading ? (
-      <ActivityIndicator
-        size="large"
-        color={colors.redish}
-        style={{margin: 20}}
-      />
-    ) : null;
 
   return (
     <View style={{flex: 1, backgroundColor: colors.white}}>
@@ -162,9 +222,13 @@ const AllFoodScreen = () => {
             onFavPress={onFavPress}
           />
         )}
+        ListEmptyComponent={<ListEmpty />}
         ListFooterComponent={renderFooter}
         onEndReached={() => fetchProducts()}
         onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
 
       <CustomModal

@@ -1,16 +1,18 @@
-import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useState, useCallback} from 'react';
-import {FlatList, View, Text} from 'react-native';
-import {useSelector, useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useNavigation} from '@react-navigation/native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {FlatList, Text, View, StyleSheet} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import CustomModal from '../../../components/customModal';
 import FoodCard from '../../../components/foodCard';
 import AppHeader from '../../../components/headerComponent';
-import CustomModal from '../../../components/customModal';
 import OverLayLoader from '../../../components/loader';
-import {Colors} from '../../../constants';
-import {getUserFavProFun, addToFavFun} from '../../../services/favourite';
-import {setCartData} from '../../../redux/slices/Cart';
+import {colors, Colors} from '../../../constants';
 import {helper} from '../../../helper';
+import {setCartData} from '../../../redux/slices/Cart';
+import {addToFavFun, getUserFavProFun} from '../../../services/favourite';
+import ActionBuuton from '../../../components/actionButton';
+import {width} from 'react-native-dimension';
 
 const Favourite = () => {
   const navigation = useNavigation();
@@ -19,8 +21,6 @@ const Favourite = () => {
   const {cartData} = useSelector(state => state.CartSlice);
 
   const [favoritesData, setFavoritesData] = useState([]);
-  console.log(favoritesData, 'favoritesDatafavoritesDatafavoritesDataasdasd');
-
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -109,8 +109,6 @@ const Favourite = () => {
   };
 
   const handleFavToggle = async item => {
-    console.log(item, 'alksndjalkdnlasdlkasnd');
-
     if (!user)
       return showModal('error', 'Please login first to manage favorites');
 
@@ -147,6 +145,25 @@ const Favourite = () => {
     );
   };
 
+  // 🔹 Empty Component Centered
+  const renderEmptyComponent = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyText}>
+        Please login first to see your favorite meals.
+      </Text>
+      <View style={styles.buttonWrapper}>
+        <ActionBuuton
+          name="Login"
+          height={50}
+          fontSize={14}
+          bgcColor={colors.redish}
+          fontColor={colors.white}
+          onPress={() => navigation.navigate('Login')}
+        />
+      </View>
+    </View>
+  );
+
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
       <AppHeader goBack={true} cartIcon={true} text="Favorites" />
@@ -162,15 +179,13 @@ const Favourite = () => {
             handleShareProduct={handleShareProduct}
           />
         )}
-        ListEmptyComponent={
-          !loading && (
-            <View style={{alignItems: 'center', marginTop: 50}}>
-              <Text>No favorite products found</Text>
-            </View>
-          )
-        }
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={!loading && renderEmptyComponent()}
         refreshing={refreshing}
         onRefresh={onRefresh}
+        contentContainerStyle={
+          favoritesData.length === 0 ? {flex: 1} : {paddingBottom: 20}
+        }
       />
 
       <CustomModal
@@ -187,5 +202,24 @@ const Favourite = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: Colors.gray,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  buttonWrapper: {
+    width: width(30),
+  },
+});
 
 export default Favourite;

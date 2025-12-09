@@ -1,22 +1,22 @@
-import React, {useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import React, {useCallback, useState} from 'react';
 import {
-  View,
-  Text,
   Image,
   ScrollView,
-  TouchableOpacity,
   Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {useSelector, useDispatch} from 'react-redux';
-import {useNavigation} from '@react-navigation/native';
 import {width} from 'react-native-dimension';
-import {colors} from '../../../constants';
-import {fontFamily, images} from '../../../assets';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useDispatch, useSelector} from 'react-redux';
+import {fontFamily, images} from '../../../assets';
+import {colors} from '../../../constants';
 import {setUserData} from '../../../redux/slices/Login';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Row = ({iconSet: IconSet, icon, label, onPress, right}) => {
   return (
@@ -31,7 +31,6 @@ const Row = ({iconSet: IconSet, icon, label, onPress, right}) => {
       }}>
       <View style={{flexDirection: 'row', alignItems: 'center', gap: 12}}>
         <IconSet name={icon} size={22} color={colors.redish} />
-
         <Text
           style={{
             fontSize: 16,
@@ -41,7 +40,6 @@ const Row = ({iconSet: IconSet, icon, label, onPress, right}) => {
           {label}
         </Text>
       </View>
-
       {right ?? (
         <Feather name="chevron-right" size={20} color={colors.graydark} />
       )}
@@ -52,21 +50,32 @@ const Row = ({iconSet: IconSet, icon, label, onPress, right}) => {
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const user = useSelector(state => state.LoginSlice.user) || {};
+  const {user} = useSelector(state => state.LoginSlice);
 
   const [pushEnabled, setPushEnabled] = useState(true);
   const [promoEnabled, setPromoEnabled] = useState(false);
 
+  // 🔹 Redirect to Login if user is not logged in
+  useFocusEffect(
+    useCallback(() => {
+      if (!user) {
+        navigation.navigate('Login');
+      }
+    }, [user, navigation]),
+  );
+
   const logout = async () => {
     await AsyncStorage.removeItem('user');
     dispatch(setUserData(null));
+    navigation.replace('Login'); // ensure user goes to login and cannot back
   };
+
+  if (!user) return null; // 👈 Prevent rendering Bottom Tab content if not logged in
 
   const name =
     user?.name ||
     user?.full_name ||
     `${user?.first_name || 'Timothy'} ${user?.last_name || 'Lankish'}`;
-
   const email = user?.email || 'timothylank@gmail.com';
 
   return (
@@ -119,7 +128,7 @@ const ProfileScreen = () => {
           />
         </TouchableOpacity>
 
-        {user?.customerImage && (
+        {user?.customerImage ? (
           <Image
             source={{uri: user?.customerImage}}
             style={{
@@ -131,8 +140,7 @@ const ProfileScreen = () => {
               marginTop: width(6),
             }}
           />
-        )}
-        {!user?.customerImage && (
+        ) : (
           <Image
             source={images.userAvatar}
             style={{
@@ -194,20 +202,15 @@ const ProfileScreen = () => {
             label="Personal information"
             onPress={() => navigation.navigate('PersonalInfo')}
           />
-
           <Row iconSet={Feather} icon="credit-card" label="Subscriptions" />
-
           <Row
             iconSet={Feather}
             icon="file-text"
             label="Special order request"
           />
-
           <Row iconSet={Feather} icon="shield" label="Privacy Policy" />
-
           <Row iconSet={Feather} icon="settings" label="Settings" />
 
-          {/* Divider */}
           <View
             style={{
               height: 1,
@@ -216,7 +219,6 @@ const ProfileScreen = () => {
             }}
           />
 
-          {/* Notifications */}
           <Text
             style={{
               fontSize: 18,
@@ -255,7 +257,6 @@ const ProfileScreen = () => {
             }
           />
 
-          {/* Divider */}
           <View
             style={{
               height: 1,
@@ -264,7 +265,6 @@ const ProfileScreen = () => {
             }}
           />
 
-          {/* More */}
           <Text
             style={{
               fontSize: 18,

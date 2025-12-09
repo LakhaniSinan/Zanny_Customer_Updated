@@ -2,23 +2,21 @@ import {createMaterialBottomTabNavigator} from '@react-navigation/material-botto
 import React from 'react';
 import {Image, Platform} from 'react-native';
 import {useSelector} from 'react-redux';
-import {icons} from '../assets';
-import {Colors} from './../constants/index';
-import AuthStack from './AuthStack';
-import FavouriteStack from './FavouriteStack';
+import {Colors} from '../../constants';
+import OrderStack from './orderStack';
+import {icons} from '../../assets';
 import CurrentOrdersStack from './currentOrdersStack';
 import ExploreStack from './exploreStack';
-import OrderStack from './orderStack';
+import FavouriteStack from './favouriteStack';
 import ProfileStack from './profileStack';
 
 const Tab = createMaterialBottomTabNavigator();
 
-const BottomNavigation = ({initialRouteName}) => {
+const BottomNavigation = () => {
   const {user} = useSelector(state => state.LoginSlice);
 
   return (
     <Tab.Navigator
-      initialRouteName={initialRouteName || 'Home'}
       activeColor={Colors.red}
       shifting={false}
       activeIndicatorStyle={{
@@ -54,7 +52,7 @@ const BottomNavigation = ({initialRouteName}) => {
 
       <Tab.Screen
         name="History"
-        component={user !== null ? AuthStack : CurrentOrdersStack}
+        component={CurrentOrdersStack}
         options={{
           tabBarLabel: 'History',
           tabBarIcon: ({color}) => (
@@ -84,7 +82,7 @@ const BottomNavigation = ({initialRouteName}) => {
 
       <Tab.Screen
         name="Favourite"
-        component={user == null ? AuthStack : FavouriteStack}
+        component={FavouriteStack}
         options={{
           tabBarLabel: 'Favourite',
           tabBarIcon: ({color}) => (
@@ -97,10 +95,9 @@ const BottomNavigation = ({initialRouteName}) => {
         }}
       />
 
-      {/* Profile */}
       <Tab.Screen
         name="Profile"
-        component={user == null ? AuthStack : ProfileStack}
+        component={ProfileStack}
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({color}) => (

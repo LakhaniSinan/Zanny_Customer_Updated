@@ -2,9 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NavigationContainer} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import AuthStack from './AuthStack';
+import WelcomeScreen from '../containers/auth/WelComeScreen';
 import {setUserData} from '../redux/slices/Login';
-import BottomNavigation from './bottomTab';
+import {CustomerStack} from './appStack';
 
 const Navigation = () => {
   const dispatch = useDispatch();
@@ -27,14 +27,9 @@ const Navigation = () => {
     hydrateUser();
   }, []);
 
-  if (!isHydrated) return null;
-
-  const {user} = useSelector(state => state.LoginSlice);
-
   return (
     <NavigationContainer>
-      {/* If user exists -> show app (tabs). Otherwise show auth stack (login screens). */}
-      {user ? <BottomNavigation initialRouteName="Profile" /> : <AuthStack />}
+      {isGetStarted ? <CustomerStack /> : <WelcomeScreen />}
     </NavigationContainer>
   );
 };

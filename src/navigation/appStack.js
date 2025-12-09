@@ -25,6 +25,8 @@ import UpdateAllergies from '../containers/app/updateAllergies';
 import UserAllergies from '../containers/app/userAllergies';
 import UserQuestions from '../containers/app/userQuestions/index';
 import ProductDetail from '../containers/app/productDetail';
+import {Linking, Platform} from 'react-native';
+import AllVouchers from '../containers/app/vouchers';
 
 const Stack = createStackNavigator();
 
@@ -40,7 +42,35 @@ function AppStack() {
     data = JSON.parse(data);
     setLocalData(data);
   };
+  useEffect(() => {
+    getLinkingData();
+  }, []);
 
+  const getLinkingData = () => {
+    // Linking.addEventListener('url', handleOpenUrl);
+    Linking.getInitialURL().then(url => {
+      if (url != null) {
+        console.log(url, 'urlurlurl');
+        getParams(url);
+      }
+    });
+    const getParams = url => {
+      if (Platform.OS == 'android') {
+        let array = url.split('?');
+
+        let array2 = array[1].split('/');
+        console.log(array2, 'array2array2array2');
+
+        // if (array2[0] == 'ProductDetail') {
+        //   navigation.navigate(array2[0], {
+        //     productUrl: array2[1],
+        //     referedBy: array2[2],
+        //     initial: false,
+        //   });
+        // }
+      }
+    };
+  };
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -61,6 +91,13 @@ function AppStack() {
       <Stack.Screen
         name="AllRestaurants"
         component={Restaurants}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="AllVouchers"
+        component={AllVouchers}
         options={{
           headerShown: false,
         }}

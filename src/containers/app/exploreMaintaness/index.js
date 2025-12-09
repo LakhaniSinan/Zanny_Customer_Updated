@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 
-const MaintenanceScreen = ({navigation}) => {
+const MaintenanceScreen = () => {
   return (
     <View style={styles.container}>
       <Image
@@ -11,16 +11,12 @@ const MaintenanceScreen = ({navigation}) => {
         style={styles.image}
       />
 
-      <Text style={styles.title}>We're Under Maintenance</Text>
+      <Text style={styles.title}>We're Working on </Text>
 
       <Text style={styles.subtitle}>
-        We’re working hard to improve the experience. Please check back in a
-        little while.
+        This feature will enable soon. We’re working hard to improve the
+        experience. Please check back later.
       </Text>
-
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Retry</Text>
-      </TouchableOpacity>
     </View>
   );
 };

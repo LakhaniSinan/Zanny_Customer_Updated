@@ -4,7 +4,7 @@ import {width} from 'react-native-dimension';
 import {Colors} from '../../constants';
 
 const ChefsCard = ({item}) => {
-  console.log(item, 'itemitemitemitemitem');
+  console.log(item, '');
 
   return (
     <View

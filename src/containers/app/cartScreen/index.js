@@ -320,12 +320,10 @@ const CartScreen = () => {
       paymentType: wallet ? 'card' : 'COD',
       promoData: promoData,
     };
-    console.log(payload, 'payloadpayloadpayloadpayloadpayloadasdsad');
 
     setLoading(true);
     try {
       const res = await placeUserOrder(payload);
-      // assuming placeUserOrder throws or returns success 200
       if (
         res?.status === 200 ||
         res?.status === 201 ||

@@ -82,7 +82,7 @@ const CartCard = ({item, index}) => {
 
   const handleShareProduct = () => {
     helper.handleShare(
-      `Check this product: https://zannysfood.com/app/ProductDetail/${item?._id}`,
+      `Check this product: https://zannysfood.com/portal/#/app?ProductDetail/${item?._id}`,
     );
   };
 
