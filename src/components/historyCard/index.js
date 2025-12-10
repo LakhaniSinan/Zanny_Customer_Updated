@@ -1,12 +1,14 @@
-import {View, Text, Image, FlatList} from 'react-native';
-import React from 'react';
-import {fontFamily} from '../../assets';
-import ActionButton from '../actionButton';
 import {useNavigation} from '@react-navigation/native';
-import {colors} from '../../constants';
+import React from 'react';
+import {FlatList, Image, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
+import {fontFamily} from '../../assets';
+import {colors} from '../../constants';
+import ActionButton from '../actionButton';
 
 const HistoryCard = ({item}) => {
+  console.log(item, 'itemitemitemitemitemitemitemmaskmdalsdmasd');
+
   const navigation = useNavigation();
 
   const getStatusStyle = status => {
@@ -86,55 +88,59 @@ const HistoryCard = ({item}) => {
         scrollEnabled={false}
         keyExtractor={(i, index) => index.toString()}
         style={{marginTop: width(3)}}
-        renderItem={({item: product}) => (
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginBottom: width(3),
-            }}>
-            <Image
-              source={{uri: product?.image}}
+        renderItem={({item: product}) => {
+          console.log(product, 'productproductproductproductproductasd');
+
+          return (
+            <View
               style={{
-                height: width(18),
-                width: width(18),
-                borderRadius: width(2),
-              }}
-              resizeMode="cover"
-            />
-
-            <View style={{marginLeft: 10, flex: 1}}>
-              <Text
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginBottom: width(3),
+              }}>
+              <Image
+                source={{uri: product?.image}}
                 style={{
-                  fontSize: 14,
-                  fontFamily: fontFamily.poppinBold,
-                  color: colors.black,
-                }}>
-                {product?.name}
-              </Text>
+                  height: width(18),
+                  width: width(18),
+                  borderRadius: width(2),
+                }}
+                resizeMode="cover"
+              />
 
-              <Text
-                style={{
-                  marginTop: 3,
-                  fontSize: 12,
-                  color: colors.grey,
-                  fontFamily: fontFamily.poppin,
-                }}>
-                Qty: {product?.quantity}
-              </Text>
+              <View style={{marginLeft: 10, flex: 1}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontFamily: fontFamily.poppinBold,
+                    color: colors.black,
+                  }}>
+                  {product?.name}
+                </Text>
 
-              <Text
-                style={{
-                  marginTop: 2,
-                  fontSize: 14,
-                  fontFamily: fontFamily.poppinBold,
-                  color: colors.black,
-                }}>
-                £{product?.price}
-              </Text>
+                <Text
+                  style={{
+                    marginTop: 3,
+                    fontSize: 12,
+                    color: colors.grey,
+                    fontFamily: fontFamily.poppin,
+                  }}>
+                  Qty: {product?.quantity || product?.selectedQty}
+                </Text>
+
+                <Text
+                  style={{
+                    marginTop: 2,
+                    fontSize: 14,
+                    fontFamily: fontFamily.poppinBold,
+                    color: colors.black,
+                  }}>
+                  £{product?.price}
+                </Text>
+              </View>
             </View>
-          </View>
-        )}
+          );
+        }}
       />
 
       <View
@@ -144,6 +150,28 @@ const HistoryCard = ({item}) => {
           borderTopWidth: 1,
           borderColor: colors.lightGrey,
         }}>
+        {item?.promoData !== null && (
+          <View style={{}}>
+            <Text
+              style={{
+                alignSelf: 'flex-end',
+                fontSize: 14,
+                fontFamily: fontFamily.poppinBold,
+                color: colors.black,
+              }}>
+              Promo Code: {item?.promoData?.promoCode}
+            </Text>
+            <Text
+              style={{
+                alignSelf: 'flex-end',
+                fontSize: 14,
+                fontFamily: fontFamily.poppinBold,
+                color: colors.black,
+              }}>
+              Promo Discount : {item?.promoData?.discount} %OFF
+            </Text>
+          </View>
+        )}
         <Text
           style={{
             alignSelf: 'flex-end',
@@ -162,7 +190,7 @@ const HistoryCard = ({item}) => {
           marginTop: width(2),
         }}>
         <Image
-          source={{uri: item?.merchantDetails?.merchantImage}}
+          source={{uri: item?.order[0]?.merchant?.merchantImage}}
           style={{
             height: width(10),
             width: width(10),
@@ -184,7 +212,7 @@ const HistoryCard = ({item}) => {
               fontFamily: fontFamily.poppinBold,
               color: colors.black,
             }}>
-            {item?.merchantDetails?.name}
+            {item?.order[0]?.merchant?.name}
           </Text>
         </View>
       </View>

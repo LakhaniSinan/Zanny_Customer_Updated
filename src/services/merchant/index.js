@@ -32,6 +32,17 @@ export const removeSubscribers = params => {
 export const getMerchantProfile = id => {
   return Api(`${endPoints.getMerchantProfile}/${id}`, null, requestType.GET);
 };
+
+export const getMerchantProAndDetails = (merchantId, userId) => {
+  let url = `${endPoints.getMerchantWithProducts}/${merchantId}`;
+
+  if (userId) {
+    url += `?userId=${userId}`;
+  }
+
+  return Api(url, null, requestType.GET);
+};
+
 export const getSearchdMerchants = (name, params) => {
   return Api(
     `${endPoints.getSearchdMerchants}?searchBody=${name}`,

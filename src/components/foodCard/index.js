@@ -1,11 +1,11 @@
-import {View, Text, Image} from 'react-native';
-import React from 'react';
-import {fontFamily, icons, images} from '../../assets';
-import ActionBuuton from '../actionButton';
 import {useNavigation} from '@react-navigation/native';
-import {Colors, colors} from '../../constants';
-import BackButton from '../backIcon';
+import React from 'react';
+import {Image, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
+import {fontFamily, icons, images} from '../../assets';
+import {Colors, colors} from '../../constants';
+import ActionBuuton from '../actionButton';
+import BackButton from '../backIcon';
 
 const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
   const navigation = useNavigation();
@@ -16,7 +16,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
       : item.image
       ? {uri: item.image}
       : images.meal,
-    foodName: item.foodId?.name || item.name || 'Delicious Food',
+    foodName: item.foodId?.name || item.name,
     foodRating: '4.8 (120+)  2.8 km away', // default
     price:
       item.foodId?.price !== undefined
@@ -37,6 +37,8 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
     cheifName: item.restaurantId?.name || item.cheifName || 'Leanne Wayne',
     isFavourite: item.isFav === true, // always boolean
   };
+
+  console.log(item, 'item?.foodId?._id || item._id');
 
   return (
     <View
@@ -122,14 +124,19 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
 
           {/* Buttons */}
           <View style={{flexDirection: 'row', marginTop: 10, gap: width(2)}}>
-            <View style={{width: width(25)}}>
+            <View style={{width: width(28)}}>
               <ActionBuuton
                 bgcColor={colors.black}
                 fontColor={colors.white}
                 name="View Details"
                 onPress={() =>
+                  // navigation.navigate('ProductDetail', {
+                  //   productId: item?.foodId?._id || item._id,
+                  // })
                   navigation.navigate('ProductDetail', {
+                    data: item,
                     productId: item?.foodId?._id || item._id,
+                    type: 'normal',
                   })
                 }
               />
@@ -152,11 +159,11 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
             border={1}
             onPress={() => onFavPress(item)}
           />
-          <BackButton
+          {/* <BackButton
             icon={icons.share}
             border={1}
             onPress={() => handleShareProduct(item)}
-          />
+          /> */}
         </View>
       </View>
 

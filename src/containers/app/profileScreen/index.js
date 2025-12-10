@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import React, {useCallback, useEffect, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   ScrollView,
@@ -14,38 +14,45 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useDispatch, useSelector} from 'react-redux';
+
 import {fontFamily, images} from '../../../assets';
 import {colors} from '../../../constants';
 import {setUserData} from '../../../redux/slices/Login';
+import CustomModal from '../../../components/customModal';
 
-const Row = ({iconSet: IconSet, icon, label, onPress, right}) => {
-  return (
-    <TouchableOpacity
-      activeOpacity={0.85}
-      onPress={onPress}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: width(0.5),
-      }}>
-      <View style={{flexDirection: 'row', alignItems: 'center', gap: 12}}>
-        <IconSet name={icon} size={22} color={colors.redish} />
-        <Text
-          style={{
-            fontSize: 16,
-            color: colors.black,
-            fontFamily: fontFamily.poppinMedium,
-          }}>
-          {label}
-        </Text>
-      </View>
-      {right ?? (
-        <Feather name="chevron-right" size={20} color={colors.graydark} />
-      )}
-    </TouchableOpacity>
-  );
-};
+const Row = ({
+  activeOpacity = 0.7,
+  iconSet: IconSet,
+  icon,
+  label,
+  onPress,
+  right,
+}) => (
+  <TouchableOpacity
+    activeOpacity={activeOpacity}
+    onPress={onPress}
+    style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: width(1.2),
+    }}>
+    <View style={{flexDirection: 'row', alignItems: 'center', gap: 12}}>
+      <IconSet name={icon} size={22} color={colors.redish} />
+      <Text
+        style={{
+          fontSize: 16,
+          color: colors.black,
+          fontFamily: fontFamily.poppinMedium,
+        }}>
+        {label}
+      </Text>
+    </View>
+    {right ?? (
+      <Feather name="chevron-right" size={20} color={colors.graydark} />
+    )}
+  </TouchableOpacity>
+);
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -55,29 +62,45 @@ const ProfileScreen = () => {
   const [pushEnabled, setPushEnabled] = useState(true);
   const [promoEnabled, setPromoEnabled] = useState(false);
 
-  // 🔹 Redirect to Login if user is not logged in
+  // ✅ Custom Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState({
+    Icon: null,
+    title: '',
+    detail: '',
+    buttonName: 'Okay',
+    onPress: () => setModalVisible(false),
+  });
+
   useEffect(() => {
-    if (!user) {
-      navigation.navigate('Login');
-    }
+    if (!user) navigation.replace('Login');
   }, []);
 
   const logout = async () => {
     await AsyncStorage.removeItem('user');
     dispatch(setUserData(null));
-    navigation.replace('Login'); // ensure user goes to login and cannot back
+    navigation.replace('Login');
   };
 
-  // if (!user) return null; // 👈 Prevent rendering Bottom Tab content if not logged in
+  // ✅ SHOW "COMING SOON" MODAL
+  const showComingSoon = () => {
+    setModalData({
+      Icon: null,
+      title: '🚧 Feature Coming Soon',
+      detail:
+        'We’re working hard to bring this feature to you.\n\nPlease stay tuned — it will be available in an upcoming update!',
+      buttonName: 'Got it',
+      onPress: () => setModalVisible(false),
+    });
+    setModalVisible(true);
+  };
 
-  const name =
-    user?.name ||
-    user?.full_name ||
-    `${user?.first_name || 'Timothy'} ${user?.last_name || 'Lankish'}`;
-  const email = user?.email || 'timothylank@gmail.com';
+  const name = user?.name || 'Guest User';
+  const email = user?.email || 'example@email.com';
 
   return (
     <ScrollView style={{flex: 1, backgroundColor: '#F6F6F6'}}>
+      {/* HEADER */}
       <View
         style={{
           height: width(90),
@@ -107,50 +130,28 @@ const ProfileScreen = () => {
             justifyContent: 'center',
             alignItems: 'center',
             elevation: 6,
-          }}>
+          }}
+          onPress={showComingSoon}>
           <MaterialCommunityIcons
             name="bell-outline"
             size={22}
             color={colors.redish}
           />
-          <View
-            style={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              height: 12,
-              width: 12,
-              borderRadius: 12,
-              backgroundColor: colors.orange,
-            }}
-          />
         </TouchableOpacity>
 
-        {user?.customerImage ? (
-          <Image
-            source={{uri: user?.customerImage}}
-            style={{
-              height: width(26),
-              width: width(26),
-              borderRadius: width(13),
-              borderWidth: 4,
-              borderColor: colors.white,
-              marginTop: width(6),
-            }}
-          />
-        ) : (
-          <Image
-            source={images.userAvatar}
-            style={{
-              height: width(26),
-              width: width(26),
-              borderRadius: width(13),
-              borderWidth: 4,
-              borderColor: colors.white,
-              marginTop: width(6),
-            }}
-          />
-        )}
+        <Image
+          source={
+            user?.customerImage ? {uri: user.customerImage} : images.userAvatar
+          }
+          style={{
+            height: width(26),
+            width: width(26),
+            borderRadius: width(13),
+            borderWidth: 4,
+            borderColor: colors.white,
+            marginTop: width(6),
+          }}
+        />
 
         <Text
           style={{
@@ -174,6 +175,7 @@ const ProfileScreen = () => {
         </Text>
       </View>
 
+      {/* CARD */}
       <View
         style={{
           marginTop: -width(20),
@@ -182,112 +184,122 @@ const ProfileScreen = () => {
           borderRadius: width(5),
           padding: width(5),
           elevation: 8,
-          shadowColor: '#0003',
         }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Text
-            style={{
-              fontSize: 18,
-              color: colors.black,
-              fontFamily: fontFamily.poppinBold,
-            }}>
-            My Account
-          </Text>
+        <Text
+          style={{
+            fontSize: 18,
+            fontFamily: fontFamily.poppinBold,
+            marginBottom: width(2),
+          }}>
+          My Account
+        </Text>
 
-          <Row
-            iconSet={Feather}
-            icon="user"
-            label="Personal information"
-            onPress={() => navigation.navigate('PersonalInfo')}
-          />
-          <Row iconSet={Feather} icon="credit-card" label="Subscriptions" />
-          <Row
-            iconSet={Feather}
-            icon="file-text"
-            label="Special order request"
-          />
-          <Row iconSet={Feather} icon="shield" label="Privacy Policy" />
-          <Row iconSet={Feather} icon="settings" label="Settings" />
+        <Row
+          iconSet={Feather}
+          icon="user"
+          label="Personal information"
+          onPress={() => navigation.navigate('PersonalInfo')}
+        />
 
-          <View
-            style={{
-              height: 1,
-              backgroundColor: '#E5E5E5',
-              marginVertical: width(3),
-            }}
-          />
+        <Row
+          iconSet={Feather}
+          icon="credit-card"
+          label="Subscriptions"
+          onPress={showComingSoon}
+        />
 
-          <Text
-            style={{
-              fontSize: 18,
-              color: colors.black,
-              fontFamily: fontFamily.poppinBold,
-              marginBottom: width(2),
-            }}>
-            Notifications
-          </Text>
+        <Row
+          iconSet={Feather}
+          icon="file-text"
+          label="Special order request"
+          onPress={showComingSoon}
+        />
 
-          <Row
-            iconSet={Feather}
-            icon="bell"
-            label="Push Notifications"
-            right={
-              <Switch
-                value={pushEnabled}
-                onValueChange={setPushEnabled}
-                trackColor={{false: colors.softgray, true: colors.green}}
-                thumbColor={colors.white}
-              />
-            }
-          />
+        <Row
+          iconSet={Feather}
+          icon="shield"
+          label="Privacy Policy"
+          onPress={() => navigation.navigate('PrivacyPolicy')}
+        />
 
-          <Row
-            iconSet={Feather}
-            icon="bell-off"
-            label="Promotional Notifications"
-            right={
-              <Switch
-                value={promoEnabled}
-                onValueChange={setPromoEnabled}
-                trackColor={{false: colors.softgray, true: colors.green}}
-                thumbColor={colors.white}
-              />
-            }
-          />
+        <Row
+          iconSet={Feather}
+          icon="settings"
+          label="Settings"
+          onPress={showComingSoon}
+        />
 
-          <View
-            style={{
-              height: 1,
-              backgroundColor: '#E5E5E5',
-              marginVertical: width(3),
-            }}
-          />
+        <View
+          style={{height: 1, backgroundColor: '#E5E5E5', marginVertical: 20}}
+        />
 
-          <Text
-            style={{
-              fontSize: 18,
-              color: colors.black,
-              fontFamily: fontFamily.poppinBold,
-              marginBottom: width(2),
-            }}>
-            More
-          </Text>
+        <Text
+          style={{
+            fontSize: 18,
+            fontFamily: fontFamily.poppinBold,
+            marginBottom: width(2),
+          }}>
+          Notifications
+        </Text>
 
-          <Row
-            iconSet={Feather}
-            icon="info"
-            label="Help Center"
-            onPress={() => navigation.navigate('Support')}
-          />
+        <Row
+          iconSet={Feather}
+          icon="bell"
+          label="Push Notifications"
+          activeOpacity={1}
+          right={
+            <Switch
+              value={pushEnabled}
+              onValueChange={setPushEnabled}
+              trackColor={{false: colors.softgray, true: colors.green}}
+            />
+          }
+        />
 
-          <Row
-            iconSet={AntDesign}
-            icon="logout"
-            label="Log Out"
-            onPress={logout}
-          />
-        </ScrollView>
+        <Row
+          iconSet={Feather}
+          icon="bell-off"
+          label="Promotional Notifications"
+          activeOpacity={1}
+          right={
+            <Switch
+              value={promoEnabled}
+              onValueChange={setPromoEnabled}
+              trackColor={{false: colors.softgray, true: colors.green}}
+            />
+          }
+        />
+
+        <View
+          style={{height: 1, backgroundColor: '#E5E5E5', marginVertical: 20}}
+        />
+        <Row
+          iconSet={Feather}
+          icon="info"
+          label="Help Center"
+          onPress={() => navigation.navigate('Support')}
+        />
+
+        <Row
+          iconSet={AntDesign}
+          icon="logout"
+          label="Log Out"
+          onPress={logout}
+        />
       </View>
+
+      {/* ✅ CUSTOM MODAL */}
+      <CustomModal
+        visible={modalVisible}
+        Icon={modalData.Icon}
+        name={modalData.title}
+        detail={modalData.detail}
+        buttonName={modalData.buttonName}
+        onPress={modalData.onPress}
+        close={() => setModalVisible(false)}
+      />
+
+      <View style={{height: width(4)}} />
     </ScrollView>
   );
 };

@@ -5,10 +5,12 @@ import {useDispatch, useSelector} from 'react-redux';
 import AuthStack from './AuthStack';
 import {setUserData} from '../redux/slices/Login';
 import BottomNavigation from './bottomTab';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
+const RootStack = createNativeStackNavigator();
 
 const Navigation = () => {
   const dispatch = useDispatch();
-  const {isGetStarted} = useSelector(state => state.GetStarted);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -33,8 +35,12 @@ const Navigation = () => {
 
   return (
     <NavigationContainer>
-      {/* If user exists -> show app (tabs). Otherwise show auth stack (login screens). */}
-      {user ? <BottomNavigation initialRouteName="Profile" /> : <AuthStack />}
+      <RootStack.Navigator
+        initialRouteName={user ? 'App' : 'Auth'}
+        screenOptions={{headerShown: false}}>
+        <RootStack.Screen name="Auth" component={AuthStack} />
+        <RootStack.Screen name="App" component={BottomNavigation} />
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 };

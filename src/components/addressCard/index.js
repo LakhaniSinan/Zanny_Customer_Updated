@@ -11,9 +11,7 @@ const AddressCard = ({
   onPressdelete,
   handleAddressChange,
 }) => {
-  const currentLocation = useSelector(
-    state => state.LocationSlice.currentLocation,
-  );
+  const {currentLocation} = useSelector(state => state.LocationSlice);
 
   const isSelected = item?._id === currentLocation?._id;
 

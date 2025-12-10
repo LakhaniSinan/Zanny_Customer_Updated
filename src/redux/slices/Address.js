@@ -1,7 +1,6 @@
-import {createSlice} from '@reduxjs/toolkit';
-import {useDispatch} from 'react-redux';
-import {getAddress} from '../../services/address';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {createSlice} from '@reduxjs/toolkit';
+import {getAddress} from '../../services/address';
 
 export const initialState = {
   loading: false,
@@ -45,8 +44,6 @@ export function handelGetAddress(place) {
         .then(response => {
           if (response?.data?.status == 'ok') {
             let data = response?.data?.data;
-            console.log(data, 'datadatadatadatadatadataasdasd');
-
             dispatch(getAddressSuccess(data));
           } else {
             dispatch(getAddressFailure(response.data));

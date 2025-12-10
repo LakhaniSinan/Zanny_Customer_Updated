@@ -42,6 +42,8 @@ import ResetPassword from '../../containers/auth/resetPassword';
 import restaurants from '../../containers/app/restaurants';
 import {handelGetAddress} from '../../redux/slices/Address';
 import {useEffect} from 'react';
+import ChefDetails from '../../containers/app/chefDetails';
+import PrivacyPolicy from '../../containers/app/privacyPolicy';
 
 const Stack = createStackNavigator();
 
@@ -130,6 +132,20 @@ export function CustomerStack() {
       <Stack.Screen
         name="UserAllergies"
         component={UserAllergies}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="ChefDetails"
+        component={ChefDetails}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        component={PrivacyPolicy}
         options={{
           headerShown: false,
         }}

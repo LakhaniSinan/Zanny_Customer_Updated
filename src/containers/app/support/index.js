@@ -1,7 +1,4 @@
-import {Picker} from '@react-native-picker/picker';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import moment from 'moment';
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   FlatList,
   SafeAreaView,
@@ -10,142 +7,161 @@ import {
   View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
+import moment from 'moment';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useSelector} from 'react-redux';
-import Header from '../../../components/header';
+import {useNavigation} from '@react-navigation/native';
+
+import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
+import CustomPicker from '../../../components/customPicker';
 import {colors} from '../../../constants';
+import {fontFamily} from '../../../assets';
 import {getSupportMessagesById} from '../../../services/profile';
 
 const Support = () => {
-  let user = useSelector(state => state.LoginSlice.user);
+  const user = useSelector(state => state.LoginSlice.user);
   const navigation = useNavigation();
+
+  const pickerRef = useRef();
+  const [type, setType] = useState('Pending');
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [type, setType] = useState('Pending');
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getUserSupportMessages();
-    }, [type]),
-  );
-  const getUserSupportMessages = async () => {
+  useEffect(() => {
+    if (user?._id) {
+      fetchMessages();
+    }
+  }, [type]);
+
+  const fetchMessages = async () => {
     setIsLoading(true);
-    getSupportMessagesById(user._id)
-      .then(res => {
-        setIsLoading(false);
-        if (res?.status == 200) {
-          console.log(res?.data?.data, 'data==========>');
-          const data = res?.data?.data;
-          let tempArr = [];
-          data.map((item, ind) => {
-            if (item.status == type) {
-              tempArr.push(item);
-            }
-          });
-          setMessages(tempArr);
-        }
-      })
-      .catch(error => {
-        setIsLoading(false);
-        console.log(error, 'errorSupportMsg=====>');
-      });
+    try {
+      const res = await getSupportMessagesById(user._id);
+      if (res?.status === 200) {
+        const filtered = res.data.data.filter(item => item.status === type);
+        setMessages(filtered);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    setIsLoading(false);
   };
+
+  const handleSelectValue = (name, item) => {
+    setType(item.name);
+  };
+
   return (
     <>
       <OverLayLoader isloading={isLoading} />
       <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
-        <Header text="Support" goBack />
-        <View style={{marginHorizontal: width(3), marginVertical: width(2)}}>
-          <Text style={{color: 'black'}}>Filter records by status</Text>
+        <AppHeader text="Support" goBack />
+
+        <View style={{paddingHorizontal: width(4), marginTop: width(3)}}>
+          <CustomPicker
+            ref={pickerRef}
+            label="Filter by Status"
+            labelll="Select Status"
+            value={type}
+            listData={[
+              {name: 'Pending'},
+              {name: 'Acknowledged'},
+              {name: 'Resolved'},
+            ]}
+            handleOpenModal={() => pickerRef.current.show()}
+            handleSelectValue={handleSelectValue}
+          />
         </View>
-        <View
-          style={{
-            borderWidth: 0.5,
-            borderColor: colors.grey,
-            marginTop: width(2),
-            marginHorizontal: width(3),
-          }}>
-          <Picker
-            dropdownIconColor={'black'}
-            style={{width: '100%', fontSize: 13}}
-            itemStyle={{backgroundColor: 'white', fontSize: 13}}
-            selectedValue={type}
-            onValueChange={(itemValue, itemIndex) => setType(itemValue)}>
-            <Picker.Item label="Please select type" value={''} color="black" />
-            <Picker.Item label="Pending" value={'Pending'} color="black" />
-            <Picker.Item
-              label="Acknowledged"
-              value={'Acknowledged'}
-              color="black"
-            />
-            <Picker.Item label="Resolved" value={'Resolved'} color="black" />
-          </Picker>
-        </View>
-        {messages?.length > 0 ? (
+
+        {messages.length > 0 ? (
           <FlatList
             data={messages}
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={{paddingBottom: width(20)}}
             renderItem={({item}) => (
               <View
                 style={{
-                  borderRadius: 8,
-                  marginHorizontal: width(3),
-                  elevation: 5,
-                  backgroundColor: colors.orangeColor,
-                  marginVertical: width(3),
+                  backgroundColor: colors.white,
+                  borderRadius: 16,
+                  marginHorizontal: width(4),
+                  marginTop: width(4),
+                  elevation: 6,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.1,
+                  shadowRadius: 6,
                 }}>
-                <View
-                  style={{
-                    paddingHorizontal: width(2),
-                    paddingVertical: width(3),
-                  }}>
-                  <View>
-                    <Text style={{color: colors.white, paddingTop: width(1)}}>
-                      Message: {item?.message}
+                <View style={{padding: width(4)}}>
+                  <View
+                    style={{
+                      alignSelf: 'flex-start',
+                      backgroundColor: '#F1F5FF',
+                      paddingHorizontal: width(3),
+                      paddingVertical: width(1),
+                      borderRadius: 20,
+                      marginBottom: width(2),
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: colors.orangeColor,
+                        fontFamily: fontFamily.poppinMedium,
+                      }}>
+                      {item.status}
                     </Text>
                   </View>
-                  <Text style={{color: colors.white, paddingTop: width(2)}}>
-                    Date : {moment(item.date).format('DD-MM-YYYY')}
+
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      lineHeight: 22,
+                      color: colors.black,
+                      fontFamily: fontFamily.poppinRegular,
+                    }}>
+                    {item.message}
                   </Text>
-                  <Text style={{color: colors.white, paddingTop: width(2)}}>
-                    Status : {item?.status}
+
+                  <View
+                    style={{
+                      height: 1,
+                      backgroundColor: '#EEE',
+                      marginVertical: width(3),
+                    }}
+                  />
+
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: colors.graydark,
+                      fontFamily: fontFamily.poppinRegular,
+                    }}>
+                    {moment(item.date).format('DD MMM YYYY')}
                   </Text>
                 </View>
               </View>
             )}
           />
         ) : (
-          <View style={{justifyContent: 'center', marginTop: width(50)}}>
-            <Text
-              style={{
-                fontWeight: 'bold',
-                fontSize: 16,
-                marginBottom: width(2),
-                color: 'black',
-                textAlign: 'center',
-              }}>
-              No data found
+          <View style={{marginTop: width(40), alignItems: 'center'}}>
+            <Text style={{fontSize: 16, fontFamily: fontFamily.poppinBold}}>
+              No records found
             </Text>
           </View>
         )}
-        <View
+
+        <TouchableOpacity
           style={{
             position: 'absolute',
-            bottom: 10,
-            right: 5,
-            marginHorizontal: width(2),
-          }}>
-          <TouchableOpacity
-            style={{
-              backgroundColor: colors.orangeColor,
-              borderRadius: 30,
-              padding: width(3),
-              alignItems: 'center',
-            }}
-            onPress={() => navigation.navigate('AddSupportMsg')}>
-            <AntDesign name="plus" size={25} color={'#ffff'} />
-          </TouchableOpacity>
-        </View>
+            bottom: 20,
+            right: 20,
+            backgroundColor: colors.black,
+            padding: width(4),
+            borderRadius: 50,
+            elevation: 6,
+          }}
+          onPress={() => navigation.navigate('AddSupportMsg')}>
+          <AntDesign name="plus" size={22} color="#fff" />
+        </TouchableOpacity>
       </SafeAreaView>
     </>
   );

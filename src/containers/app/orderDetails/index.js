@@ -1,25 +1,17 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  SafeAreaView,
-  Image,
-  TextInput,
-  ScrollView,
-  Alert,
-} from 'react-native';
-import Header from '../../../components/header';
-import Button from '../../../components/button';
+import React, {useEffect, useState} from 'react';
+import {Alert, SafeAreaView, ScrollView, Text, View} from 'react-native';
+import {width} from 'react-native-dimension';
+import {useSelector} from 'react-redux';
+import ActionBuuton from '../../../components/actionButton';
+import AppHeader from '../../../components/headerComponent';
+import {updateOrderStatus} from '../../../services/order';
 import {colors} from './../../../constants/index';
 import styles from './style';
-import {width} from 'react-native-dimension';
-import {updateOrderStatus} from '../../../services/order';
-import {useSelector} from 'react-redux';
 
 const OrderDetail = ({navigation, route}) => {
-  console.log(route, 'routerouterouteroute');
-
   const data = route.params;
+  console.log(data, 'routerouterouteroute');
+
   const user = useSelector(state => state.LoginSlice.user);
   const [subTotal, setSubTotal] = useState(0);
   const [prepareTime, setPrepareTime] = useState('');
@@ -120,7 +112,7 @@ const OrderDetail = ({navigation, route}) => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <Header text="Order Details" goBack={true} />
+      <AppHeader text="Order Details" goBack={true} />
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* <Image
           source={{
@@ -226,15 +218,34 @@ const OrderDetail = ({navigation, route}) => {
 
         <View style={styles.borderstyle}>
           {data.order.map((item, ind) => {
+            console.log(item, 'itemitemitemitemitemitemasdsd');
+
             return (
-              <View key={ind} style={styles.ordertxtview}>
-                <Text style={styles.subheading}>
-                  {item.selectedQty}x {item.name}
-                </Text>
-                <Text style={styles.pricetxt}>
-                  £ {item?.discount > 0 ? item?.discount : item?.price}
-                </Text>
-              </View>
+              <>
+                <View key={ind} style={styles.ordertxtview}>
+                  <Text style={styles.subheading}>
+                    {item.quantity || item.selectedQty}x {item.name}
+                  </Text>
+
+                  <Text style={styles.pricetxt}>
+                    £ {item?.discount > 0 ? item?.discount : item?.price}
+                  </Text>
+                </View>
+                <View key={ind} style={styles.ordertxtview}>
+                  <Text style={styles.subheading}>Promo Code</Text>
+
+                  <Text style={styles.pricetxt}>
+                    {data?.promoData?.promoCode}
+                  </Text>
+                </View>
+                <View key={ind} style={styles.ordertxtview}>
+                  <Text style={styles.subheading}>Promo Discount</Text>
+
+                  <Text style={styles.pricetxt}>
+                    {data?.promoData?.discount} %OFF
+                  </Text>
+                </View>
+              </>
             );
           })}
         </View>
@@ -270,12 +281,13 @@ const OrderDetail = ({navigation, route}) => {
           </View>
         </View>
       </ScrollView>
-      <View style={{marginTop: width(2), marginBottom: width(2)}}>
+      <View style={{padding: width(3)}}>
         {data.status == 'Pending' ? (
-          <Button
+          <ActionBuuton
             onPress={cofirmAlert}
-            heading={'Cancel Order'}
-            color={colors.pinkColor}
+            name={'Cancel Order'}
+            bgcColor={colors.black}
+            fontColor={colors.white}
           />
         ) : null}
       </View>

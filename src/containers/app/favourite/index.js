@@ -1,8 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import React, {useCallback, useEffect, useState} from 'react';
-import {FlatList, Text, View, StyleSheet} from 'react-native';
+import {FlatList, StyleSheet, Text, View} from 'react-native';
+import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
+import {icons} from '../../../assets';
+import ActionBuuton from '../../../components/actionButton';
 import CustomModal from '../../../components/customModal';
 import FoodCard from '../../../components/foodCard';
 import AppHeader from '../../../components/headerComponent';
@@ -11,8 +14,6 @@ import {colors, Colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {setCartData} from '../../../redux/slices/Cart';
 import {addToFavFun, getUserFavProFun} from '../../../services/favourite';
-import ActionBuuton from '../../../components/actionButton';
-import {width} from 'react-native-dimension';
 
 const Favourite = () => {
   const navigation = useNavigation();
@@ -34,10 +35,7 @@ const Favourite = () => {
 
   const showModal = (type, message) => {
     setModalData({
-      Icon:
-        type === 'success'
-          ? require('../../../assets/icons/check.png')
-          : require('../../../assets/icons/cross.png'),
+      Icon: type === 'success' ? icons.check : icons.cross,
       name: type === 'success' ? 'Success' : 'Error',
       detail: message,
       buttonName: 'Okay',
@@ -75,26 +73,32 @@ const Favourite = () => {
   }, [fetchFavorites]);
 
   const handleAddToCart = async selectedItem => {
-    if (!user)
-      return showModal('error', 'Please login first to add items in your cart');
+    let params = {
+      ...selectedItem?.foodId,
+      merchant: selectedItem?.restaurantId,
+    };
+
+    if (!user) {
+      showModal('error', 'Please login first to add items in your cart');
+      return;
+    }
 
     try {
       let tempArr = [...cartData];
-      const findIndex = tempArr.findIndex(i => i._id === selectedItem._id);
+      const findIndex = tempArr.findIndex(i => i._id === params._id);
 
       if (
         cartData.length === 0 ||
-        cartData[0].merchantId === selectedItem.merchantId
+        cartData[0].merchantId === params.merchantId
       ) {
-        if (findIndex !== -1) {
+        if (findIndex !== -1)
           tempArr[findIndex].selectedQty =
             (tempArr[findIndex].selectedQty || 1) + 1;
-        } else {
-          tempArr.push({...selectedItem, selectedQty: 1});
-        }
+        else tempArr.push({...params, selectedQty: 1});
 
         dispatch(setCartData(tempArr));
         await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
+
         showModal('success', 'Item added to cart successfully');
       } else {
         showModal(
@@ -103,8 +107,8 @@ const Favourite = () => {
         );
       }
     } catch (err) {
-      console.log('Add to Cart Error:', err);
-      showModal('error', 'Something went wrong while adding to cart');
+      console.log(err);
+      showModal('error', 'Something went wrong!');
     }
   };
 
@@ -149,18 +153,22 @@ const Favourite = () => {
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>
-        Please login first to see your favorite meals.
+        {user
+          ? 'No Favourite Products Found'
+          : 'Please login first to see your favorite meals.'}
       </Text>
-      <View style={styles.buttonWrapper}>
-        <ActionBuuton
-          name="Login"
-          height={50}
-          fontSize={14}
-          bgcColor={colors.redish}
-          fontColor={colors.white}
-          onPress={() => navigation.navigate('Login')}
-        />
-      </View>
+      {!user && (
+        <View style={styles.buttonWrapper}>
+          <ActionBuuton
+            name="Login"
+            height={50}
+            fontSize={14}
+            bgcColor={colors.redish}
+            fontColor={colors.white}
+            onPress={() => navigation.navigate('Login')}
+          />
+        </View>
+      )}
     </View>
   );
 

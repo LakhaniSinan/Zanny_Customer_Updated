@@ -21,6 +21,8 @@ import {helper} from '../../../helper';
 
 const AllFoodScreen = ({route}) => {
   const data = route.params;
+  console.log(data, 'datadatadatadatadata');
+
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {user} = useSelector(state => state.LoginSlice);
@@ -29,8 +31,10 @@ const AllFoodScreen = ({route}) => {
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+
+  const [initialLoading, setInitialLoading] = useState(true); // First load
+  const [loading, setLoading] = useState(false); // Infinite scroll loader
+  const [refreshing, setRefreshing] = useState(false); // Pull-to-refresh loader
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -52,11 +56,10 @@ const AllFoodScreen = ({route}) => {
     setModalVisible(true);
   };
 
-  // ⭐ EMPTY VIEW WHILE LOADING FIRST TIME
+  // ⭐ EMPTY VIEW
   const ListEmpty = () =>
-    loading ? (
+    initialLoading ? (
       <View style={{alignItems: 'center', marginTop: 50}}>
-        <ActivityIndicator size="large" color={colors.redish} />
         <View style={{height: 10}} />
         <Text style={{fontSize: 16, color: colors.black}}>
           Fetching products...
@@ -78,11 +81,12 @@ const AllFoodScreen = ({route}) => {
     async (reset = false) => {
       if (loading || (!hasMore && !reset)) return;
 
-      setLoading(true);
       if (reset) {
         setRefreshing(true);
         setPage(1);
         setHasMore(true);
+      } else {
+        setLoading(true);
       }
 
       try {
@@ -90,12 +94,12 @@ const AllFoodScreen = ({route}) => {
           page: reset ? 1 : page,
           limit: 10,
         };
-
         if (data?._id) params.categoryId = data._id;
         if (user?._id) params.userId = user._id;
+        if (user?._id) params.searchQuery = data?.search;
+        console.log(params, 'paramsparamsparamsparams');
 
         const res = await getAllProducts(params);
-
         if (res.status === 200) {
           const newProducts = res?.data?.data || [];
           const totalPages = res?.data?.totalPages || 1;
@@ -115,10 +119,11 @@ const AllFoodScreen = ({route}) => {
       } catch (error) {
         console.log('Fetch Error:', error);
         showModal('error', 'Failed to fetch products!');
+      } finally {
+        setInitialLoading(false);
+        setLoading(false);
+        setRefreshing(false);
       }
-
-      setLoading(false);
-      setRefreshing(false);
     },
     [page, loading, hasMore, user?._id],
   );
@@ -132,7 +137,7 @@ const AllFoodScreen = ({route}) => {
     fetchProducts(true);
   };
 
-  // ⭐ FOOTER LOADER
+  // ⭐ FOOTER LOADER (Infinite Scroll)
   const renderFooter = () =>
     loading && !refreshing ? (
       <ActivityIndicator
@@ -178,7 +183,7 @@ const AllFoodScreen = ({route}) => {
     }
   };
 
-  // ⭐ MARK FAV
+  // ⭐ MARK FAVORITE
   const onFavPress = async item => {
     if (!user) {
       showModal('error', 'Please login first to add favorites');
@@ -208,11 +213,14 @@ const AllFoodScreen = ({route}) => {
       setLoading(false);
     }
   };
+
+  // ⭐ SHARE PRODUCT
   const handleShareProduct = item => {
     helper.handleShare(
       `Check this product: https://zannysfood.com/portal/#/app?ProductDetail/${item?._id}`,
     );
   };
+
   return (
     <View style={{flex: 1, backgroundColor: colors.white}}>
       <AppHeader goBack={true} cartIcon={true} text="Delicacies" />

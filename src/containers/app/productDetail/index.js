@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
-  Alert,
   FlatList,
   Image,
   ScrollView,
@@ -64,10 +63,11 @@ const ProductDetail = ({navigation, route}) => {
       if (response.status === 200 || response.status === 201) {
         setProductDetails(response?.data?.data);
       } else {
-        Alert.alert('Error', 'Something went wrong');
+        showModal('error', 'Something went wrong');
       }
     } catch (error) {
       console.log(error);
+      showModal('error', 'Something went wrong while fetching product details');
     } finally {
       setIsLoading(false);
     }
@@ -112,6 +112,7 @@ const ProductDetail = ({navigation, route}) => {
       }
     } catch (error) {
       console.log(error, 'errorerrorerrorasndalskdndaas');
+      showModal('error', 'Something went wrong while adding to favourite');
     } finally {
       setIsLoading(false);
     }
@@ -169,7 +170,7 @@ const ProductDetail = ({navigation, route}) => {
     <View style={styles.bottomBar}>
       <View style={{width: width(45)}}>
         <ActionButton
-          onPress={() => Alert.alert('Alert', 'This Feature Will Enable Soon')}
+          onPress={() => showModal('error', 'This Feature Will Enable Soon')}
           height={46}
           width={width(45)}
           name={'Pre-order'}
@@ -228,17 +229,11 @@ const ProductDetail = ({navigation, route}) => {
             data={productDetails?.nutritions}
             renderItem={({item}) => <ProgressCard item={item} />}
             ListEmptyComponent={
-              <FlatList
-                data={productDetails?.nutritions}
-                renderItem={({item}) => <ProgressCard item={item} />}
-                ListEmptyComponent={
-                  <View style={{alignItems: 'center', paddingVertical: 20}}>
-                    <Text style={{fontSize: 14, color: '#999'}}>
-                      No nutrition data available
-                    </Text>
-                  </View>
-                }
-              />
+              <View style={{alignItems: 'center', paddingVertical: 20}}>
+                <Text style={{fontSize: 14, color: '#999'}}>
+                  No nutrition data available
+                </Text>
+              </View>
             }
           />
 
@@ -278,6 +273,7 @@ const ProductDetail = ({navigation, route}) => {
             action={'See All'}
             color={Colors.redish}
             fontSize={14}
+            onPress={() => navigation.navigate('ChefDetails', productDetails)}
           />
 
           <FlatList
@@ -293,11 +289,12 @@ const ProductDetail = ({navigation, route}) => {
           />
         </View>
         <BottomButtons />
+        <View style={{height: width(2)}} />
       </ScrollView>
       <CustomModal
         visible={modalVisible}
         Icon={modalData.Icon}
-        name={modalData.title}
+        name={modalData.name}
         detail={modalData.detail}
         buttonName={modalData.buttonName}
         onPress={modalData.onPress}
@@ -334,7 +331,7 @@ const TitleRow = ({productDetails, onShareProduct, onFavIconPress}) => {
           icon={icons.heart}
           onPress={() => onFavIconPress(productDetails)}
         />
-        <IconButton icon={icons.share} onPress={onShareProduct} />
+        {/* <IconButton icon={icons.share} onPress={onShareProduct} /> */}
       </View>
     </View>
   );
@@ -353,7 +350,11 @@ const PriceRow = ({productDetails, getFinalPrice}) => (
     </View>
 
     <View style={styles.servings}>
-      <Image source={icons.foodIcon} style={styles.servingsIcon} />
+      <Image
+        source={icons.foodIcon}
+        style={styles.servingsIcon}
+        resizeMode="contain"
+      />
       <Text style={styles.servingsText}>
         {productDetails?.otherProducts?.length} servings
       </Text>
@@ -499,7 +500,7 @@ const styles = {
     color: Colors.gray,
   },
   servings: {flexDirection: 'row', alignItems: 'center'},
-  servingsIcon: {height: width(5), width: width(5)},
+  servingsIcon: {height: width(7), width: width(7)},
   servingsText: {marginLeft: width(2), color: Colors.black},
 
   /* Location */

@@ -58,13 +58,10 @@ const ForgotPassword = ({navigation}) => {
           'We’ve sent an OTP to your email! If you don’t see it in your inbox, check spam/promotions/junk folder.',
         );
       } else {
-        showModal('error', response.data?.message || 'Failed to send OTP.');
+        showModal('error', response.data?.message);
       }
     } catch (error) {
-      showModal(
-        'error',
-        error?.response?.data?.message || 'Something went wrong!',
-      );
+      showModal('error', error?.response?.data?.message);
     } finally {
       setIsLoading(false);
     }

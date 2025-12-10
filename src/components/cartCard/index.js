@@ -1,21 +1,24 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {Alert, Image, Text, TouchableOpacity, View} from 'react-native';
+import {Image, Text, TouchableOpacity, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons, images} from '../../assets';
 import {colors} from '../../constants';
+import {helper} from '../../helper';
 import {setCartData} from '../../redux/slices/Cart';
 import BackButton from '../backIcon';
 import CustomModal from '../customModal';
-import {helper} from '../../helper';
 
 const CartCard = ({item, index}) => {
+  console.log(item, 'itemitemitemitemitemitemitem');
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const {cartData} = useSelector(state => state.CartSlice);
   const [quantity, setQuantity] = useState(item?.quantity ?? 1);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     type: 'default',
@@ -35,18 +38,52 @@ const CartCard = ({item, index}) => {
       onConfirm: () => confirmDelete(itemToRemove),
       onCancel: () => setModalVisible(false),
     });
+    setModalVisible(true);
+  };
 
+  const openQuantityErrorModal = () => {
+    setModalData({
+      type: 'default',
+      Icon: icons.alertIcon,
+      name: 'Warning',
+      detail: 'Quantity cannot be less than 1',
+      onConfirm: () => setModalVisible(false),
+    });
     setModalVisible(true);
   };
 
   const confirmDelete = item => {
     setModalVisible(false);
     if (!item) return;
-    const updatedCart = cartData.filter(cartItem => {
-      return cartItem?._id !== item?._id;
-    });
+    const updatedCart = cartData.filter(
+      cartItem => cartItem?._id !== item?._id,
+    );
     dispatch(setCartData(updatedCart));
     AsyncStorage.setItem('cartData', JSON.stringify(updatedCart));
+  };
+
+  const updateCartQuantity = newQty => {
+    const updatedCart = [...cartData];
+    updatedCart[index] = {...updatedCart[index], quantity: newQty};
+    dispatch(setCartData(updatedCart));
+    AsyncStorage.setItem('cartData', JSON.stringify(updatedCart));
+    setQuantity(newQty);
+  };
+
+  const handleIncrease = () => updateCartQuantity(quantity + 1);
+
+  const handleDecrease = () => {
+    if (quantity <= 1) {
+      openQuantityErrorModal();
+    } else {
+      updateCartQuantity(quantity - 1);
+    }
+  };
+
+  const handleShareProduct = () => {
+    helper.handleShare(
+      `Check this product: https://zannysfood.com/portal/#/app?ProductDetail/${item?._id}`,
+    );
   };
 
   const foodName = item?.name || 'Delicious Food';
@@ -58,33 +95,6 @@ const CartCard = ({item, index}) => {
   const ratingCount = item?.ratingCount ? `(${item.ratingCount}+)` : '(120+)';
   const distance = item?.distance || '2.8 km away';
   const cheifName = item?.cheifName || 'Chef';
-
-  const updateCartQuantity = newQty => {
-    const updatedCart = [...cartData];
-    updatedCart[index] = {
-      ...updatedCart[index],
-      quantity: newQty,
-    };
-    dispatch(setCartData(updatedCart));
-    AsyncStorage.setItem('cartData', JSON.stringify(updatedCart));
-    setQuantity(newQty);
-  };
-
-  const handleIncrease = () => updateCartQuantity(quantity + 1);
-
-  const handleDecrease = () => {
-    if (quantity <= 1) {
-      Alert.alert('Quantity cannot be less than 1');
-    } else {
-      updateCartQuantity(quantity - 1);
-    }
-  };
-
-  const handleShareProduct = () => {
-    helper.handleShare(
-      `Check this product: https://zannysfood.com/portal/#/app?ProductDetail/${item?._id}`,
-    );
-  };
 
   return (
     <View
@@ -162,10 +172,7 @@ const CartCard = ({item, index}) => {
                 marginTop: 6,
               }}>
               <Text
-                style={{
-                  color: colors.red,
-                  fontFamily: fontFamily.poppinBold,
-                }}>
+                style={{color: colors.red, fontFamily: fontFamily.poppinBold}}>
                 {price}
               </Text>
               {offPrice && (
@@ -270,11 +277,6 @@ const CartCard = ({item, index}) => {
             border={1}
             onPress={() => openDeleteModal(item)}
           />
-          <BackButton
-            icon={icons.share}
-            border={1}
-            onPress={handleShareProduct}
-          />
         </View>
       </View>
 
@@ -289,7 +291,11 @@ const CartCard = ({item, index}) => {
       </Text>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <Image
-          source={images.cheif}
+          source={
+            item?.merchant?.merchantImage
+              ? {uri: item?.merchant?.merchantImage}
+              : images.cheif
+          }
           resizeMode="cover"
           style={{height: width(10), width: width(10), borderRadius: width(5)}}
         />
@@ -309,7 +315,7 @@ const CartCard = ({item, index}) => {
                 fontFamily: fontFamily.poppinBold,
                 color: colors.black,
               }}>
-              {cheifName}
+              {item?.merchant?.name || cheifName}
             </Text>
             <Image
               source={icons.objects}
@@ -323,6 +329,7 @@ const CartCard = ({item, index}) => {
           </View>
         </View>
       </View>
+
       <CustomModal
         visible={modalVisible}
         type={modalData.type}

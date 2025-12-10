@@ -21,6 +21,8 @@ import {getAllOrdersByCustomerId} from '../../../services/order';
 const MyOrdersScreen = () => {
   const navigation = useNavigation();
   const [allOrders, setAllOrders] = useState([]);
+  console.log(allOrders, 'allOrdersallOrdersallOrdersallOrdersallOrders');
+
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const user = useSelector(state => state.LoginSlice.user);
@@ -56,18 +58,22 @@ const MyOrdersScreen = () => {
     <View style={styles.emptyContainer}>
       <Image source={images.noOrders} style={styles.emptyImage} />
       <Text style={styles.emptyText}>
-        No orders found, Please login first to see your orders history.
+        {user
+          ? 'No Orders Found'
+          : 'No orders found, Please login first to see your orders history.'}
       </Text>
-      <View style={{width: width(30), marginLeft: 10, marginTop: width(2)}}>
-        <ActionBuuton
-          name="Login"
-          height={50}
-          fontSize={14}
-          bgcColor={colors.redish}
-          fontColor={colors.white}
-          onPress={() => navigation.navigate('Login')}
-        />
-      </View>
+      {!user && (
+        <View style={{width: width(30), marginLeft: 10, marginTop: width(2)}}>
+          <ActionBuuton
+            name="Login"
+            height={50}
+            fontSize={14}
+            bgcColor={colors.redish}
+            fontColor={colors.white}
+            onPress={() => navigation.navigate('Login')}
+          />
+        </View>
+      )}
     </View>
   );
 

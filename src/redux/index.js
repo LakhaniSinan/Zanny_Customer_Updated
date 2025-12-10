@@ -1,18 +1,18 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {configureStore} from '@reduxjs/toolkit';
 import {combineReducers} from 'redux';
-import LoginSlice from './slices/Login';
-import CartSlice, {setCartData} from './slices/Cart';
-import QuestionsSlice from './slices/Questions';
-import MerchantSlice from './slices/Merchant';
-import LocationSlice from './slices/Location';
-import PaymentCardSlice from './slices/paymentCard';
-import AllergiesSlice from './slices/userAllergies';
-import AddressSlice from './slices/Address';
-import OrderType from './slices/OrderType';
-import PaymentType from './slices/PaymentType';
-import GetStarted, {setGetStarted} from './slices/GetStarted';
 import thunk from 'redux-thunk';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AddressSlice from './slices/Address';
+import CartSlice, {setCartData} from './slices/Cart';
+import GetStarted, {setGetStarted} from './slices/GetStarted';
+import LocationSlice, {setCurrentLocation} from './slices/Location';
+import LoginSlice from './slices/Login';
+import MerchantSlice from './slices/Merchant';
+import OrderType from './slices/OrderType';
+import PaymentCardSlice from './slices/paymentCard';
+import PaymentType from './slices/PaymentType';
+import QuestionsSlice from './slices/Questions';
+import AllergiesSlice from './slices/userAllergies';
 
 const reducer = combineReducers({
   LoginSlice,
@@ -50,8 +50,11 @@ const loadInitialData = async () => {
 
     const started = await AsyncStorage.getItem('GetStarted');
     const parsedStart = started ? JSON.parse(started) : false;
-
     store.dispatch(setGetStarted(parsedStart));
+
+    const location = await AsyncStorage.getItem('userCurrentAddress');
+    const parsedLocation = started ? JSON.parse(location) : false;
+    store.dispatch(setCurrentLocation(parsedLocation));
   } catch (err) {
     console.log('Error loading initial data:', err);
   }

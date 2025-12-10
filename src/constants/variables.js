@@ -24,6 +24,7 @@ export const endPoints = {
   updateMerchantStatus: 'updateMerchantStatus',
   getSearchdMerchants: 'getSearchdMerchants',
   getMerchantProfile: 'getMerchantProfile',
+  getMerchantWithProducts: 'getMerchantWithProducts',
   //product
   getProductsByMerchantId: 'getProduct',
   getAllProducts: 'getAllProducts',
@@ -96,5 +97,5 @@ export const endPoints = {
   //Orders
 
   applyPromoCode: 'applyPromo',
-  getAllPromo: "getAllPromo",
+  getAllPromo: 'getAllPromo',
 };

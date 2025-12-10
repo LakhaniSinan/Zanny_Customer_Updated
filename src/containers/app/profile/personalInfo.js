@@ -11,12 +11,13 @@ import {
 import {width} from 'react-native-dimension';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import {useDispatch, useSelector} from 'react-redux';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import Button from '../../../components/button';
 import CustomInput from '../../../components/customInput';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
+import CustomModal from '../../../components/customModal';
 import {Colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {setUserData} from '../../../redux/slices/Login';
@@ -24,6 +25,7 @@ import {
   getCustomerProfile,
   updateCustomerProfile,
 } from '../../../services/profile';
+import {icons} from '../../../assets';
 
 function PersonalInfo({navigation}) {
   const dispatch = useDispatch();
@@ -31,6 +33,15 @@ function PersonalInfo({navigation}) {
 
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [modalData, setModalData] = useState({
+    Icon: '',
+    title: '',
+    detail: '',
+    buttonName: 'Okay',
+    onPress: () => setModalVisible(false),
+  });
 
   const [inputValue, setInputValue] = useState({
     firstName: '',
@@ -49,7 +60,6 @@ function PersonalInfo({navigation}) {
     getCustomerProfile(user?._id)
       .then(res => {
         let d = res?.data?.data;
-        console.log(d, 'ddddddddddddddddddddddd');
 
         setInputValue({
           firstName: d?.name?.split(' ')[0] ?? '',
@@ -99,16 +109,49 @@ function PersonalInfo({navigation}) {
       setIsLoadingImage(false);
     } catch (e) {
       setIsLoadingImage(false);
+      showModal('Error', 'Failed to upload image');
     }
+  };
+
+  // ---------- Helper to show CustomModal ----------
+  const showModal = (icon, title, detail, buttonName = 'Okay', onPress) => {
+    setModalData({
+      Icon: icon,
+      title,
+      detail,
+      buttonName,
+      onPress: onPress || (() => setModalVisible(false)),
+    });
+    setModalVisible(true);
   };
 
   const handleUpdate = () => {
     const {firstName, lastName, phoneNum, customerImage} = inputValue;
 
-    if (!customerImage) return alert('Please upload profile image');
-    if (!firstName) return alert('First name is required');
-    if (!lastName) return alert('Last name is required');
-    if (!phoneNum) return alert('Phone number required');
+    if (!customerImage)
+      return showModal(
+        icons.cross,
+        'Validation Error',
+        'Please upload profile image',
+      );
+    if (!firstName)
+      return showModal(
+        icons.cross,
+        'Validation Error',
+        'First name is required',
+      );
+    if (!lastName)
+      return showModal(
+        icons.cross,
+        'Validation Error',
+        'Last name is required',
+      );
+    if (!phoneNum)
+      return showModal(
+        icons.cross,
+        'Validation Error',
+        'Phone number required',
+      );
 
     const payload = {
       name: `${firstName} ${lastName}`,
@@ -120,13 +163,14 @@ function PersonalInfo({navigation}) {
 
     updateCustomerProfile(user?._id, payload)
       .then(res => {
-        alert(res?.data?.message);
         AsyncStorage.setItem('user', JSON.stringify(res?.data?.data));
         dispatch(setUserData(res?.data?.data));
         setIsVisible(false);
+        showModal(icons.check, 'Success', res?.data?.message, 'Okay');
       })
       .catch(e => {
         setIsVisible(false);
+        showModal(icons.cross, 'Error', 'Failed to update profile');
       });
   };
 
@@ -149,9 +193,7 @@ function PersonalInfo({navigation}) {
           }}>
           <View style={{position: 'relative'}}>
             <Image
-              source={{
-                uri: inputValue.customerImage,
-              }}
+              source={{uri: inputValue.customerImage}}
               style={{
                 width: width(25),
                 height: width(25),
@@ -274,6 +316,16 @@ function PersonalInfo({navigation}) {
 
         <View style={{height: width(10)}} />
       </ScrollView>
+
+      <CustomModal
+        visible={modalVisible}
+        Icon={modalData.Icon}
+        name={modalData.title}
+        detail={modalData.detail}
+        buttonName={modalData.buttonName}
+        onPress={modalData.onPress}
+        close={() => setModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }

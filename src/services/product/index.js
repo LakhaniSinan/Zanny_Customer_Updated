@@ -20,8 +20,11 @@ export const getAllProducts = params => {
   if (params.limit) query.push(`limit=${params.limit}`);
   if (params.categoryId) query.push(`categoryId=${params.categoryId}`);
   if (params.userId) query.push(`userId=${params.userId}`);
+  if (params.searchQuery)
+    query.push(`searchQuery=${encodeURIComponent(params.searchQuery)}`); // ✅ encode
 
   const finalURL = `${endPoints.getAllProducts}?${query.join('&')}`;
+  console.log(finalURL, 'finalURLfinalURLfinalURLfinalURLfinalURL');
 
   return Api(finalURL, null, requestType.GET);
 };

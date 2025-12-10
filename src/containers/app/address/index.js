@@ -133,7 +133,7 @@ const Address = ({navigation, route}) => {
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{name: 'AllRestaurants'}],
+        routes: [{name: 'BottomStack'}],
       }),
     );
   };
@@ -181,18 +181,22 @@ const Address = ({navigation, route}) => {
           onCancel: () => setModalVisible(false),
         });
       } else {
-        openModal({
-          type: 'confirmation',
-          Icon: icons.alertIcon,
-          name: 'Warning',
-          detail: 'Cart will be cleared if you continue',
-          buttonName: 'Continue',
-          onConfirm: () => {
-            setModalVisible(false);
-            handleChangeAddress(item);
-          },
-          onCancel: () => setModalVisible(false),
-        });
+        if (cartData?.length > 0) {
+          openModal({
+            type: 'confirmation',
+            Icon: icons.alertIcon,
+            name: 'Warning',
+            detail: 'Cart will be cleared if you continue',
+            buttonName: 'Continue',
+            onConfirm: () => {
+              setModalVisible(false);
+              handleChangeAddress(item);
+            },
+            onCancel: () => setModalVisible(false),
+          });
+        } else {
+          handleChangeAddress(item);
+        }
       }
     } catch (e) {
       console.log(e);

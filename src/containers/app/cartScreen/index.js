@@ -1,22 +1,15 @@
-// CartScreen.js (refactored + commented)
+// CartScreen.js (updated with CustomModal)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import moment from 'moment';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {
-  Alert,
-  FlatList,
-  Image,
-  Text,
-  TextInput,
-  View,
-  TouchableOpacity,
-  Keyboard,
-} from 'react-native';
+import {FlatList, Image, Keyboard, Text, TextInput, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
+import {fontFamily, icons} from '../../../assets';
 import ActionBuuton from '../../../components/actionButton';
 import CartCard from '../../../components/cartCard';
+import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import {colors} from '../../../constants';
@@ -28,21 +21,10 @@ import {
   getCalculatedDeliveryFee,
   placeUserOrder,
 } from '../../../services/order';
-import {icons, fontFamily} from '../../../assets';
 
-/**
- * Helper: parse price strings like "£12.00" -> 12
- * Returns 0 for invalid values
- */
 const parsePriceToNumber = price =>
   Number(String(price ?? '').replace(/[^0-9.]/g, '')) || 0;
 
-/**
- * Row: small label-value row used inside summary
- * Divider: simple horizontal divider
- * SectionCard: simple card wrapper with title
- * (kept inside same file for convenience)
- */
 const Row = React.memo(({label, value, bold}) => (
   <View
     style={{
@@ -66,11 +48,7 @@ const Row = React.memo(({label, value, bold}) => (
 
 const Divider = React.memo(() => (
   <View
-    style={{
-      height: 1,
-      backgroundColor: colors.border,
-      marginVertical: 12,
-    }}
+    style={{height: 1, backgroundColor: colors.border, marginVertical: 12}}
   />
 ));
 
@@ -104,34 +82,44 @@ const CartScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  // Local states
   const [promoCode, setPromoCode] = useState('');
   const [isPromoApplied, setIsPromoApplied] = useState(false);
   const [promoData, setPromoData] = useState(null);
   const [merchantDetails, setMerchantDetails] = useState(null);
+  console.log(
+    merchantDetails,
+    'merchantDetailsmerchantDetailsmerchantDetailsmerchantDetails',
+  );
+
   const [loading, setLoading] = useState(false);
   const [serviceCharges, setServiceCharges] = useState(0);
   const [deliveryCharges, setDeliveryCharges] = useState(0);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-  // Redux state
   const cartData = useSelector(s => s.CartSlice.cartData) || [];
   const location = useSelector(s => s.LocationSlice.currentLocation);
   const {user} = useSelector(s => s.LoginSlice);
   const wallet = useSelector(s => s.PaymentCardSlice.currentPaymentCard);
   const {address} = useSelector(s => s.AddressSlice);
   const selectedAddress = address && address.length ? address[0] : null;
+  const {currentLocation} = useSelector(state => state.LocationSlice);
 
-  // Human-friendly address line
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState({
+    type: 'default',
+    Icon: null,
+    name: '',
+    detail: '',
+    onConfirm: () => {},
+    onCancel: () => {},
+  });
+
   const addressLine = useMemo(
-    () =>
-      selectedAddress?.address || selectedAddress?.full_address || 'No address',
+    () => currentLocation?.address,
     [selectedAddress],
   );
 
-  // ---------- Derived totals ----------
   const {subTotal, discountedSubTotal, total} = useMemo(() => {
-    // subtotal uses price * quantity
     const st = cartData.reduce((acc, item) => {
       const price = parsePriceToNumber(item?.price);
       const qty = Number(item?.quantity || item?.selectedQty || 1);
@@ -150,7 +138,6 @@ const CartScreen = () => {
     return {subTotal: st, discountedSubTotal: discounted, total: t};
   }, [cartData, promoData, deliveryCharges, serviceCharges]);
 
-  // ---------- Fetch admin settings (once) ----------
   useEffect(() => {
     setLoading(true);
     getAdminSettings()
@@ -165,33 +152,32 @@ const CartScreen = () => {
     const hideSub = Keyboard.addListener('keyboardDidHide', () =>
       setKeyboardVisible(false),
     );
-
     return () => {
       showSub.remove();
       hideSub.remove();
     };
   }, []);
 
-  // ---------- Get merchant details when cart has items ----------
   useEffect(() => {
     if (cartData?.length) {
-      const restId = cartData[0]?.merchantId;
-      fetchMerchantDetails(restId);
+      console.log(
+        cartData[0]?.merchantId,
+        'cartData[0]?.merchantIdcartData[0]?.merchantId',
+      );
+
+      fetchMerchantDetails(cartData[0]?.merchantId);
     } else {
       setMerchantDetails(null);
       setDeliveryCharges(0);
     }
   }, [cartData]);
 
-  // Fetch merchant profile
   const fetchMerchantDetails = useCallback(async restId => {
     if (!restId) return;
     setLoading(true);
     try {
       const res = await getMerchantProfile(restId);
-      if (res?.data?.status === 'ok') {
-        setMerchantDetails(res.data.data);
-      }
+      if (res?.data?.status === 'ok') setMerchantDetails(res.data.data);
     } catch (err) {
       console.log('getMerchantProfile err', err);
     } finally {
@@ -199,23 +185,23 @@ const CartScreen = () => {
     }
   }, []);
 
-  // ---------- Calculate delivery charges when merchantDetails or selectedAddress changes ----------
   const fetchDeliveryCharges = useCallback(async () => {
-    if (!merchantDetails || !selectedAddress) return;
+    if (!merchantDetails || !currentLocation) return;
     const payload = {
       restlat: merchantDetails.latitude,
       restlong: merchantDetails.longitude,
-      userlat: selectedAddress.latitude,
-      userlong: selectedAddress.longitude,
+      userlat: currentLocation.latitude,
+      userlong: currentLocation.longitude,
     };
+
     setLoading(true);
     try {
       const res = await getCalculatedDeliveryFee(payload);
-      if (res?.data?.status === 'ok' && res.data.data != null) {
-        setDeliveryCharges(Number(Number(res.data.data).toFixed(2)));
-      } else {
-        setDeliveryCharges(0);
-      }
+      setDeliveryCharges(
+        res?.data?.status === 'ok' && res.data.data != null
+          ? Number(Number(res.data.data).toFixed(2))
+          : 0,
+      );
     } catch (err) {
       console.log('getCalculatedDeliveryFee err', err);
       setDeliveryCharges(0);
@@ -224,29 +210,23 @@ const CartScreen = () => {
     }
   }, [merchantDetails, selectedAddress]);
 
-  // ---------- Service charge calculation ----------
   const calculateServiceCharges = useCallback(() => {
     if (!cartData?.length) {
       setServiceCharges(0);
       return;
     }
-    // totalValue is subtotal (price * qty)
     const totalValue = cartData.reduce((acc, item) => {
       const price = parsePriceToNumber(item?.price);
       const qty = Number(item?.quantity || item?.selectedQty || 1);
-      // If item has discount field greater than 0 and it's supposed to be the discounted price use it,
-      // else use the price. (Preserved similar logic but safe)
       const effectivePrice =
         Number(item?.discount) > 0 ? Number(item.discount) : price;
       return acc + effectivePrice * qty;
     }, 0);
 
-    // Fee: 5% clamped between 0.99 and 4.5 (keeps previous logic)
     const fee = Math.min(Math.max(totalValue * 0.05, 0.99), 4.5);
     setServiceCharges(Number(fee.toFixed(2)));
   }, [cartData]);
 
-  // run when screen focused (or merchant/address change)
   useFocusEffect(
     useCallback(() => {
       calculateServiceCharges();
@@ -254,44 +234,98 @@ const CartScreen = () => {
     }, [calculateServiceCharges, fetchDeliveryCharges]),
   );
 
-  // ---------- Promo handling ----------
+  // ---------- Replace Alert.alert with CustomModal ----------
+  const showModal = ({icons, title, message, onConfirm}) => {
+    setModalData({
+      type: 'default',
+      Icon: icons,
+      name: title,
+      detail: message,
+      onConfirm: () => {
+        onConfirm && onConfirm();
+        setModalVisible(false);
+      },
+      onCancel: () => setModalVisible(false),
+    });
+    setModalVisible(true);
+  };
+
   const handleApplyPromo = useCallback(async () => {
-    if (!promoCode.trim()) {
-      return Alert.alert('Enter promo', 'Please enter a promo code first');
-    }
+    if (!promoCode.trim())
+      return showModal({
+        title: 'Enter Promo',
+        message: 'Please enter a promo code first',
+      });
     setLoading(true);
     try {
       const response = await applyPromoCode({promoCode});
-      // service returns HTTP status codes
       if (response?.status === 200 || response?.status === 201) {
         setPromoData(response.data.data);
         setIsPromoApplied(true);
-        Alert.alert(
-          'Success',
-          `Promo applied! ${response.data.data.discount}% discount`,
-        );
+        showModal({
+          icons: icons.check,
+          title: 'Success',
+          message: `Promo applied! ${response.data.data.discount}% discount`,
+        });
       } else {
-        Alert.alert('Error', response?.data?.message || 'Invalid promo code');
+        showModal({
+          icons: icons.cross,
+          title: 'Error',
+          message: response?.data?.message || 'Invalid promo code',
+        });
       }
     } catch (err) {
       console.log('applyPromoCode err', err);
-      Alert.alert(
-        'Error',
-        err?.response?.data?.message || 'Failed to apply promo code',
-      );
+      showModal({
+        icons: icons.cross,
+        title: 'Error',
+        message: err?.response?.data?.message || 'Failed to apply promo code',
+      });
     } finally {
       setLoading(false);
     }
   }, [promoCode]);
 
-  // ---------- Place order ----------
+  const afterOrderSuccess = useCallback(
+    message => {
+      showModal({
+        icons: icons.check,
+        title: 'Success',
+        message,
+        onConfirm: () => {
+          dispatch(setCartData([]));
+          AsyncStorage.setItem('cartData', JSON.stringify([])).catch(e =>
+            console.log('AsyncStorage set cartData err', e),
+          );
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'BottomStack',
+                state: {
+                  index: 0,
+                  routes: [{name: 'Home'}],
+                },
+              },
+            ],
+          });
+        },
+      });
+    },
+    [dispatch, navigation],
+  );
+
   const handleOrderNow = useCallback(async () => {
-    // validate
     if (!cartData?.length)
-      return Alert.alert('Cart empty', 'Add items to cart first');
-    // if paymentType is card required wallet; current code used wallet presence only
+      return showModal({
+        title: 'Cart Empty',
+        message: 'Add items to cart first',
+      });
     if (!wallet)
-      return Alert.alert('Payment method', 'Please select a payment method');
+      return showModal({
+        title: 'Payment Method',
+        message: 'Please select a payment method',
+      });
 
     const payload = {
       order: cartData,
@@ -324,21 +358,20 @@ const CartScreen = () => {
     setLoading(true);
     try {
       const res = await placeUserOrder(payload);
-      if (
-        res?.status === 200 ||
-        res?.status === 201 ||
-        res?.data?.status === 'ok'
-      ) {
-        afterOrderSuccess('Order placed successfully!');
+      if (res?.status === 200 || res?.status === 201) {
+        afterOrderSuccess(res?.data?.message);
       } else {
-        Alert.alert('Error', res?.data?.message || 'Failed to place order');
+        showModal({
+          title: 'Error',
+          message: res?.data?.message || 'Failed to place order',
+        });
       }
     } catch (err) {
       console.log('placeUserOrder err', err);
-      Alert.alert(
-        'Error',
-        err?.response?.data?.message || 'Failed to place order',
-      );
+      showModal({
+        title: 'Error',
+        message: err?.response?.data?.message || 'Failed to place order',
+      });
     } finally {
       setLoading(false);
     }
@@ -354,23 +387,9 @@ const CartScreen = () => {
     merchantDetails,
     wallet,
     selectedAddress,
+    afterOrderSuccess,
   ]);
 
-  const afterOrderSuccess = useCallback(
-    message => {
-      Alert.alert('Success', message);
-      // clear cart locally and redux
-      dispatch(setCartData([]));
-      AsyncStorage.setItem('cartData', JSON.stringify([])).catch(e =>
-        console.log('AsyncStorage set cartData err', e),
-      );
-      // navigate to restaurants or orders screen
-      navigation.navigate('AllRestaurants');
-    },
-    [dispatch, navigation],
-  );
-
-  // ---------- Render helpers ----------
   const renderEmpty = () => (
     <View
       style={{
@@ -420,7 +439,6 @@ const CartScreen = () => {
     </View>
   );
 
-  // FlatList footer (only when cart has items)
   const renderFooter = () => {
     if (!cartData?.length) return null;
     return (
@@ -448,7 +466,7 @@ const CartScreen = () => {
         </SectionCard>
 
         {/* Payment Method */}
-        <SectionCard title="Payment Method" style={{}}>
+        <SectionCard title="Payment Method">
           <Text
             style={{
               fontSize: 13,
@@ -460,7 +478,6 @@ const CartScreen = () => {
               ? `**** ${wallet?.last4}`
               : 'Select a payment method'}
           </Text>
-
           <ActionBuuton
             name="Payment Options"
             height={width(9)}
@@ -559,9 +576,7 @@ const CartScreen = () => {
         }
         ListEmptyComponent={renderEmpty()}
         ListFooterComponent={renderFooter()}
-        contentContainerStyle={{
-          paddingBottom: cartData?.length ? width(1) : 0,
-        }}
+        contentContainerStyle={{paddingBottom: cartData?.length ? width(1) : 0}}
       />
 
       {cartData?.length > 0 && !keyboardVisible && (
@@ -570,7 +585,7 @@ const CartScreen = () => {
             position: 'absolute',
             left: 0,
             right: 0,
-            bottom: 0,
+            bottom: 10,
             paddingHorizontal: width(4),
             backgroundColor: colors.white,
           }}>
@@ -585,6 +600,16 @@ const CartScreen = () => {
         </View>
       )}
 
+      <CustomModal
+        visible={modalVisible}
+        type={modalData.type}
+        Icon={modalData.Icon}
+        name={modalData.name}
+        detail={modalData.detail}
+        onConfirm={modalData.onConfirm}
+        onCancel={modalData.onCancel}
+        close={() => setModalVisible(false)}
+      />
       <OverLayLoader isloading={loading} />
     </View>
   );

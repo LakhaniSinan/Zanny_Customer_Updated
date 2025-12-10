@@ -138,7 +138,15 @@ const Login = ({navigation}) => {
             dispatch(setUserData(newObj));
             navigation.reset({
               index: 0,
-              routes: [{name: 'UserAllergies'}],
+              routes: [
+                {
+                  name: 'BottomStack',
+                  state: {
+                    index: 0,
+                    routes: [{name: 'Home'}],
+                  },
+                },
+              ],
             });
             setIsVisible(false);
           }
@@ -178,7 +186,15 @@ const Login = ({navigation}) => {
 
           navigation.reset({
             index: 0,
-            routes: [{name: 'UserAllergies'}],
+            routes: [
+              {
+                name: 'BottomStack',
+                state: {
+                  index: 0,
+                  routes: [{name: 'Home'}],
+                },
+              },
+            ],
           });
         } else {
           console.log(response.data, 'responseresponseresponse');
@@ -226,6 +242,10 @@ const Login = ({navigation}) => {
       if (credentialState === AppleAuthCredentialState.AUTHORIZED) {
         const {email, fullName, identityToken, nonce} =
           appleAuthRequestResponse;
+        console.log(
+          appleAuthRequestResponse,
+          'appleAuthRequestResponseappleAuthRequestResponse',
+        );
 
         let params = {
           name: fullName,
@@ -246,10 +266,18 @@ const Login = ({navigation}) => {
           AsyncStorage.setItem('user_token', response.data.data.token);
           AsyncStorage.setItem('user', JSON.stringify(newObj));
           dispatch(setUserData(newObj));
-          // navigation.reset({
-          //   index: 0,
-          //   routes: [{name: 'UserAllergies'}],
-          // });
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'BottomStack',
+                state: {
+                  index: 0,
+                  routes: [{name: 'Home'}],
+                },
+              },
+            ],
+          });
         } else {
           Alert.alert(response?.data?.message);
         }

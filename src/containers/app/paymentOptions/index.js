@@ -1,18 +1,23 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
+import {
+  CardField,
+  createPaymentMethod,
+  StripeProvider,
+} from '@stripe/stripe-react-native';
 import React, {useState} from 'react';
 import {
   Image,
+  Platform,
   SafeAreaView,
   Text,
   TouchableOpacity,
   View,
-  Platform,
-  Alert,
 } from 'react-native';
 import {width} from 'react-native-dimension';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useDispatch, useSelector} from 'react-redux';
+import {fontFamily, icons} from '../../../assets';
+import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
@@ -23,17 +28,10 @@ import {
   deletePaymentCard,
   getPaymentCardById,
 } from '../../../services/paymentCard';
-import {
-  CardField,
-  createToken,
-  createPaymentMethod,
-  StripeProvider,
-} from '@stripe/stripe-react-native';
-import {fontFamily, icons, images} from '../../../assets';
 
 const PaymentOptions = ({navigation}) => {
   const dispatch = useDispatch();
-  const [seletedPaymentType, setSeletedPaymentType] = useState('');
+  const [selectedPaymentType, setSelectedPaymentType] = useState('');
   const wallet = useSelector(
     state => state.PaymentCardSlice.currentPaymentCard,
   );
@@ -42,6 +40,26 @@ const PaymentOptions = ({navigation}) => {
   const [paymentCards, setPaymentCards] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const {user} = useSelector(state => state.LoginSlice);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState({
+    Icon: '',
+    name: '',
+    detail: '',
+    buttonName: 'Okay',
+    onPress: () => setModalVisible(false),
+  });
+
+  const showModal = (type, message) => {
+    setModalData({
+      Icon: type === 'success' ? icons.check : icons.cross,
+      name: type === 'success' ? 'Success' : 'Error',
+      detail: message,
+      buttonName: 'Okay',
+      onPress: () => setModalVisible(false),
+    });
+    setModalVisible(true);
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       getUserPaymentCards();
@@ -58,6 +76,7 @@ const PaymentOptions = ({navigation}) => {
       }
     } catch (error) {
       console.error('Error fetching payment cards:', error);
+      showModal('error', 'Failed to fetch payment cards');
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +90,7 @@ const PaymentOptions = ({navigation}) => {
       dispatch(setPaymentType('Card'));
       await AsyncStorage.setItem('paymentCard', JSON.stringify(cardItem));
       await AsyncStorage.setItem('paymentType', JSON.stringify('Card'));
-      alert('Card Selected Successfully');
+      showModal('success', 'Card selected successfully');
       navigation.goBack();
       return;
     }
@@ -104,18 +123,16 @@ const PaymentOptions = ({navigation}) => {
 
       const {paymentMethod, error} = await createPaymentMethod({
         paymentMethodType: 'Card',
-        card: details, // <- THIS WAS WRONG EARLIER
+        card: details,
       });
 
       if (error) {
-        console.log('Payment Method Error:', error);
+        showModal('error', error.message);
         return;
       }
 
-      console.log('PaymentMethod:', paymentMethod);
-
       let payload = {
-        paymentId: paymentMethod.id, // <- TOKEN NAHI PAYMENT METHOD
+        paymentId: paymentMethod.id,
         email: user?.email,
         userId: user?._id,
       };
@@ -124,78 +141,108 @@ const PaymentOptions = ({navigation}) => {
 
       if (response.status === 200 || response.status === 201) {
         getUserPaymentCards();
+        showModal('success', 'Card added successfully');
       } else {
-        Alert.alert(response.data.message);
+        showModal('error', response.data.message);
       }
     } catch (error) {
       console.log('Error creating payment method:', error);
+      showModal('error', 'Something went wrong while adding card');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleDeleteCard = cardItem => {
+    setModalData({
+      type: 'confirmation',
+      Icon: icons.alertIcon,
+      name: 'Confirmation',
+      detail: 'Are you sure you want to delete this card?',
+      onConfirm: async () => {
+        try {
+          setIsLoading(true);
+          const response = await deletePaymentCard({
+            paymentId: cardItem?.paymentMethodId,
+            userId: user?._id,
+          });
+
+          if (response.status === 200 || response.status === 201) {
+            getUserPaymentCards();
+            showModal('success', response.data.message);
+          } else {
+            showModal('error', response.data.message);
+          }
+        } catch (err) {
+          console.error('Delete card error:', err);
+          showModal('error', 'Something went wrong while deleting card');
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      onCancel: () => setModalVisible(false),
+    });
+    setModalVisible(true);
+  };
+
   const PaymentMethodItem = ({icon, label, selected, onPress}) => (
-    <TouchableOpacity style={styles.methodRow} onPress={onPress}>
-      <View style={styles.iconWrapper}>
+    <TouchableOpacity
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: width(3),
+        paddingHorizontal: width(4),
+        justifyContent: 'space-between',
+        backgroundColor: selected ? '#f0f0f0' : colors.white,
+        borderRadius: 10,
+        marginVertical: 4,
+      }}
+      onPress={onPress}>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <Image
           source={icon}
           style={{height: width(7), width: width(7)}}
           resizeMode="contain"
         />
+        <Text
+          style={{
+            fontSize: 14,
+            color: colors.black,
+            fontFamily: fontFamily.poppinSemiBold,
+            marginLeft: width(3),
+          }}>
+          {label}
+        </Text>
       </View>
-      <Text style={styles.methodLabel}>{label}</Text>
-      <View style={[styles.radioOuter, selected && styles.radioOuterSelected]}>
-        {selected && <View style={styles.radioInner} />}
-      </View>
+      {selected && (
+        <View
+          style={{
+            height: width(4),
+            width: width(4),
+            borderRadius: 100,
+            backgroundColor: colors.redish,
+          }}
+        />
+      )}
     </TouchableOpacity>
   );
-
-  const handleDeleteCard = cardId => {
-    Alert.alert('Delete Card', 'Are you sure you want to delete this card?', [
-      {text: 'Cancel', style: 'cancel'},
-      {
-        text: 'Yes',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            setIsLoading(true);
-            const response = await deletePaymentCard({
-              paymentId: cardId?.paymentMethodId,
-              userId: user?._id,
-            });
-
-            if (response.status === 200 || response.status === 201) {
-              getUserPaymentCards(); // refresh list after delete
-              Alert.alert('Success', response.data.message);
-            } else {
-              Alert.alert('Error', response.data.message);
-            }
-          } catch (err) {
-            console.error('Delete card error:', err);
-            Alert.alert('Something went wrong while deleting card');
-          } finally {
-            setIsLoading(false);
-          }
-        },
-      },
-    ]);
-  };
 
   return (
     <>
       <OverLayLoader isloading={isLoading} />
-
       <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
         <AppHeader text="Payment Options" goBack />
+
+        {/* Select Credit/Debit Card */}
         <View
           style={{
-            height: width(20),
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: width(4),
+            marginTop: width(4),
           }}>
           <TouchableOpacity
-            onPress={() => setSeletedPaymentType('card')}
+            onPress={() => setSelectedPaymentType('card')}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -239,13 +286,13 @@ const PaymentOptions = ({navigation}) => {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-              {seletedPaymentType == 'card' && (
+              {selectedPaymentType === 'card' && (
                 <View
                   style={{
                     height: width(3),
                     width: width(3),
-                    backgroundColor: colors.redish,
                     borderRadius: 100,
+                    backgroundColor: colors.redish,
                   }}
                 />
               )}
@@ -254,8 +301,8 @@ const PaymentOptions = ({navigation}) => {
         </View>
 
         {/* Stripe Card Input */}
-        {seletedPaymentType == 'card' && (
-          <View style={{paddingHorizontal: width(4)}}>
+        {selectedPaymentType === 'card' && (
+          <View style={{paddingHorizontal: width(4), marginTop: width(2)}}>
             <Text style={{fontFamily: fontFamily.poppinMedium, fontSize: 12}}>
               Add Card Details
             </Text>
@@ -284,24 +331,25 @@ const PaymentOptions = ({navigation}) => {
             </StripeProvider>
           </View>
         )}
-        <View style={{paddingHorizontal: width(4), marginTop: width(2)}}>
+
+        {/* Previously Saved Cards */}
+        <View style={{paddingHorizontal: width(4), marginTop: width(4)}}>
           <Text
             style={{
               fontFamily: fontFamily.poppinMedium,
               fontSize: 12,
               paddingBottom: width(2),
             }}>
-            Previously Saved Card
+            Previously Saved Cards
           </Text>
           {paymentCards.length > 0 ? (
             paymentCards.map((item, index) => {
-              const isSelected = wallet?._id === item?._id; // check if current card is selected
-
+              const isSelected = wallet?._id === item?._id;
               return (
                 <View
-                  key={index + 12}
+                  key={index}
                   style={{
-                    backgroundColor: '#FFA500', // Orange color for card
+                    backgroundColor: '#FFA500',
                     borderRadius: 20,
                     padding: width(4),
                     marginBottom: width(3),
@@ -312,7 +360,6 @@ const PaymentOptions = ({navigation}) => {
                     shadowRadius: 6,
                     justifyContent: 'space-between',
                   }}>
-                  {/* Top row: Chip + Brand + Radio Button */}
                   <View
                     style={{
                       flexDirection: 'row',
@@ -326,7 +373,6 @@ const PaymentOptions = ({navigation}) => {
                           width: 50,
                           height: 30,
                           resizeMode: 'contain',
-                          marginRight: 10,
                         }}
                       />
                       <Image
@@ -334,12 +380,10 @@ const PaymentOptions = ({navigation}) => {
                         style={{width: 50, height: 30, resizeMode: 'contain'}}
                       />
                     </View>
-
-                    {/* Radio Button */}
                     <View
                       style={{alignItems: 'center', justifyContent: 'center'}}>
                       <TouchableOpacity
-                        onPress={() => handleSelectPayment('card', item)} // select card on press
+                        onPress={() => handleSelectPayment('card', item)}
                         style={{
                           width: 24,
                           height: 24,
@@ -379,8 +423,6 @@ const PaymentOptions = ({navigation}) => {
                       </TouchableOpacity>
                     </View>
                   </View>
-
-                  {/* Card Number */}
                   <Text
                     style={{
                       color: colors.black,
@@ -390,8 +432,6 @@ const PaymentOptions = ({navigation}) => {
                     }}>
                     •••• •••• •••• {item?.last4?.toString().slice(-4)}
                   </Text>
-
-                  {/* Bottom row: Expiry + CVV + Name */}
                   <View
                     style={{
                       flexDirection: 'row',
@@ -405,7 +445,6 @@ const PaymentOptions = ({navigation}) => {
                         {`${item?.expMonth} / ${item?.expYear}` || '00/00'}
                       </Text>
                     </View>
-
                     <View>
                       <Text style={{color: colors.white, fontSize: 12}}>
                         CVV
@@ -414,7 +453,6 @@ const PaymentOptions = ({navigation}) => {
                         ***
                       </Text>
                     </View>
-
                     <View>
                       <Text style={{color: colors.white, fontSize: 12}}>
                         Brand Name
@@ -425,7 +463,7 @@ const PaymentOptions = ({navigation}) => {
                           fontSize: 14,
                           fontWeight: '600',
                         }}>
-                        {item?.brand.toUpperCase() || 'Card Holder'}
+                        {item?.brand?.toUpperCase() || 'Card Holder'}
                       </Text>
                     </View>
                   </View>
@@ -446,6 +484,15 @@ const PaymentOptions = ({navigation}) => {
             </View>
           )}
         </View>
+
+        {/* Google Pay */}
+        {/* <PaymentMethodItem
+          icon={icons.google}
+          label="Google Pay"
+          selected={selectedMethod === 'google'}
+          onPress={() => handleSelectPayment('google')}
+        /> */}
+
         {/* Apple Pay (iOS Only) */}
         {Platform.OS === 'ios' && (
           <PaymentMethodItem
@@ -455,6 +502,19 @@ const PaymentOptions = ({navigation}) => {
             onPress={() => handleSelectPayment('apple')}
           />
         )}
+
+        <CustomModal
+          visible={modalVisible}
+          Icon={modalData.Icon}
+          name={modalData.name}
+          detail={modalData.detail}
+          buttonName={modalData.buttonName}
+          onPress={modalData.onPress}
+          close={() => setModalVisible(false)}
+          type={modalData.type} // ← ye missing tha
+          onConfirm={modalData.onConfirm} // ← ye bhi pass karein
+          onCancel={modalData.onCancel} // ← aur ye
+        />
       </SafeAreaView>
     </>
   );

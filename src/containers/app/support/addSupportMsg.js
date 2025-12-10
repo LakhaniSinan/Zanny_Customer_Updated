@@ -1,79 +1,140 @@
-import React, {useState, useRef} from 'react';
-import {SafeAreaView, View, Text, TextInput,Alert,Image, TouchableOpacity,ActivityIndicator} from 'react-native';
-import {width, height} from 'react-native-dimension';
-import {ScrollView} from 'react-native-gesture-handler';
-import Button from './../../../components/button/index';
-import Header from './../../../components/header/index';
-import {colors} from './../../../constants/index';
-import {useSelector, useDispatch} from 'react-redux';
+import React, {useState} from 'react';
+import {SafeAreaView, View, ScrollView} from 'react-native';
+import {width} from 'react-native-dimension';
+import {useSelector} from 'react-redux';
+
+import {colors} from '../../../constants';
 import OverLayLoader from '../../../components/loader';
-import { createSupportMessage } from '../../../services/profile';
+import AppHeader from '../../../components/headerComponent';
+import CustomInput from '../../../components/customInput';
+import ActionBuuton from '../../../components/actionButton';
+import CustomModal from '../../../components/customModal';
+import {createSupportMessage} from '../../../services/profile';
 
 const AddSupportMsg = ({navigation}) => {
-  let user = useSelector(state => state.LoginSlice.user);
-  const [msg,setMsg]=useState("")
-  const [isVisible,setIsVisible]=useState(false)
- 
-  const handleAddSupportMsg=()=>{
-    if (msg == "") {
-      alert("Message is required")
-    }else{
-    let payload={
-        name:user?.name,
-        email:user?.email,
-        phoneNumber:user?.phoneNumber,
-        message:msg,
-        type:"customer",
-        userId:user?._id,
-        date:new Date(),
+  const user = useSelector(state => state.LoginSlice.user);
+
+  const [msg, setMsg] = useState('');
+  const [isVisible, setIsVisible] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalConfig, setModalConfig] = useState({
+    Icon: null,
+    name: '',
+    detail: '',
+    buttonName: 'OK',
+    onPress: () => setModalVisible(false),
+  });
+
+  const openModal = ({name, detail, buttonName = 'OK', onPress}) => {
+    setModalConfig({
+      Icon: null,
+      name,
+      detail,
+      buttonName,
+      onPress: onPress || (() => setModalVisible(false)),
+    });
+    setModalVisible(true);
+  };
+
+  const handleAddSupportMsg = () => {
+    if (!msg.trim()) {
+      return openModal({
+        name: 'Message Required',
+        detail: 'Please enter your message before submitting.',
+      });
     }
-    console.log(payload,"payloaddddd");
-    setIsVisible(true)
-    createSupportMessage(payload).then((res)=>{
-        setIsVisible(false)
-        if (res?.status==200) {
-            alert(res?.data?.message)
-            navigation.goBack()
-        }else{
-            alert(res?.data?.message)
+
+    const payload = {
+      name: user?.name,
+      email: user?.email,
+      phoneNumber: user?.phoneNumber,
+      message: msg,
+      type: 'customer',
+      userId: user?._id,
+      date: new Date(),
+    };
+
+    setIsVisible(true);
+
+    createSupportMessage(payload)
+      .then(res => {
+        setIsVisible(false);
+
+        if (res?.status === 200) {
+          openModal({
+            name: 'Success',
+            detail: res?.data?.message || 'Message sent successfully',
+            onPress: () => {
+              setModalVisible(false);
+              navigation.goBack();
+            },
+          });
+        } else {
+          openModal({
+            name: 'Error',
+            detail: res?.data?.message || 'Something went wrong',
+          });
         }
-    }).catch((error)=>{
-        console.log(error,"errorpor");
-        setIsVisible(false)
-    })
-  }
-  }
- 
+      })
+      .catch(() => {
+        setIsVisible(false);
+        openModal({
+          name: 'Error',
+          detail: 'Unable to send message. Please try again later.',
+        });
+      });
+  };
+
   return (
     <>
       <OverLayLoader isloading={isVisible} />
-      <SafeAreaView style={{flex: 1,backgroundColor:colors.white}}>
-        <Header goBack text={'Help Desk'} />
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={{marginBottom: width(5)}}>
-          <View style={{marginTop: width(5)}}>
-            <View
+
+      <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
+        <AppHeader goBack text="Help Desk" />
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={{marginHorizontal: width(4), marginTop: width(4)}}>
+            <CustomInput
+              placeholder="Enter your message"
+              multiline
+              value={msg}
+              onChangeText={setMsg}
+              containerStyle={{height: width(45)}}
               style={{
-                borderWidth: 0.5,
-                borderColor: colors.grey,
-                marginHorizontal:width(3),
-                height:width(50)
-              }}>
-              <TextInput
-                style={{marginHorizontal: width(2),color:colors.black,height:width(50),textAlignVertical:"top"}}
-                placeholder="Enter your message"
-                multiline={true}
-                value={msg}
-                placeholderTextColor={colors.grey}
-                onChangeText={newText => setMsg(newText)}
-              />
-            </View>
+                textAlignVertical: 'top',
+                color: colors.black,
+              }}
+            />
           </View>
         </ScrollView>
-        <View style={{marginBottom: width(2),color:colors.grey}}>
-          <Button heading={'Submit'} onPress={handleAddSupportMsg}/>
+
+        <View
+          style={{
+            width: width(92),
+            alignSelf: 'center',
+            marginBottom: width(6),
+          }}>
+          <ActionBuuton
+            name="Submit"
+            height={width(12)}
+            fontSize={14}
+            bgcColor={colors.redish}
+            fontColor={colors.white}
+            onPress={handleAddSupportMsg}
+          />
         </View>
+
+        {/* ✅ Custom Modal */}
+        <CustomModal
+          visible={modalVisible}
+          Icon={modalConfig.Icon}
+          name={modalConfig.name}
+          detail={modalConfig.detail}
+          buttonName={modalConfig.buttonName}
+          onPress={modalConfig.onPress}
+          close={() => setModalVisible(false)}
+        />
       </SafeAreaView>
     </>
   );
