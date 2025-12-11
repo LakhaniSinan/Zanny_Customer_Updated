@@ -13,6 +13,7 @@ import PaymentCardSlice from './slices/paymentCard';
 import PaymentType from './slices/PaymentType';
 import QuestionsSlice from './slices/Questions';
 import AllergiesSlice from './slices/userAllergies';
+import HomeDataSlice from './slices/HomeData';
 
 const reducer = combineReducers({
   LoginSlice,
@@ -26,6 +27,7 @@ const reducer = combineReducers({
   AddressSlice,
   AllergiesSlice,
   GetStarted,
+  HomeDataSlice,
 });
 
 const store = configureStore({

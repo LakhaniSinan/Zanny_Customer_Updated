@@ -1,52 +1,70 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import React, { useEffect, useState } from 'react';
-import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
-import { width } from 'react-native-dimension';
-import {
-  PERMISSIONS,
-  request,
-  requestNotifications
-} from 'react-native-permissions';
-import { useDispatch } from 'react-redux';
-import { icons } from '../../assets';
-import CustomInput from '../../components/customInput';
-import PrimaryButton from '../../components/primaryButton';
-import { Colors } from '../../constants';
-import { setUserData } from '../../redux/slices/Login';
-
-import messaging from '@react-native-firebase/messaging';
-import { statusCodes } from '@react-native-google-signin/google-signin';
-import { Alert } from 'react-native';
-import { loginCustomer, socialLogin } from '../../services/auth';
-
 import appleAuth, {
   AppleAuthCredentialState,
   AppleAuthRequestOperation,
   AppleAuthRequestScope,
 } from '@invertase/react-native-apple-authentication';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import React, {useEffect, useState} from 'react';
+import {Image, Platform, Text, TouchableOpacity, View} from 'react-native';
+import {width} from 'react-native-dimension';
+import {requestNotifications} from 'react-native-permissions';
+import {useDispatch} from 'react-redux';
+import {icons} from '../../assets';
+import CustomInput from '../../components/customInput';
+import CustomModal from '../../components/customModal';
 import OverLayLoader from '../../components/loader';
+import PrimaryButton from '../../components/primaryButton';
+import {Colors, colors} from '../../constants';
+import {setUserData} from '../../redux/slices/Login';
+import {loginCustomer, socialLogin} from '../../services/auth';
 
-const Login = ({ navigation }) => {
+const Login = ({navigation}) => {
   const dispatch = useDispatch();
-  const [isSecure, setIsSecure] = useState(true);
+  const [isRemberChecked, setIsRemberChecked] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [inputValues, setInputValues] = useState({
     email: '',
     password: '',
     fcm: '',
   });
+  console.log(inputValues, 'inputValuesinputValuesinputValues');
 
+  const [modalData, setModalData] = useState({
+    Icon: '',
+    name: '',
+    detail: '',
+    buttonName: 'Okay',
+    onPress: () => setModalVisible(false),
+  });
 
+  const showModal = (type, message, callback) => {
+    setModalData({
+      Icon: type === 'success' ? icons.check : icons.cross,
+      name: type === 'success' ? 'Success' : 'Error',
+      detail: message,
+      buttonName: 'Okay',
+      onPress: () => {
+        setModalVisible(false);
+        if (callback) callback();
+      },
+    });
+    setModalVisible(true);
+  };
 
   const handleChangeInputs = (name, value) => {
-    setInputValues({ ...inputValues, [name]: value });
+    setInputValues(prev => ({...prev, [name]: value}));
   };
 
   useEffect(() => {
     GoogleSignin.configure({
       webClientId:
-        Platform.OS == 'android'
+        Platform.OS === 'android'
           ? '929084652852-7bbnc57abdai3ho7lh2sqk6371jdp9r4.apps.googleusercontent.com'
           : '929084652852-294nak4mtq2cvtguqeq84o8ci9h38stq.apps.googleusercontent.com',
       profileImageSize: 120,
@@ -57,112 +75,60 @@ const Login = ({ navigation }) => {
     // request(PERMISSIONS.IOS.NOTIFICATIONS).then(status => {
     //   console.log('Notification permission status:', status);
     // });
-    // requestUserPermission();
-    // getFCMToken();
+    requestUserPermission();
   }, []);
-
-
   const requestUserPermission = async () => {
     try {
-      const { status } = await requestNotifications(['alert', 'sound', 'badge']);
+      const {status} = await requestNotifications(['alert', 'sound', 'badge']);
 
       if (status === 'granted') {
-        console.log("NOTIFICATION PERMISSION GRANTED");
-        // await getFCMToken();
+        console.log('NOTIFICATION PERMISSION GRANTED');
+        await initFCM();
       } else {
-        console.log("NOTIFICATION PERMISSION DENIED");
+        console.log('NOTIFICATION PERMISSION DENIED');
       }
-
     } catch (error) {
-      console.log("PERMISSION ERROR:", error);
+      console.log('PERMISSION ERROR:', error);
     }
   };
 
-  // Get default app (already initialized automatically)
+  const initFCM = async () => {
+    await messaging().registerDeviceForRemoteMessages();
+    const token = await messaging().getToken();
+    setInputValues(prev => ({...prev, fcm: token}));
+    messaging().onTokenRefresh(newToken =>
+      setInputValues(prev => ({...prev, fcm: newToken})),
+    );
+  };
 
-  // // Get FCM token
-  // const getFCMToken = async () => {
-  //   try {
-  //     const token = await messaging().getToken();
-  //     console.log('FCM TOKEN:', token);
-  //     setInputValues(prev => ({ ...prev, fcm: token }));
-  //     return token;
-  //   } catch (err) {
-  //     console.error('FCM TOKEN ERROR:', err);
-  //   }
-  // };
+  const onPressLogin = async () => {
+    const {email, password, fcm} = inputValues;
 
-  const checkPermission = async () => {
+    if (!email) return showModal('error', 'Email is required');
+    if (!password) return showModal('error', 'Password is required');
+
+    setIsVisible(true);
     try {
-      let enabled = await messaging().hasPermission();
-      if (enabled) {
-        let token = await messaging().getToken();
-        console.log(token, "tokentokentokentoken");
-
-        setInputValues({ ...inputValues, fcm: token });
+      const response = await loginCustomer({email, password, fcm});
+      if (response.data.status === 'error') {
+        showModal('error', response.data.message);
       } else {
-        requestUserPermission();
-      }
-    } catch (error) {
-      console.log(error, 'immmmmmmmmmmmmmmmmmmmm');
-    }
-  };
-
-  useEffect(() => {
-    requestUserPermission();
-    // getToken;
-    // setTimeout(() => {
-    //   requestNotificationPermissions();
-    // }, 1000);
-  }, []);
-
-  // const getToken = async () => {
-  //   let token = await messaging().getToken();
-  //   setInputValues({ ...inputValues, fcm: token });
-  // };
-
-  const onPress = () => {
-    const { email, password, fcm } = inputValues;
-    if (email === '') {
-      Alert.alert('Email is required');
-    } else if (password === '') {
-      Alert.alert('Password is required');
-    } else {
-      let payload = { email, password, fcm };
-      setIsVisible(true);
-      loginCustomer(payload)
-        .then(response => {
-          console.log(response, 'responseresponseresponseresponseresponse');
-
-          if (response.data.status === 'error') {
-            setIsVisible(false);
-            Alert.alert(response?.data?.message);
-          } else {
-            setInputValues({ email: '', password: '' });
-            let newObj = { ...response.data.data.userDetails };
-            console.log(newObj, 'newObjnewObjnewObjnewObj');
-            AsyncStorage.setItem('user_token', response.data.data.token);
-            AsyncStorage.setItem('user', JSON.stringify(newObj));
-            dispatch(setUserData(newObj));
-            navigation.reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'BottomStack',
-                  state: {
-                    index: 0,
-                    routes: [{ name: 'Home' }],
-                  },
-                },
-              ],
-            });
-            setIsVisible(false);
-          }
-        })
-        .catch(err => {
-          console.log(err, 'Login error');
-          setIsVisible(false);
+        const user = response.data.data.userDetails;
+        await AsyncStorage.setItem('user_token', response.data.data.token);
+        await AsyncStorage.setItem('user', JSON.stringify(user));
+        dispatch(setUserData(user));
+        navigation.reset({
+          index: 0,
+          routes: [
+            {name: 'BottomStack', state: {index: 0, routes: [{name: 'Home'}]}},
+          ],
         });
+      }
+    } catch (err) {
+      showModal('error', 'Login failed. Please try again.');
+      console.log('Login error', err);
+    } finally {
+      setIsVisible(false);
     }
   };
 
@@ -171,63 +137,41 @@ const Login = ({ navigation }) => {
       setIsVisible(true);
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      let payload = {
-        customerImage: userInfo?.data?.user?.photo,
-        email: userInfo?.data?.user?.email,
+      const payload = {
+        customerImage: userInfo?.user?.photo,
+        email: userInfo?.user?.email,
         fcm: inputValues.fcm,
         isActive: 'Active',
-        name: userInfo?.data?.user?.name,
+        name: userInfo?.user?.name,
         password: null,
       };
-      if (userInfo.type == 'success') {
-        const response = await socialLogin(payload);
 
-        if (response.status == 200 || response.status == 201) {
-          let newObj = {
-            ...response.data.data.userDetails,
-            customerImage: userInfo?.data?.user?.photo,
-          };
-
-          AsyncStorage.setItem('user_token', response.data.data.token);
-          AsyncStorage.setItem('user', JSON.stringify(newObj));
-          dispatch(setUserData(newObj));
-
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'BottomStack',
-                state: {
-                  index: 0,
-                  routes: [{ name: 'Home' }],
-                },
-              },
-            ],
-          });
-        } else {
-          console.log(response.data, 'responseresponseresponse');
-          Alert.alert(response?.data?.message);
-        }
+      const response = await socialLogin(payload);
+      if (response.status === 200 || response.status === 201) {
+        const user = {
+          ...response.data.data.userDetails,
+          customerImage: userInfo?.user?.photo,
+        };
+        await AsyncStorage.setItem('user_token', response.data.data.token);
+        await AsyncStorage.setItem('user', JSON.stringify(user));
+        dispatch(setUserData(user));
+        navigation.reset({
+          index: 0,
+          routes: [
+            {name: 'BottomStack', state: {index: 0, routes: [{name: 'Home'}]}},
+          ],
+        });
       } else {
-        Alert.alert('Google login canclled');
+        showModal('error', response?.data?.message || 'Google login failed');
       }
     } catch (error) {
-      setIsVisible(false);
-      console.log(error, 'Google Sign-In error');
-
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.log('User cancelled the login flow');
-        Alert.alert(
-          'Login Cancelled',
-          'You cancelled the Google login process.',
-        );
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.log('Operation (e.g., sign in) is in progress already');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.log('Play services not available or outdated');
-      } else {
-        console.log('Some other error occurred', error);
-      }
+      if (error.code === statusCodes.SIGN_IN_CANCELLED)
+        showModal('error', 'You cancelled the Google login process.');
+      else if (error.code === statusCodes.IN_PROGRESS)
+        console.log('Sign-in in progress');
+      else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE)
+        showModal('error', 'Play services not available or outdated.');
+      else showModal('error', 'Google Sign-In error');
     } finally {
       setIsVisible(false);
     }
@@ -235,7 +179,7 @@ const Login = ({ navigation }) => {
 
   const handleAppleLogin = async () => {
     try {
-      const appleAuthRequestResponse = await appleAuth.performRequest({
+      const appleResponse = await appleAuth.performRequest({
         requestedOperation: AppleAuthRequestOperation.LOGIN,
         requestedScopes: [
           AppleAuthRequestScope.EMAIL,
@@ -244,130 +188,104 @@ const Login = ({ navigation }) => {
       });
 
       const credentialState = await appleAuth.getCredentialStateForUser(
-        appleAuthRequestResponse.user,
+        appleResponse.user,
       );
-
       if (credentialState === AppleAuthCredentialState.AUTHORIZED) {
-        const { email, fullName, identityToken, nonce } =
-          appleAuthRequestResponse;
-        console.log(
-          appleAuthRequestResponse,
-          'appleAuthRequestResponseappleAuthRequestResponse',
-        );
-
-        let params = {
+        const {email, fullName, identityToken} = appleResponse;
+        const payload = {
           name: fullName,
-          email: '',
-          // fcm: inputVal.token,
+          email: email || '',
+          identityToken,
           image: '',
-          identityToken,
         };
-        let params2 = {
-          identityToken,
-        };
-        const response = await socialLogin(email == null ? params2 : params);
-        setIsVisible(false);
-        if (response.status == 200 || response.status == 201) {
-          let newObj = {
-            ...response.data.data.userDetails,
-          };
-          AsyncStorage.setItem('user_token', response.data.data.token);
-          AsyncStorage.setItem('user', JSON.stringify(newObj));
-          dispatch(setUserData(newObj));
+        const response = await socialLogin(payload);
+        if (response.status === 200 || response.status === 201) {
+          const user = response.data.data.userDetails;
+          await AsyncStorage.setItem('user_token', response.data.data.token);
+          await AsyncStorage.setItem('user', JSON.stringify(user));
+          dispatch(setUserData(user));
           navigation.reset({
             index: 0,
             routes: [
               {
                 name: 'BottomStack',
-                state: {
-                  index: 0,
-                  routes: [{ name: 'Home' }],
-                },
+                state: {index: 0, routes: [{name: 'Home'}]},
               },
             ],
           });
-        } else {
-          Alert.alert(response?.data?.message);
-        }
-      } else {
-        console.log('errrrrr');
-      }
-    } catch (error) {
-      console.log('errrrrr', error);
+        } else
+          showModal('error', response?.data?.message || 'Apple login failed');
+      } else showModal('error', 'Apple authorization failed');
+    } catch (err) {
+      showModal('error', 'Apple Sign-In error');
+      console.log('Apple Sign-In error', err);
     }
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.white }}>
+    <View style={{flex: 1, backgroundColor: Colors.white}}>
+      {/* Back Button */}
       <TouchableOpacity
+        onPress={() =>
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'BottomStack',
+                state: {index: 0, routes: [{name: 'Home'}]},
+              },
+            ],
+          })
+        }
         style={{
           height: width(13),
           width: width(13),
           alignItems: 'center',
           justifyContent: 'center',
-        }}
-        onPress={() => {
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'BottomStack',
-                state: {
-                  index: 0,
-                  routes: [{ name: 'Home' }],
-                },
-              },
-            ],
-          });
         }}>
         <Image
           source={icons.ArrowLeft}
           resizeMode="contain"
-          style={{
-            height: width(5),
-            width: width(5),
-          }}
+          style={{height: width(5), width: width(5)}}
         />
       </TouchableOpacity>
-      <View style={{ marginLeft: 15 }}>
-        <View
+
+      {/* Header */}
+      <View style={{marginLeft: 15, marginTop: 15}}>
+        <Text style={{fontSize: 24, fontWeight: '500', color: Colors.black}}>
+          Welcome Back
+        </Text>
+        <Text
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 10,
-            marginTop: 15,
+            fontSize: 12,
+            fontWeight: '400',
+            color: Colors.black,
+            marginTop: 4,
           }}>
-          <Text style={{ fontSize: 24, fontWeight: 500, color: Colors.black }}>
-            Welcome Back
-          </Text>
-          <Image
-            source={icons.hi}
-            resizeMode="contain"
-            style={{ height: 24, width: 24 }}
-          />
-        </View>
-        <Text style={{ fontSize: 12, fontWeight: 400, color: Colors.black }}>
           Sign in to enjoy your favourite meals
         </Text>
       </View>
-      <View style={{ paddingHorizontal: width(3), marginTop: width(10) }}>
+
+      {/* Inputs */}
+      <View style={{paddingHorizontal: width(3), marginTop: width(10)}}>
         <CustomInput
-          title={'Email'}
-          placeholder={'Type your email'}
+          title="Email"
+          placeholder="Type your email"
           onChangeText={v => handleChangeInputs('email', v)}
           value={inputValues.email}
         />
       </View>
-      <View style={{ paddingHorizontal: width(3), marginTop: width(2) }}>
+      <View style={{paddingHorizontal: width(3), marginTop: width(2)}}>
         <CustomInput
-          title={'Password'}
-          placeholder={'Type your password'}
+          title="Password"
+          placeholder="Type your password"
           onChangeText={v => handleChangeInputs('password', v)}
           value={inputValues.password}
           Icon={icons.Hide}
         />
       </View>
 
+      {/* Remember Me / Forgot */}
       <View
         style={{
           justifyContent: 'space-between',
@@ -375,21 +293,36 @@ const Login = ({ navigation }) => {
           marginTop: width(10),
           paddingHorizontal: width(3),
         }}>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <Image
-            source={icons.Checkbox}
-            resizeMode="contain"
-            style={{ height: 15, width: 15 }}
-          />
-          <Text style={{ fontSize: 12, fontWeight: 400, color: Colors.black }}>
+        <TouchableOpacity
+          onPress={() => setIsRemberChecked(!isRemberChecked)}
+          style={{flexDirection: 'row', gap: 8, alignItems: 'center'}}>
+          <View
+            style={{
+              height: width(5),
+              width: width(5),
+              borderRadius: 6,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}>
+            {isRemberChecked && (
+              <Image
+                source={icons.Checkbox}
+                resizeMode="cover"
+                style={{height: '100%', width: '100%'}}
+              />
+            )}
+          </View>
+          <Text style={{fontSize: 12, fontWeight: 400, color: Colors.black}}>
             Remember me
           </Text>
-        </View>
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
           <Text
             style={{
               fontSize: 12,
-              fontWeight: 400,
+              fontWeight: '400',
               color: Colors.black,
               textDecorationLine: 'underline',
             }}>
@@ -397,6 +330,7 @@ const Login = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
       </View>
+
       <View
         style={{
           height: width(15),
@@ -404,59 +338,29 @@ const Login = ({ navigation }) => {
           marginTop: width(6),
           paddingHorizontal: width(3),
         }}>
-        <PrimaryButton name={'login'} onPress={onPress} />
+        <PrimaryButton name="login" onPress={onPressLogin} />
       </View>
+
+      {/* Or Divider */}
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           marginVertical: 20,
         }}>
-        <View style={{ flex: 1, height: 1, backgroundColor: Colors.softgray }} />
-        <Text style={{ marginHorizontal: 10 }}>Or</Text>
-        <View style={{ flex: 1, height: 1, backgroundColor: Colors.softgray }} />
+        <View style={{flex: 1, height: 1, backgroundColor: Colors.softgray}} />
+        <Text style={{marginHorizontal: 10}}>Or</Text>
+        <View style={{flex: 1, height: 1, backgroundColor: Colors.softgray}} />
       </View>
-      {/* <View
-        style={{
-          height: width(15),
-          width: '100%',
-          marginTop: width(2),
-          paddingHorizontal: width(3),
-        }}>
-        <PrimaryButton
-          name={'Continue with Google'}
-          bgcColor={Colors.white}
-          color={Colors.black}
-          Icon={icons.Google}
-          borderColor={Colors.border}
-          onPress={handleGoogleLogin}
-        />
-      </View> */}
-      {/* {Platform.OS == 'ios' && (
-        <View
-          style={{
-            height: width(15),
-            width: '100%',
-            marginTop: width(2),
-            paddingHorizontal: width(3),
-          }}>
-          <PrimaryButton
-            name={'Continue with Apple'}
-            bgcColor={Colors.white}
-            color={Colors.black}
-            borderColor={Colors.border}
-            Icon={icons.apple}
-            onPress={handleAppleLogin}
-          />
-        </View>
-      )} */}
+
+      {/* Register Link */}
       <View
         style={{
           alignSelf: 'center',
           flexDirection: 'row',
           marginTop: width(3),
         }}>
-        <Text style={{ fontSize: 13, fontWeight: 500, color: Colors.grayyy }}>
+        <Text style={{fontSize: 13, fontWeight: 500, color: Colors.grayyy}}>
           Don’t have an account?{' '}
         </Text>
         <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
@@ -471,7 +375,18 @@ const Login = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Loader & Modal */}
       <OverLayLoader isloading={isVisible} />
+      <CustomModal
+        visible={modalVisible}
+        Icon={modalData.Icon}
+        name={modalData.name}
+        detail={modalData.detail}
+        buttonName={modalData.buttonName}
+        onPress={modalData.onPress}
+        close={() => setModalVisible(false)}
+      />
     </View>
   );
 };

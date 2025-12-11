@@ -358,6 +358,7 @@ const CartScreen = () => {
     setLoading(true);
     try {
       const res = await placeUserOrder(payload);
+      return;
       if (res?.status === 200 || res?.status === 201) {
         afterOrderSuccess(res?.data?.message);
       } else {

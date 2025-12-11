@@ -33,16 +33,14 @@
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 		<string>We need access to your location to provide delivery tracking and improve your food ordering experience.</string>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera so you can take photos for orders, profile pictures, and support requests.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We use your location to show nearby restaurants, delivery options, and improve your food ordering experience.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app does not use the microphone.</string>
-
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to allow you to upload images for orders, profile updates, and support.</string>
-
-	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera so you can take photos for orders, profile pictures, and support requests.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Poppins-Black.ttf</string>
@@ -78,8 +76,12 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>

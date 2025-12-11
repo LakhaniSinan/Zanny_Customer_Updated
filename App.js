@@ -1,22 +1,28 @@
+import messaging from '@react-native-firebase/messaging';
+messaging().registerDeviceForRemoteMessages();
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, Image, StatusBar, View} from 'react-native';
+import {StatusBar} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import NotificationPopup from 'react-native-push-notification-popup';
 import {Provider} from 'react-redux';
-import {images} from './src/assets';
 import ConfirmationModal from './src/components/confirmationModal';
 import {colors, constants} from './src/constants';
 import {notification} from './src/constants/variables';
 
-import store from './src/redux/index';
-import SplachScreen from './src/components/splashScreen';
+import {LogBox} from 'react-native';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import Navigation from './src/appNavigation';
+import SplachScreen from './src/components/splashScreen';
+import store from './src/redux/index';
+import {handleFetchHomeData} from './src/redux/slices/HomeData';
+LogBox.ignoreLogs(['useInsertionEffect must not schedule updates']);
 const App = () => {
   const [termsAccepted, setTermsAccepted] = useState(null);
   const [isloading, setIsLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
+  const dispatch = store.dispatch;
 
   useEffect(() => {
     getTerms();
@@ -37,9 +43,9 @@ const App = () => {
     }
   };
 
-  const handleAccepted = () => {
-    setTermsAccepted(true);
-  };
+  useEffect(() => {
+    dispatch(handleFetchHomeData());
+  }, [dispatch]);
 
   return (
     <Provider store={store}>

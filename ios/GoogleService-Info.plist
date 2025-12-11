@@ -32,5 +32,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:929084652852:ios:28343dcd97ea5b4bca3961</string>
+	<key>DATABASE_URL</key>
+	<string>https://zanny-app-10dfa-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

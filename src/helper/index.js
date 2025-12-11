@@ -1,9 +1,7 @@
-import {check, PERMISSIONS, request} from 'react-native-permissions';
-import Geolocation from 'react-native-geolocation-service';
-import {Linking, Platform, Share, Alert} from 'react-native';
-import Geocoder from 'react-native-geocoding';
-import {constants} from '../constants';
 import axios from 'axios';
+import {Alert, Linking, Platform, Share} from 'react-native';
+import Geolocation from 'react-native-geolocation-service';
+import {check, PERMISSIONS} from 'react-native-permissions';
 import {notification} from '../constants/variables';
 
 export const helper = {
@@ -53,7 +51,10 @@ export const helper = {
    */
   async handleShare(valueee, options = {}) {
     try {
-      const title = options.title || (typeof valueee === 'string' ? null : valueee.title) || '';
+      const title =
+        options.title ||
+        (typeof valueee === 'string' ? null : valueee.title) ||
+        '';
       const text = typeof valueee === 'string' ? valueee : valueee.text || '';
 
       // prefer webLink for url (receivers expect https links), include deepLink in message as fallback
@@ -68,7 +69,14 @@ export const helper = {
         message += '\n\nOpen in app: ' + deepLink;
       }
 
-      console.log('Sharing message, title=', title, 'webLink=', webLink, 'deepLink=', deepLink);
+      console.log(
+        'Sharing message, title=',
+        title,
+        'webLink=',
+        webLink,
+        'deepLink=',
+        deepLink,
+      );
 
       const payload = {
         message,
@@ -108,10 +116,17 @@ export const helper = {
           {text: 'Cancel', style: 'cancel'},
         ];
         if (ClipboardLib) {
-          buttons.unshift({text: 'Copy Link', onPress: () => ClipboardLib.setString(deepLink)});
+          buttons.unshift({
+            text: 'Copy Link',
+            onPress: () => ClipboardLib.setString(deepLink),
+          });
         }
 
-        Alert.alert('Share failed', 'You can open or copy the link manually.', buttons);
+        Alert.alert(
+          'Share failed',
+          'You can open or copy the link manually.',
+          buttons,
+        );
       } else {
         Alert.alert('Share failed', error.message || String(error));
       }

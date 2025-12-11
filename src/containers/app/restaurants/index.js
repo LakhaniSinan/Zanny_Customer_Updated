@@ -15,22 +15,25 @@ import {
 import {width} from 'react-native-dimension';
 import Carousel from 'react-native-snap-carousel';
 
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons, images} from '../../../assets';
 import Category from '../../../components/categoryCard';
 import HireCheifCard from '../../../components/hireChefCard';
 import SectionHeader from '../../../components/sectionHeader';
 import {Colors, colors} from '../../../constants';
 import {getHomeData} from '../../../services/home';
+import {handleFetchHomeData} from '../../../redux/slices/HomeData';
+import {getMessaging} from '@react-native-firebase/messaging';
+import {helper} from '../../../helper';
 
 const Restaurants = ({navigation}) => {
+  const dispatch = useDispatch();
   const carouselRef = useRef();
   const {user} = useSelector(state => state.LoginSlice);
   const [isLoading, setIsLoading] = useState(false);
-  const [homeData, setHomeData] = useState(null);
   const {currentLocation} = useSelector(state => state.LocationSlice);
   const [searchQuery, setSearchQuery] = useState('');
-  console.log(searchQuery, 'searchQuerysearchQuerysearchQuerysearchQuery');
+  const {homeData} = useSelector(state => state.HomeDataSlice);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const {cartData} = useSelector(state => state.CartSlice);
@@ -56,26 +59,22 @@ const Restaurants = ({navigation}) => {
     },
   ];
 
-  const handleFetchHomeData = async () => {
-    try {
-      setIsLoading(true);
-      const response = await getHomeData();
-
-      if (response?.status === 200 || response?.status === 201) {
-        setHomeData(response?.data?.data);
-      } else {
-        // Alert.alert('Error', 'Something went wrong');
-      }
-    } catch (error) {
-      console.log('Home Data Error', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    handleFetchHomeData();
+    getMessaging().onMessage(async data => {
+      console.log(data, 'remoteMessageremoteMessageremoteMessage_accept');
+      if (data?.data?.type == 'NewOrder') {
+        helper.notificationCall(data?.data?.title, data?.data?.body);
+      } else {
+        helper.notificationCall(data?.data?.title, data?.data?.body);
+      }
+    });
   }, []);
+
+  const getHomeData = async () => {
+    setIsLoading(true);
+    await dispatch(handleFetchHomeData());
+    setIsLoading(false);
+  };
 
   const renderStars = useCallback((rating = 5) => {
     const rounded = Math.round(rating);
@@ -201,7 +200,7 @@ const Restaurants = ({navigation}) => {
         refreshControl={
           <RefreshControl
             refreshing={isLoading}
-            onRefresh={handleFetchHomeData}
+            onRefresh={getHomeData}
             colors={[Colors.orange]}
           />
         }>
