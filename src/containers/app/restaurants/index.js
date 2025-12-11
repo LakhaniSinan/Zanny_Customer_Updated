@@ -64,7 +64,7 @@ const Restaurants = ({navigation}) => {
       if (response?.status === 200 || response?.status === 201) {
         setHomeData(response?.data?.data);
       } else {
-        Alert.alert('Error', 'Something went wrong');
+        // Alert.alert('Error', 'Something went wrong');
       }
     } catch (error) {
       console.log('Home Data Error', error);

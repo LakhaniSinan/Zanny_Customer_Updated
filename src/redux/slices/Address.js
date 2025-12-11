@@ -47,7 +47,7 @@ export function handelGetAddress(place) {
             dispatch(getAddressSuccess(data));
           } else {
             dispatch(getAddressFailure(response.data));
-            alert('something went wrong');
+            // alert('something went wrong');
           }
         })
         .catch(error => {

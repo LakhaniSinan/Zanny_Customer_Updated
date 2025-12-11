@@ -1,23 +1,24 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import React, {useEffect, useState} from 'react';
-import {Image, Platform, Text, TouchableOpacity, View} from 'react-native';
-import {width} from 'react-native-dimension';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import React, { useEffect, useState } from 'react';
+import { Image, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { width } from 'react-native-dimension';
 import {
-  checkNotifications,
-  requestNotifications,
+  PERMISSIONS,
+  request,
+  requestNotifications
 } from 'react-native-permissions';
-import {useDispatch} from 'react-redux';
-import {icons} from '../../assets';
+import { useDispatch } from 'react-redux';
+import { icons } from '../../assets';
 import CustomInput from '../../components/customInput';
 import PrimaryButton from '../../components/primaryButton';
-import {Colors} from '../../constants';
-import {setUserData} from '../../redux/slices/Login';
+import { Colors } from '../../constants';
+import { setUserData } from '../../redux/slices/Login';
 
 import messaging from '@react-native-firebase/messaging';
-import {statusCodes} from '@react-native-google-signin/google-signin';
-import {Alert} from 'react-native';
-import {loginCustomer, socialLogin} from '../../services/auth';
+import { statusCodes } from '@react-native-google-signin/google-signin';
+import { Alert } from 'react-native';
+import { loginCustomer, socialLogin } from '../../services/auth';
 
 import appleAuth, {
   AppleAuthCredentialState,
@@ -25,10 +26,8 @@ import appleAuth, {
   AppleAuthRequestScope,
 } from '@invertase/react-native-apple-authentication';
 import OverLayLoader from '../../components/loader';
-import AppHeader from '../../components/headerComponent';
-import {CommonActions} from '@react-navigation/native';
 
-const Login = ({navigation}) => {
+const Login = ({ navigation }) => {
   const dispatch = useDispatch();
   const [isSecure, setIsSecure] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
@@ -38,8 +37,10 @@ const Login = ({navigation}) => {
     fcm: '',
   });
 
+
+
   const handleChangeInputs = (name, value) => {
-    setInputValues({...inputValues, [name]: value});
+    setInputValues({ ...inputValues, [name]: value });
   };
 
   useEffect(() => {
@@ -52,47 +53,53 @@ const Login = ({navigation}) => {
     });
   }, []);
 
-  const requestNotificationPermissions = () => {
-    checkNotifications()
-      .then(({status}) => {
-        if (status !== 'granted') {
-          requestNotifications(['alert', 'sound']).then(
-            ({status: statusssss, settings}) => {
-              if (Platform.OS == 'ios') {
-                requestUserPermission();
-              } else {
-                checkPermission();
-              }
-            },
-          );
-        } else {
-          if (Platform.OS == 'ios') {
-            requestUserPermission();
-          } else {
-            checkPermission();
-          }
-        }
-      })
-      .catch(errorrrr => {
-        console.log(errorrrr, 'NOTIFICATION_ERRORRRRR');
-      });
-  };
+  useEffect(() => {
+    // request(PERMISSIONS.IOS.NOTIFICATIONS).then(status => {
+    //   console.log('Notification permission status:', status);
+    // });
+    // requestUserPermission();
+    // getFCMToken();
+  }, []);
+
 
   const requestUserPermission = async () => {
     try {
-      const authStatus = await messaging().requestPermission();
-      checkPermission();
+      const { status } = await requestNotifications(['alert', 'sound', 'badge']);
+
+      if (status === 'granted') {
+        console.log("NOTIFICATION PERMISSION GRANTED");
+        // await getFCMToken();
+      } else {
+        console.log("NOTIFICATION PERMISSION DENIED");
+      }
+
     } catch (error) {
-      console.log(error, 'erorroorororoorororororo');
+      console.log("PERMISSION ERROR:", error);
     }
   };
+
+  // Get default app (already initialized automatically)
+
+  // // Get FCM token
+  // const getFCMToken = async () => {
+  //   try {
+  //     const token = await messaging().getToken();
+  //     console.log('FCM TOKEN:', token);
+  //     setInputValues(prev => ({ ...prev, fcm: token }));
+  //     return token;
+  //   } catch (err) {
+  //     console.error('FCM TOKEN ERROR:', err);
+  //   }
+  // };
 
   const checkPermission = async () => {
     try {
       let enabled = await messaging().hasPermission();
       if (enabled) {
         let token = await messaging().getToken();
-        setInputValues({...inputValues, fcm: token});
+        console.log(token, "tokentokentokentoken");
+
+        setInputValues({ ...inputValues, fcm: token });
       } else {
         requestUserPermission();
       }
@@ -102,25 +109,26 @@ const Login = ({navigation}) => {
   };
 
   useEffect(() => {
-    getToken;
-    setTimeout(() => {
-      requestNotificationPermissions();
-    }, 1000);
+    requestUserPermission();
+    // getToken;
+    // setTimeout(() => {
+    //   requestNotificationPermissions();
+    // }, 1000);
   }, []);
 
-  const getToken = async () => {
-    let token = await messaging().getToken();
-    setInputValues({...inputValues, fcm: token});
-  };
+  // const getToken = async () => {
+  //   let token = await messaging().getToken();
+  //   setInputValues({ ...inputValues, fcm: token });
+  // };
 
   const onPress = () => {
-    const {email, password, fcm} = inputValues;
+    const { email, password, fcm } = inputValues;
     if (email === '') {
       Alert.alert('Email is required');
     } else if (password === '') {
       Alert.alert('Password is required');
     } else {
-      let payload = {email, password, fcm};
+      let payload = { email, password, fcm };
       setIsVisible(true);
       loginCustomer(payload)
         .then(response => {
@@ -130,8 +138,8 @@ const Login = ({navigation}) => {
             setIsVisible(false);
             Alert.alert(response?.data?.message);
           } else {
-            setInputValues({email: '', password: ''});
-            let newObj = {...response.data.data.userDetails};
+            setInputValues({ email: '', password: '' });
+            let newObj = { ...response.data.data.userDetails };
             console.log(newObj, 'newObjnewObjnewObjnewObj');
             AsyncStorage.setItem('user_token', response.data.data.token);
             AsyncStorage.setItem('user', JSON.stringify(newObj));
@@ -143,7 +151,7 @@ const Login = ({navigation}) => {
                   name: 'BottomStack',
                   state: {
                     index: 0,
-                    routes: [{name: 'Home'}],
+                    routes: [{ name: 'Home' }],
                   },
                 },
               ],
@@ -191,7 +199,7 @@ const Login = ({navigation}) => {
                 name: 'BottomStack',
                 state: {
                   index: 0,
-                  routes: [{name: 'Home'}],
+                  routes: [{ name: 'Home' }],
                 },
               },
             ],
@@ -240,7 +248,7 @@ const Login = ({navigation}) => {
       );
 
       if (credentialState === AppleAuthCredentialState.AUTHORIZED) {
-        const {email, fullName, identityToken, nonce} =
+        const { email, fullName, identityToken, nonce } =
           appleAuthRequestResponse;
         console.log(
           appleAuthRequestResponse,
@@ -273,7 +281,7 @@ const Login = ({navigation}) => {
                 name: 'BottomStack',
                 state: {
                   index: 0,
-                  routes: [{name: 'Home'}],
+                  routes: [{ name: 'Home' }],
                 },
               },
             ],
@@ -290,7 +298,7 @@ const Login = ({navigation}) => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: Colors.white}}>
+    <View style={{ flex: 1, backgroundColor: Colors.white }}>
       <TouchableOpacity
         style={{
           height: width(13),
@@ -306,7 +314,7 @@ const Login = ({navigation}) => {
                 name: 'BottomStack',
                 state: {
                   index: 0,
-                  routes: [{name: 'Home'}],
+                  routes: [{ name: 'Home' }],
                 },
               },
             ],
@@ -321,7 +329,7 @@ const Login = ({navigation}) => {
           }}
         />
       </TouchableOpacity>
-      <View style={{marginLeft: 15}}>
+      <View style={{ marginLeft: 15 }}>
         <View
           style={{
             flexDirection: 'row',
@@ -329,20 +337,20 @@ const Login = ({navigation}) => {
             gap: 10,
             marginTop: 15,
           }}>
-          <Text style={{fontSize: 24, fontWeight: 500, color: Colors.black}}>
+          <Text style={{ fontSize: 24, fontWeight: 500, color: Colors.black }}>
             Welcome Back
           </Text>
           <Image
             source={icons.hi}
             resizeMode="contain"
-            style={{height: 24, width: 24}}
+            style={{ height: 24, width: 24 }}
           />
         </View>
-        <Text style={{fontSize: 12, fontWeight: 400, color: Colors.black}}>
+        <Text style={{ fontSize: 12, fontWeight: 400, color: Colors.black }}>
           Sign in to enjoy your favourite meals
         </Text>
       </View>
-      <View style={{paddingHorizontal: width(3), marginTop: width(10)}}>
+      <View style={{ paddingHorizontal: width(3), marginTop: width(10) }}>
         <CustomInput
           title={'Email'}
           placeholder={'Type your email'}
@@ -350,7 +358,7 @@ const Login = ({navigation}) => {
           value={inputValues.email}
         />
       </View>
-      <View style={{paddingHorizontal: width(3), marginTop: width(2)}}>
+      <View style={{ paddingHorizontal: width(3), marginTop: width(2) }}>
         <CustomInput
           title={'Password'}
           placeholder={'Type your password'}
@@ -367,13 +375,13 @@ const Login = ({navigation}) => {
           marginTop: width(10),
           paddingHorizontal: width(3),
         }}>
-        <View style={{flexDirection: 'row', gap: 8}}>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
           <Image
             source={icons.Checkbox}
             resizeMode="contain"
-            style={{height: 15, width: 15}}
+            style={{ height: 15, width: 15 }}
           />
-          <Text style={{fontSize: 12, fontWeight: 400, color: Colors.black}}>
+          <Text style={{ fontSize: 12, fontWeight: 400, color: Colors.black }}>
             Remember me
           </Text>
         </View>
@@ -404,11 +412,11 @@ const Login = ({navigation}) => {
           alignItems: 'center',
           marginVertical: 20,
         }}>
-        <View style={{flex: 1, height: 1, backgroundColor: Colors.softgray}} />
-        <Text style={{marginHorizontal: 10}}>Or</Text>
-        <View style={{flex: 1, height: 1, backgroundColor: Colors.softgray}} />
+        <View style={{ flex: 1, height: 1, backgroundColor: Colors.softgray }} />
+        <Text style={{ marginHorizontal: 10 }}>Or</Text>
+        <View style={{ flex: 1, height: 1, backgroundColor: Colors.softgray }} />
       </View>
-      <View
+      {/* <View
         style={{
           height: width(15),
           width: '100%',
@@ -423,8 +431,8 @@ const Login = ({navigation}) => {
           borderColor={Colors.border}
           onPress={handleGoogleLogin}
         />
-      </View>
-      {Platform.OS == 'ios' && (
+      </View> */}
+      {/* {Platform.OS == 'ios' && (
         <View
           style={{
             height: width(15),
@@ -441,14 +449,14 @@ const Login = ({navigation}) => {
             onPress={handleAppleLogin}
           />
         </View>
-      )}
+      )} */}
       <View
         style={{
           alignSelf: 'center',
           flexDirection: 'row',
           marginTop: width(3),
         }}>
-        <Text style={{fontSize: 13, fontWeight: 500, color: Colors.grayyy}}>
+        <Text style={{ fontSize: 13, fontWeight: 500, color: Colors.grayyy }}>
           Don’t have an account?{' '}
         </Text>
         <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>

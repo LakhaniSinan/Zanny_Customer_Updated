@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -9,24 +9,21 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {width} from 'react-native-dimension';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Feather from 'react-native-vector-icons/Feather';
+import { width } from 'react-native-dimension';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import {fontFamily, images} from '../../../assets';
-import {colors} from '../../../constants';
-import {setUserData} from '../../../redux/slices/Login';
+import { fontFamily, icons, images } from '../../../assets';
 import CustomModal from '../../../components/customModal';
+import { colors } from '../../../constants';
+import { setUserData } from '../../../redux/slices/Login';
 
 const Row = ({
   activeOpacity = 0.7,
-  iconSet: IconSet,
-  icon,
+  iconSet,
   label,
-  onPress,
   right,
+  onPress,
 }) => (
   <TouchableOpacity
     activeOpacity={activeOpacity}
@@ -37,8 +34,8 @@ const Row = ({
       justifyContent: 'space-between',
       paddingVertical: width(1.2),
     }}>
-    <View style={{flexDirection: 'row', alignItems: 'center', gap: 12}}>
-      <IconSet name={icon} size={22} color={colors.redish} />
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+      <Image source={iconSet} style={{ height: width(5), width: width(5) }} resizeMode="contain" color={colors.redish} />
       <Text
         style={{
           fontSize: 16,
@@ -48,16 +45,14 @@ const Row = ({
         {label}
       </Text>
     </View>
-    {right ?? (
-      <Feather name="chevron-right" size={20} color={colors.graydark} />
-    )}
+    {right}
   </TouchableOpacity>
 );
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const {user} = useSelector(state => state.LoginSlice);
+  const { user } = useSelector(state => state.LoginSlice);
 
   const [pushEnabled, setPushEnabled] = useState(true);
   const [promoEnabled, setPromoEnabled] = useState(false);
@@ -99,7 +94,7 @@ const ProfileScreen = () => {
   const email = user?.email || 'example@email.com';
 
   return (
-    <ScrollView style={{flex: 1, backgroundColor: '#F6F6F6'}}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#F6F6F6' }}>
       {/* HEADER */}
       <View
         style={{
@@ -132,16 +127,12 @@ const ProfileScreen = () => {
             elevation: 6,
           }}
           onPress={showComingSoon}>
-          <MaterialCommunityIcons
-            name="bell-outline"
-            size={22}
-            color={colors.redish}
-          />
+          <Image source={icons.notificationsRed} style={{ height: width(8), width: width(8) }} />
         </TouchableOpacity>
 
         <Image
           source={
-            user?.customerImage ? {uri: user.customerImage} : images.userAvatar
+            user?.customerImage ? { uri: user.customerImage } : images.userAvatar
           }
           style={{
             height: width(26),
@@ -195,42 +186,38 @@ const ProfileScreen = () => {
         </Text>
 
         <Row
-          iconSet={Feather}
-          icon="user"
+          iconSet={icons.profileIcon}
           label="Personal information"
           onPress={() => navigation.navigate('PersonalInfo')}
         />
 
         <Row
-          iconSet={Feather}
-          icon="credit-card"
+          iconSet={icons.subscriptionIcon}
           label="Subscriptions"
           onPress={showComingSoon}
         />
 
         <Row
-          iconSet={Feather}
+          iconSet={icons.specialIcon}
           icon="file-text"
           label="Special order request"
           onPress={showComingSoon}
         />
 
         <Row
-          iconSet={Feather}
-          icon="shield"
+          iconSet={icons.privacyIcon}
           label="Privacy Policy"
           onPress={() => navigation.navigate('PrivacyPolicy')}
         />
 
         <Row
-          iconSet={Feather}
-          icon="settings"
+          iconSet={icons.allergiesIcon}
           label="Settings"
           onPress={showComingSoon}
         />
 
         <View
-          style={{height: 1, backgroundColor: '#E5E5E5', marginVertical: 20}}
+          style={{ height: 1, backgroundColor: '#E5E5E5', marginVertical: 20 }}
         />
 
         <Text
@@ -243,46 +230,42 @@ const ProfileScreen = () => {
         </Text>
 
         <Row
-          iconSet={Feather}
-          icon="bell"
+          iconSet={icons.notificationsRed}
           label="Push Notifications"
           activeOpacity={1}
           right={
             <Switch
               value={pushEnabled}
               onValueChange={setPushEnabled}
-              trackColor={{false: colors.softgray, true: colors.green}}
+              trackColor={{ false: colors.softgray, true: colors.green }}
             />
           }
         />
 
         <Row
-          iconSet={Feather}
-          icon="bell-off"
+          iconSet={icons.notificationsRed}
           label="Promotional Notifications"
           activeOpacity={1}
           right={
             <Switch
               value={promoEnabled}
               onValueChange={setPromoEnabled}
-              trackColor={{false: colors.softgray, true: colors.green}}
+              trackColor={{ false: colors.softgray, true: colors.green }}
             />
           }
         />
 
         <View
-          style={{height: 1, backgroundColor: '#E5E5E5', marginVertical: 20}}
+          style={{ height: 1, backgroundColor: '#E5E5E5', marginVertical: 20 }}
         />
         <Row
-          iconSet={Feather}
-          icon="info"
+          iconSet={icons.personalfo}
           label="Help Center"
           onPress={() => navigation.navigate('Support')}
         />
 
         <Row
-          iconSet={AntDesign}
-          icon="logout"
+          iconSet={icons.logoutIcon}
           label="Log Out"
           onPress={logout}
         />
@@ -299,7 +282,7 @@ const ProfileScreen = () => {
         close={() => setModalVisible(false)}
       />
 
-      <View style={{height: width(4)}} />
+      <View style={{ height: width(4) }} />
     </ScrollView>
   );
 };

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>929084652852-294nak4mtq2cvtguqeq84o8ci9h38stq.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.929084652852-294nak4mtq2cvtguqeq84o8ci9h38stq</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>929084652852-3u556r5e01khae0pg04q9clbt12udn1g.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyATq1HPFEhmfyd7uaBUZrIlV3lISQ6riRM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>929084652852</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.example.Zanny-Customer</string>
+	<key>PROJECT_ID</key>
+	<string>zanny-app-10dfa</string>
+	<key>STORAGE_BUCKET</key>
+	<string>zanny-app-10dfa.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:929084652852:ios:28343dcd97ea5b4bca3961</string>
+</dict>
+</plist>

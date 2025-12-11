@@ -1,12 +1,13 @@
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import {FlatList, Image, Text, View} from 'react-native';
-import {width} from 'react-native-dimension';
-import {fontFamily} from '../../assets';
-import {colors} from '../../constants';
+import { FlatList, Image, Text, View } from 'react-native';
+import { width } from 'react-native-dimension';
+import { fontFamily } from '../../assets';
+import { colors } from '../../constants';
 import ActionButton from '../actionButton';
+import { useDispatch, useSelector } from 'react-redux';
 
-const HistoryCard = ({item}) => {
+const HistoryCard = ({ item, handleAddToCart }) => {
   console.log(item, 'itemitemitemitemitemitemitemmaskmdalsdmasd');
 
   const navigation = useNavigation();
@@ -14,20 +15,23 @@ const HistoryCard = ({item}) => {
   const getStatusStyle = status => {
     switch (status?.toLowerCase()) {
       case 'pending':
-        return {bg: 'rgba(255,165,0,0.2)', color: '#FFA500'};
+        return { bg: 'rgba(255,165,0,0.2)', color: '#FFA500' };
       case 'accepted':
-        return {bg: 'rgba(30,144,255,0.2)', color: '#1E90FF'};
+        return { bg: 'rgba(30,144,255,0.2)', color: '#1E90FF' };
       case 'rejected':
-        return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
+        return { bg: 'rgba(255,69,0,0.2)', color: '#FF4500' };
       case 'completed':
-        return {bg: 'rgba(50,205,50,0.2)', color: '#32CD32'};
+        return { bg: 'rgba(50,205,50,0.2)', color: '#32CD32' };
       default:
-        return {bg: 'rgba(144,238,144,0.3)', color: '#32CD32'};
+        return { bg: 'rgba(144,238,144,0.3)', color: '#32CD32' };
     }
   };
 
   const statusStyle = getStatusStyle(item?.status);
-
+  const { user } = useSelector(state => state.LoginSlice);
+  const { cartData } = useSelector(state => state.CartSlice);
+  const dispatch = useDispatch();
+  
   return (
     <View
       style={{
@@ -41,7 +45,7 @@ const HistoryCard = ({item}) => {
         padding: width(3),
       }}>
       {/* ================= TOP SUMMARY ================= */}
-      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text
           style={{
             fontSize: 16,
@@ -87,8 +91,8 @@ const HistoryCard = ({item}) => {
         data={item?.order}
         scrollEnabled={false}
         keyExtractor={(i, index) => index.toString()}
-        style={{marginTop: width(3)}}
-        renderItem={({item: product}) => {
+        style={{ marginTop: width(3) }}
+        renderItem={({ item: product }) => {
           console.log(product, 'productproductproductproductproductasd');
 
           return (
@@ -99,7 +103,7 @@ const HistoryCard = ({item}) => {
                 marginBottom: width(3),
               }}>
               <Image
-                source={{uri: product?.image}}
+                source={{ uri: product?.image }}
                 style={{
                   height: width(18),
                   width: width(18),
@@ -108,7 +112,7 @@ const HistoryCard = ({item}) => {
                 resizeMode="cover"
               />
 
-              <View style={{marginLeft: 10, flex: 1}}>
+              <View style={{ marginLeft: 10, flex: 1 }}>
                 <Text
                   style={{
                     fontSize: 14,
@@ -190,14 +194,14 @@ const HistoryCard = ({item}) => {
           marginTop: width(2),
         }}>
         <Image
-          source={{uri: item?.order[0]?.merchant?.merchantImage}}
+          source={{ uri: item?.order[0]?.merchant?.merchantImage }}
           style={{
             height: width(10),
             width: width(10),
             borderRadius: width(5),
           }}
         />
-        <View style={{marginLeft: 8}}>
+        <View style={{ marginLeft: 8 }}>
           <Text
             style={{
               fontSize: 10,
@@ -219,17 +223,17 @@ const HistoryCard = ({item}) => {
 
       {/* ================= BUTTON ================= */}
       {item?.status == 'Completed' && (
-        <View style={{marginTop: width(3)}}>
+        <View style={{ marginTop: width(3) }}>
           <ActionButton
             bgcColor={'#3b0b0b'}
             fontColor={colors.white}
             name={'Order Again'}
-            onPress={() => navigation.navigate('OrderDetail', item)}
+            onPress={() => handleAddToCart(item)}
           />
         </View>
       )}
       {item?.status !== 'Completed' && (
-        <View style={{marginTop: width(3)}}>
+        <View style={{ marginTop: width(3) }}>
           <ActionButton
             bgcColor={'#3b0b0b'}
             fontColor={colors.white}

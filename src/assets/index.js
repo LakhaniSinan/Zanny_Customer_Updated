@@ -92,4 +92,13 @@ export const icons = {
   deleteIcon: require('../assets/icons/deleteIcon.png'),
   bellIcon: require('../assets/icons/bellIcon.png'),
   emptyCartIcon: require('../assets/icons/emptyCartIcon.png'),
+  allergiesIcon: require('../assets/icons/allergiesIcon.png'),
+  logoutIcon: require('../assets/icons/logoutIcon.png'),
+  notificationsRed: require('../assets/icons/notificationsRed.png'),
+  profileIcon: require('../assets/icons/profileIcon.png'),
+  personalfo: require('../assets/icons/personalfo.png'),
+  privacyIcon: require('../assets/icons/privacyIcon.png'),
+  settingsIcon: require('../assets/icons/settingsIcon.png'),
+  specialIcon: require('../assets/icons/specialIcon.png'),
+  subscriptionIcon: require('../assets/icons/subscriptionIcon.png'),
 };

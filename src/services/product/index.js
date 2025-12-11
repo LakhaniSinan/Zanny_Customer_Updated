@@ -1,5 +1,5 @@
 import Api from '../index';
-import {endPoints, requestType} from '../../constants/variables';
+import { endPoints, requestType } from '../../constants/variables';
 
 export const getProductsByMerchantId = id => {
   return Api(
@@ -9,8 +9,13 @@ export const getProductsByMerchantId = id => {
   );
 };
 
-export const getProductDetailById = id => {
-  return Api(`${endPoints.productDetailById}/${id}`, null, requestType.GET);
+export const getProductDetailById = (id, userId) => {
+  const query = userId ? `?userId=${userId}` : '';
+  return Api(
+    `${endPoints.productDetailById}/${id}${query}`,
+    null,
+    requestType.GET,
+  );
 };
 
 export const getAllProducts = params => {

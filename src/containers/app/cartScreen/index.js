@@ -81,13 +81,14 @@ const SectionCard = React.memo(({title, children, style}) => (
 const CartScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const cartData = useSelector(s => s.CartSlice.cartData) || [];
 
   const [promoCode, setPromoCode] = useState('');
   const [isPromoApplied, setIsPromoApplied] = useState(false);
   const [promoData, setPromoData] = useState(null);
   const [merchantDetails, setMerchantDetails] = useState(null);
   console.log(
-    merchantDetails,
+    cartData,
     'merchantDetailsmerchantDetailsmerchantDetailsmerchantDetails',
   );
 
@@ -96,7 +97,6 @@ const CartScreen = () => {
   const [deliveryCharges, setDeliveryCharges] = useState(0);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-  const cartData = useSelector(s => s.CartSlice.cartData) || [];
   const location = useSelector(s => s.LocationSlice.currentLocation);
   const {user} = useSelector(s => s.LoginSlice);
   const wallet = useSelector(s => s.PaymentCardSlice.currentPaymentCard);
