@@ -1,36 +1,35 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import {
   CardField,
   createPaymentMethod,
   StripeProvider,
 } from '@stripe/stripe-react-native';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Image,
-  Platform,
   SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { width } from 'react-native-dimension';
-import { useDispatch, useSelector } from 'react-redux';
-import { fontFamily, icons } from '../../../assets';
+import {width} from 'react-native-dimension';
+import {useDispatch, useSelector} from 'react-redux';
+import {fontFamily, icons} from '../../../assets';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import { colors, STRIPE_PUBLISH_TEST } from '../../../constants';
-import { setCurrentPaymentCard } from '../../../redux/slices/paymentCard';
-import { setPaymentType } from '../../../redux/slices/PaymentType';
+import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
+import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
+import {setPaymentType} from '../../../redux/slices/PaymentType';
 import {
   addPaymentCard,
   deletePaymentCard,
   getPaymentCardById,
 } from '../../../services/paymentCard';
 
-const PaymentOptions = ({ navigation }) => {
+const PaymentOptions = ({navigation}) => {
   const dispatch = useDispatch();
   const [selectedPaymentType, setSelectedPaymentType] = useState('');
   const wallet = useSelector(
@@ -40,7 +39,9 @@ const PaymentOptions = ({ navigation }) => {
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [paymentCards, setPaymentCards] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useSelector(state => state.LoginSlice);
+  const [cardDetails, setCardDetails] = useState(null);
+  const [cardFieldKey, setCardFieldKey] = useState(0);
+  const {user} = useSelector(state => state.LoginSlice);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     Icon: '',
@@ -48,6 +49,7 @@ const PaymentOptions = ({ navigation }) => {
     detail: '',
     buttonName: 'Okay',
     onPress: () => setModalVisible(false),
+    disableClose: false,
   });
 
   const showModal = (type, message) => {
@@ -57,6 +59,7 @@ const PaymentOptions = ({ navigation }) => {
       detail: message,
       buttonName: 'Okay',
       onPress: () => setModalVisible(false),
+      disableClose: false,
     });
     setModalVisible(true);
   };
@@ -91,8 +94,18 @@ const PaymentOptions = ({ navigation }) => {
       dispatch(setPaymentType('Card'));
       await AsyncStorage.setItem('paymentCard', JSON.stringify(cardItem));
       await AsyncStorage.setItem('paymentType', JSON.stringify('Card'));
-      showModal('success', 'Card selected successfully');
-      navigation.goBack();
+      setModalData({
+        Icon: icons.check,
+        name: 'Success',
+        detail: 'Card selected successfully',
+        buttonName: 'Okay',
+        disableClose: true,
+        onPress: () => {
+          setModalVisible(false);
+          navigation.goBack();
+        },
+      });
+      setModalVisible(true);
       return;
     }
 
@@ -113,16 +126,27 @@ const PaymentOptions = ({ navigation }) => {
 
   const handleCardChange = details => {
     setIsCardValid(details.complete);
-    if (details.complete) {
-      createTokenForStripe(details);
+    setCardDetails(details);
+  };
+
+  const handleSaveCard = () => {
+    if (!isCardValid || !cardDetails) {
+      showModal('error', 'Please enter complete card details');
+      return;
     }
+
+    const detailsToSave = cardDetails;
+    setCardFieldKey(prev => prev + 1); // reset CardField
+    setCardDetails(null);
+    setIsCardValid(false);
+    createTokenForStripe(detailsToSave);
   };
 
   const createTokenForStripe = async details => {
     try {
       setIsLoading(true);
 
-      const { paymentMethod, error } = await createPaymentMethod({
+      const {paymentMethod, error} = await createPaymentMethod({
         paymentMethodType: 'Card',
         card: details,
       });
@@ -186,7 +210,7 @@ const PaymentOptions = ({ navigation }) => {
     setModalVisible(true);
   };
 
-  const PaymentMethodItem = ({ icon, label, selected, onPress }) => (
+  const PaymentMethodItem = ({icon, label, selected, onPress}) => (
     <TouchableOpacity
       style={{
         flexDirection: 'row',
@@ -199,10 +223,10 @@ const PaymentOptions = ({ navigation }) => {
         marginVertical: 4,
       }}
       onPress={onPress}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <Image
           source={icon}
-          style={{ height: width(7), width: width(7) }}
+          style={{height: width(7), width: width(7)}}
           resizeMode="contain"
         />
         <Text
@@ -232,9 +256,8 @@ const PaymentOptions = ({ navigation }) => {
     <>
       <OverLayLoader isloading={isLoading} />
       <AppHeader text="Payment Options" goBack />
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
-        <ScrollView style={{ flex: 1 }}>
-
+      <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
+        <ScrollView style={{flex: 1}}>
           {/* Select Credit/Debit Card */}
           <View
             style={{
@@ -251,7 +274,7 @@ const PaymentOptions = ({ navigation }) => {
                 justifyContent: 'space-between',
                 width: '100%',
               }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <View
                   style={{
                     height: width(10),
@@ -264,7 +287,7 @@ const PaymentOptions = ({ navigation }) => {
                   }}>
                   <Image
                     source={icons.cardIcon}
-                    style={{ height: width(6), width: width(6) }}
+                    style={{height: width(6), width: width(6)}}
                     resizeMode="contain"
                   />
                 </View>
@@ -304,16 +327,17 @@ const PaymentOptions = ({ navigation }) => {
 
           {/* Stripe Card Input */}
           {selectedPaymentType === 'card' && (
-            <View style={{ paddingHorizontal: width(4), marginTop: width(2) }}>
-              <Text style={{ fontFamily: fontFamily.poppinMedium, fontSize: 12 }}>
+            <View style={{paddingHorizontal: width(4), marginTop: width(2)}}>
+              <Text style={{fontFamily: fontFamily.poppinMedium, fontSize: 12}}>
                 Add Card Details
               </Text>
               <StripeProvider
                 publishableKey={STRIPE_PUBLISH_TEST}
                 merchantIdentifier="merchant.com.yourapp">
                 <CardField
+                  key={cardFieldKey}
                   postalCodeEnabled={false}
-                  placeholder={{ number: '4242 4242 4242 4242' }}
+                  placeholder={{number: '4242 4242 4242 4242'}}
                   cardStyle={{
                     backgroundColor: colors.lightGray,
                     textColor: colors.black,
@@ -331,11 +355,31 @@ const PaymentOptions = ({ navigation }) => {
                   onCardChange={handleCardChange}
                 />
               </StripeProvider>
+              <TouchableOpacity
+                disabled={!isCardValid || isLoading}
+                onPress={handleSaveCard}
+                style={{
+                  marginTop: width(4),
+                  backgroundColor:
+                    !isCardValid || isLoading ? colors.gray : colors.redish,
+                  paddingVertical: width(3),
+                  borderRadius: 12,
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    color: colors.white,
+                    fontFamily: fontFamily.poppinSemiBold,
+                    fontSize: 14,
+                  }}>
+                  {isLoading ? 'Saving...' : 'Save Card'}
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
 
           {/* Previously Saved Cards */}
-          <View style={{ paddingHorizontal: width(4), marginTop: width(4) }}>
+          <View style={{paddingHorizontal: width(4), marginTop: width(4)}}>
             <Text
               style={{
                 fontFamily: fontFamily.poppinMedium,
@@ -357,7 +401,7 @@ const PaymentOptions = ({ navigation }) => {
                       marginBottom: width(3),
                       elevation: 6,
                       shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 4 },
+                      shadowOffset: {width: 0, height: 4},
                       shadowOpacity: 0.4,
                       shadowRadius: 6,
                       justifyContent: 'space-between',
@@ -368,7 +412,7 @@ const PaymentOptions = ({ navigation }) => {
                         justifyContent: 'space-between',
                         height: width(20),
                       }}>
-                      <View style={{ alignItems: 'center', gap: width(5) }}>
+                      <View style={{alignItems: 'center', gap: width(5)}}>
                         <Image
                           source={icons.cardIcon}
                           style={{
@@ -379,11 +423,14 @@ const PaymentOptions = ({ navigation }) => {
                         />
                         <Image
                           source={icons.chipIcon}
-                          style={{ width: 50, height: 30, resizeMode: 'contain' }}
+                          style={{width: 50, height: 30, resizeMode: 'contain'}}
                         />
                       </View>
                       <View
-                        style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        style={{
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
                         <TouchableOpacity
                           onPress={() => handleSelectPayment('card', item)}
                           style={{
@@ -420,7 +467,7 @@ const PaymentOptions = ({ navigation }) => {
                           <Image
                             source={icons.deleteIcon}
                             resizeMode="contain"
-                            style={{ height: width(3), width: width(3) }}
+                            style={{height: width(3), width: width(3)}}
                           />
                         </TouchableOpacity>
                       </View>
@@ -440,23 +487,23 @@ const PaymentOptions = ({ navigation }) => {
                         justifyContent: 'space-between',
                       }}>
                       <View>
-                        <Text style={{ color: colors.white, fontSize: 12 }}>
+                        <Text style={{color: colors.white, fontSize: 12}}>
                           Exp Date
                         </Text>
-                        <Text style={{ color: colors.white, fontSize: 14 }}>
+                        <Text style={{color: colors.white, fontSize: 14}}>
                           {`${item?.expMonth} / ${item?.expYear}` || '00/00'}
                         </Text>
                       </View>
                       <View>
-                        <Text style={{ color: colors.white, fontSize: 12 }}>
+                        <Text style={{color: colors.white, fontSize: 12}}>
                           CVV
                         </Text>
-                        <Text style={{ color: colors.white, fontSize: 14 }}>
+                        <Text style={{color: colors.white, fontSize: 14}}>
                           ***
                         </Text>
                       </View>
                       <View>
-                        <Text style={{ color: colors.white, fontSize: 12 }}>
+                        <Text style={{color: colors.white, fontSize: 12}}>
                           Brand Name
                         </Text>
                         <Text
@@ -480,7 +527,11 @@ const PaymentOptions = ({ navigation }) => {
                   marginTop: width(10),
                 }}>
                 <Text
-                  style={{ fontWeight: 'bold', fontSize: 16, color: colors.black }}>
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: 16,
+                    color: colors.black,
+                  }}>
                   No payment cards found
                 </Text>
               </View>
@@ -512,9 +563,14 @@ const PaymentOptions = ({ navigation }) => {
           detail={modalData.detail}
           buttonName={modalData.buttonName}
           onPress={modalData.onPress}
-          close={() => setModalVisible(false)}
+          close={() => {
+            if (modalData?.disableClose) {
+              return;
+            }
+            setModalVisible(false);
+          }}
           type={modalData.type} // ← ye missing tha
-          onConfirm={modalData.onConfirm} // ← ye bhi pass karein
+          onConfirm={modalData.onPress} // ← ye bhi pass karein
           onCancel={modalData.onCancel} // ← aur ye
         />
       </SafeAreaView>

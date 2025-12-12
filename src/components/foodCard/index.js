@@ -20,15 +20,15 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
     foodRating: '4.8 (120+)  2.8 km away', // default
     price:
       item.foodId?.price !== undefined
-        ? `$${item.foodId.price}`
+        ? `£${item.foodId.price}`
         : item.price !== undefined
-        ? `$${item.price}`
-        : '$0',
+        ? `£${item.price}`
+        : '0',
     offPrice:
       item.foodId?.discount !== undefined
-        ? `$${item.foodId.discount}`
+        ? `£${item.foodId.discount}`
         : item.discount !== undefined
-        ? `$${item.discount}`
+        ? `£${item.discount}`
         : null,
     time:
       item.foodId?.deliveryTime !== undefined
@@ -37,8 +37,6 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
     cheifName: item.restaurantId?.name || item.cheifName || 'Leanne Wayne',
     isFavourite: item.isFav === true, // always boolean
   };
-
-  console.log(item, 'item?.foodId?._id || item._id');
 
   return (
     <View
@@ -198,7 +196,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
               fontFamily: fontFamily.poppinBold,
               color: colors.black,
             }}>
-            {item?.merchant?.name || foodData.cheifName}
+            {item?.merchant?.name}
           </Text>
         </View>
       </View>

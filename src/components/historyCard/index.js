@@ -151,7 +151,7 @@ const HistoryCard = ({ item, handleAddToCart }) => {
         style={{
           marginTop: width(2),
           paddingVertical: width(2),
-          borderTopWidth: 1,
+          // borderTopWidth: 1,
           borderColor: colors.lightGrey,
         }}>
         {item?.promoData !== null && (

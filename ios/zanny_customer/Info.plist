@@ -41,6 +41,17 @@
 	<string>This app does not use the microphone.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to allow you to upload images for orders, profile updates, and support.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>zannysfood</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>zannysfood</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Poppins-Black.ttf</string>

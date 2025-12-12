@@ -1,6 +1,5 @@
 import React, {memo, useCallback, useEffect, useRef, useState} from 'react';
 import {
-  Alert,
   FlatList,
   Image,
   ImageBackground,
@@ -15,16 +14,15 @@ import {
 import {width} from 'react-native-dimension';
 import Carousel from 'react-native-snap-carousel';
 
+import {getMessaging} from '@react-native-firebase/messaging';
 import {useDispatch, useSelector} from 'react-redux';
-import {fontFamily, icons, images} from '../../../assets';
+import {fontFamily, icons} from '../../../assets';
 import Category from '../../../components/categoryCard';
 import HireCheifCard from '../../../components/hireChefCard';
 import SectionHeader from '../../../components/sectionHeader';
 import {Colors, colors} from '../../../constants';
-import {getHomeData} from '../../../services/home';
-import {handleFetchHomeData} from '../../../redux/slices/HomeData';
-import {getMessaging} from '@react-native-firebase/messaging';
 import {helper} from '../../../helper';
+import {handleFetchHomeData} from '../../../redux/slices/HomeData';
 
 const Restaurants = ({navigation}) => {
   const dispatch = useDispatch();
@@ -34,30 +32,10 @@ const Restaurants = ({navigation}) => {
   const {currentLocation} = useSelector(state => state.LocationSlice);
   const [searchQuery, setSearchQuery] = useState('');
   const {homeData} = useSelector(state => state.HomeDataSlice);
+  console.log(homeData, 'homeDatahomeDatahomeDatahomeDatahomeData');
 
   const [activeIndex, setActiveIndex] = useState(0);
   const {cartData} = useSelector(state => state.CartSlice);
-
-  const chefs = [
-    {
-      id: '1',
-      thumnail: images.veggie,
-      cheifProfileImage: images.cheif,
-      cheifName: 'Leanne Wayne',
-      place: 'American. Californian',
-      services: '3.7',
-      rating: '91%',
-    },
-    {
-      id: '2',
-      thumnail: images.veggie,
-      cheifProfileImage: images.cheif,
-      cheifName: 'Leanne Wayne',
-      place: 'American. Californian',
-      services: '3.7',
-      rating: '91%',
-    },
-  ];
 
   useEffect(() => {
     getMessaging().onMessage(async data => {
@@ -306,17 +284,26 @@ const Restaurants = ({navigation}) => {
         </View>
 
         <View style={styles.sectionWrapper}>
-          <SectionHeader name="Hire a Chef" action="See All" />
+          <SectionHeader
+            name="Hire a Chef"
+            action="See All"
+            onPress={() => navigation.navigate('AllChefs')}
+          />
         </View>
 
-        <FlatList
-          data={chefs}
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={{width: 10}} />}
-          renderItem={({item}) => <HireCheifCard item={item} />}
-          contentContainerStyle={styles.chefList}
-        />
+          contentContainerStyle={{
+            paddingHorizontal: width(3),
+            paddingBottom: width(3),
+            paddingRight: width(50),
+            gap: width(3),
+          }}>
+          {homeData?.merchants?.map((item, index) => (
+            <HireCheifCard key={item?._id || item?.id || index} item={item} />
+          ))}
+        </ScrollView>
       </ScrollView>
     </View>
   );

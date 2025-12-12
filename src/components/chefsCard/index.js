@@ -15,6 +15,7 @@ const ChefsCard = ({item}) => {
         marginRight: width(2),
         paddingBottom: width(2),
         overflow: 'hidden',
+        maxWidth: width(25),
       }}>
       <Image
         source={{uri: item?.image}}
@@ -23,6 +24,7 @@ const ChefsCard = ({item}) => {
       />
       <View style={{marginTop: 12}}>
         <Text
+          numberOfLines={1}
           style={{
             fontSize: 12,
             fontWeight: 500,

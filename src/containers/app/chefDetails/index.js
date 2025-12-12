@@ -18,6 +18,7 @@ import {colors} from '../../../constants';
 import {setCartData} from '../../../redux/slices/Cart';
 import {addToFavFun} from '../../../services/favourite';
 import {getMerchantProAndDetails} from '../../../services/merchant';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChefDetails = ({route, navigation}) => {
   const {merchantId} = route.params;
@@ -67,8 +68,10 @@ const ChefDetails = ({route, navigation}) => {
         cartData[0].merchantId === selectedItem.merchantId
       ) {
         if (findIndex !== -1) {
-          tempArr[findIndex].selectedQty =
-            (tempArr[findIndex].selectedQty || 1) + 1;
+          tempArr[findIndex] = {
+            ...tempArr[findIndex], // ❗ unfreeze object
+            selectedQty: (tempArr[findIndex].selectedQty || 1) + 1,
+          };
         } else {
           tempArr.push({...selectedItem, selectedQty: 1});
         }

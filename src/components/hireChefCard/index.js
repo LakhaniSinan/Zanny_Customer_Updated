@@ -9,10 +9,12 @@ const HireCheifCard = ({item}) => {
   return (
     <View
       style={{
-        height: 285,
-        width: 210,
+        height: 280,
+        maxWidth: 190,
+        width: '100%',
         backgroundColor: Colors.white,
         borderRadius: 19,
+        paddingBottom: width(3),
         shadowColor: '#000',
         shadowOffset: {
           width: 0,
@@ -24,10 +26,10 @@ const HireCheifCard = ({item}) => {
         elevation: 5,
       }}>
       <Image
-        source={item?.thumnail}
+        source={{uri: item?.merchantImage}}
         style={{
-          width: 210,
-          height: 98,
+          width: '100%',
+          height: 100,
           borderTopRightRadius: 19,
           borderTopLeftRadius: 19,
         }}
@@ -44,8 +46,9 @@ const HireCheifCard = ({item}) => {
           borderColor: Colors.white,
         }}>
         <Image
-          source={item?.cheifProfileImage}
+          source={{uri: item?.merchantImage}}
           style={{height: 68, width: 68, borderRadius: 100}}
+          resizeMode="cover"
         />
       </View>
       <View
@@ -60,13 +63,19 @@ const HireCheifCard = ({item}) => {
             alignItems: 'center',
             gap: 5,
           }}>
-          <Text style={{fontSize: 14, fontWeight: 600, color: Colors.black}}>
-            {item?.cheifName}
+          <Text
+            width={width(20)}
+            numberOfLines={1}
+            style={{fontSize: 14, fontWeight: 600, color: Colors.black}}>
+            {item?.name}
           </Text>
           <Image source={icons.objects} style={{height: 14, width: 14}} />
         </View>
-        <Text style={{fontSize: 10, fontWeight: 400, color: Colors.black}}>
-          {item?.place}
+        <Text
+          width={width(20)}
+          numberOfLines={1}
+          style={{fontSize: 10, fontWeight: 400, color: Colors.black}}>
+          {item?.address}
         </Text>
       </View>
       <View
@@ -78,7 +87,7 @@ const HireCheifCard = ({item}) => {
         }}>
         <View style={{alignItems: 'center'}}>
           <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>
-            {item?.services}
+            3.7
           </Text>
           <Text style={{fontSize: 8, fontWeight: 400}}>Customer Service</Text>
         </View>
@@ -91,7 +100,7 @@ const HireCheifCard = ({item}) => {
         />
         <View style={{alignItems: 'center'}}>
           <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>
-            {item?.rating}
+            91%
           </Text>
           <Text style={{fontSize: 8, fontWeight: 400}}>Response Rate</Text>
         </View>

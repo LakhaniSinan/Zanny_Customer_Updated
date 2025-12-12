@@ -39,6 +39,17 @@
                     android:pathPrefix="/app/ProductDetail" />
             </intent-filter>
 
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="zannysfood"
+                    android:host="app"
+                    android:pathPrefix="/ProductDetail" />
+            </intent-filter>
+
         </activity>
     </application>
 </manifest>

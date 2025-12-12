@@ -144,9 +144,20 @@ const Favourite = () => {
   };
 
   const handleShareProduct = item => {
-    helper.handleShare(
-      `Check this product: https://zannysfood.com/app/ProductDetail/${item?.foodId._id}`,
-    );
+    const productId = item?.foodId?._id;
+    if (!productId) {
+      return;
+    }
+
+    const productLink = `https://zannysfood.com/app/ProductDetail/${productId}`;
+    const deepLink = `zannysfood://app/ProductDetail/${productId}`;
+    const productName = item?.foodId?.name || 'Product';
+
+    helper.handleShare(`Check out ${productName}`, {
+      title: productName,
+      webLink: productLink,
+      deepLink,
+    });
   };
 
   // 🔹 Empty Component Centered

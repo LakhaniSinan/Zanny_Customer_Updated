@@ -88,9 +88,20 @@ const CartCard = ({ item, index }) => {
   };
 
   const handleShareProduct = () => {
-    helper.handleShare(
-      `Check this product: https://zannysfood.com/portal/#/app?ProductDetail/${item?._id}`,
-    );
+    const productId = item?._id || item?.foodId?._id;
+    if (!productId) {
+      return;
+    }
+
+    const productLink = `https://zannysfood.com/app/ProductDetail/${productId}`;
+    const deepLink = `zannysfood://app/ProductDetail/${productId}`;
+    const productName = item?.name || item?.foodId?.name || 'Product';
+
+    helper.handleShare(`Check out ${productName}`, {
+      title: productName,
+      webLink: productLink,
+      deepLink,
+    });
   };
 
   const foodName = item?.name || 'Delicious Food';

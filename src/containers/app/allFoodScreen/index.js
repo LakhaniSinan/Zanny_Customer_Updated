@@ -216,9 +216,18 @@ const AllFoodScreen = ({route}) => {
 
   // ⭐ SHARE PRODUCT
   const handleShareProduct = item => {
-    helper.handleShare(
-      `Check this product: https://zannysfood.com/portal/#/app?ProductDetail/${item?._id}`,
-    );
+    if (!item?._id) {
+      return;
+    }
+
+    const productLink = `https://zannysfood.com/app/ProductDetail/${item?._id}`;
+    const deepLink = `zannysfood://app/ProductDetail/${item?._id}`;
+
+    helper.handleShare(`Check out ${item?.name || 'this product'}`, {
+      title: item?.name,
+      webLink: productLink,
+      deepLink,
+    });
   };
 
   return (

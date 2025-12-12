@@ -7,6 +7,8 @@ import {
   Text,
   View,
   RefreshControl,
+  ToastAndroid,
+  Clipboard,
 } from 'react-native';
 import {width} from 'react-native-dimension';
 import {fontFamily, icons} from '../../../assets';
@@ -65,15 +67,20 @@ const AllVouchers = () => {
             <Text style={styles.description}>{item?.description || ''}</Text>
           </View>
         </View>
-        {/* <View style={styles.buttonWrapper}>
+        <View style={styles.buttonWrapper}>
           <ActionBuuton
             bgcColor={item?.isClaimed ? colors.gray : colors.redish}
             fontColor={colors.white}
-            name={item?.isClaimed ? 'Claimed' : 'Claim'}
-            disabled={item?.isClaimed}
-            // onPress={() => handleClaimPromo(item)}
+            name={'Copy'}
+            onPress={async () => {
+              await Clipboard.setString(item?.promoCode);
+              ToastAndroid.show(
+                'Voucher code copied to clipboard',
+                ToastAndroid.SHORT,
+              );
+            }}
           />
-        </View> */}
+        </View>
       </View>
     ),
     [],

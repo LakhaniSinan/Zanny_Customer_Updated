@@ -44,6 +44,7 @@ import {handelGetAddress} from '../../redux/slices/Address';
 import {useEffect} from 'react';
 import ChefDetails from '../../containers/app/chefDetails';
 import PrivacyPolicy from '../../containers/app/privacyPolicy';
+import AllChefs from '../../containers/app/allChefs';
 
 const Stack = createStackNavigator();
 
@@ -128,6 +129,14 @@ export function CustomerStack() {
         }}
         name="BottomStack"
         component={BottomNavigation}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="AllChefs"
+        component={AllChefs}
       />
       <Stack.Screen
         name="UserAllergies"

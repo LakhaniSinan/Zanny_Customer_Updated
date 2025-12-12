@@ -23,6 +23,7 @@ const CustomInput = ({
   maxLength,
   onIconPress,
   autoCapitalize = 'none',
+  onSubmitEditing
 }) => {
   const [hide, setHide] = useState(secureTextEntry);
 
@@ -46,6 +47,7 @@ const CustomInput = ({
           editable={editable}
           multiline={multiline}
           maxLength={maxLength}
+          onSubmitEditing={onSubmitEditing}
           autoCapitalize={autoCapitalize}
           style={[
             styles.input,

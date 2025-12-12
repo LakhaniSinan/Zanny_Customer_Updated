@@ -11,6 +11,19 @@ const Navigation = () => {
   const {isGetStarted} = useSelector(state => state.GetStarted);
   const [isHydrated, setIsHydrated] = useState(false);
 
+  const linking = {
+    prefixes: [
+      'https://zannysfood.com',
+      'https://www.zannysfood.com',
+      'zannysfood://',
+    ],
+    config: {
+      screens: {
+        ProductDetail: 'app/ProductDetail/:productId',
+      },
+    },
+  };
+
   useEffect(() => {
     const hydrateUser = async () => {
       try {
@@ -28,7 +41,7 @@ const Navigation = () => {
   }, []);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       {isGetStarted ? <CustomerStack /> : <WelcomeScreen />}
     </NavigationContainer>
   );

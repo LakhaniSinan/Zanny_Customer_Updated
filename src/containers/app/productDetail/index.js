@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { width } from 'react-native-dimension';
-import { useDispatch, useSelector } from 'react-redux';
-import { icons } from '../../../assets';
+import {width} from 'react-native-dimension';
+import {useDispatch, useSelector} from 'react-redux';
+import {icons} from '../../../assets';
 import ActionButton from '../../../components/actionButton';
 import ChefsCard from '../../../components/chefsCard';
 import CustomModal from '../../../components/customModal';
@@ -18,24 +18,24 @@ import OverLayLoader from '../../../components/loader';
 import ProgressCard from '../../../components/progressCard';
 import SectionHeader from '../../../components/sectionHeader';
 import SegmentedButtons from '../../../components/SegmentedButtons';
-import { Colors } from '../../../constants';
-import { helper } from '../../../helper';
-import { setCartData } from '../../../redux/slices/Cart';
-import { addToFavFun } from '../../../services/favourite';
-import { getProductDetailById } from '../../../services/product';
+import {Colors} from '../../../constants';
+import {helper} from '../../../helper';
+import {setCartData} from '../../../redux/slices/Cart';
+import {addToFavFun} from '../../../services/favourite';
+import {getProductDetailById} from '../../../services/product';
 
-const ProductDetail = ({ navigation, route }) => {
-  const productId = route.params.productId;
+const ProductDetail = ({navigation, route}) => {
+  const {productId, type, data} = route?.params || {};
   const dispatch = useDispatch();
-  const navigationType = route.params.type;
-  const productData = route.params.data;
+  const navigationType = type || 'normal';
+  const productData = data;
 
-  const { user } = useSelector(state => state.LoginSlice);
+  const {user} = useSelector(state => state.LoginSlice);
   const [productDetails, setProductDetails] = useState(null);
-  console.log(productDetails, "productDataproductDataproductDataproductData");
+  console.log(productDetails, 'productDataproductDataproductDataproductData');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Nutrition');
-  const { cartData } = useSelector(state => state.CartSlice);
+  const {cartData} = useSelector(state => state.CartSlice);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     Icon: '',
@@ -46,12 +46,12 @@ const ProductDetail = ({ navigation, route }) => {
   });
 
   const deliveryData = [
-    { icon: icons.package, name: 'Delivery' },
-    { icon: icons.clock, name: '20mins' },
-    { icon: icons.yellowStar, name: '4.8 Rating' },
+    {icon: icons.package, name: 'Delivery'},
+    {icon: icons.clock, name: '20mins'},
+    {icon: icons.yellowStar, name: '4.8 Rating'},
   ];
 
-  const AllergiesData = [{ name: 'Vegan' }, { name: 'Vegetarian' }];
+  const AllergiesData = [{name: 'Vegan'}, {name: 'Vegetarian'}];
 
   useEffect(() => {
     if (productId) fetchProductDetails();
@@ -85,12 +85,21 @@ const ProductDetail = ({ navigation, route }) => {
     }
   }, []);
 
+  if (!productId) {
+    return <OverLayLoader isloading={true} />;
+  }
+
   if (!productDetails) return <OverLayLoader isloading={true} />;
 
   const handleShareProduct = () => {
-    helper.handleShare(
-      `Check this product: https://zannysfood.com/app/ProductDetail/${productId}`,
-    );
+    const productLink = `https://zannysfood.com/app/ProductDetail/${productId}`;
+    const deepLink = `zannysfood://app/ProductDetail/${productId}`;
+
+    helper.handleShare(`Check out ${productDetails?.name || 'this product'}`, {
+      title: productDetails?.name,
+      webLink: productLink,
+      deepLink,
+    });
   };
 
   const onFavIconPress = async item => {
@@ -137,7 +146,7 @@ const ProductDetail = ({ navigation, route }) => {
             selectedQty: (tempArr[findIndex].selectedQty || 1) + 1,
           };
         } else {
-          tempArr.push({ ...productDetails, selectedQty: 1 });
+          tempArr.push({...productDetails, selectedQty: 1});
         }
         dispatch(setCartData(tempArr));
         await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
@@ -159,8 +168,11 @@ const ProductDetail = ({ navigation, route }) => {
       Icon:
         type === 'success'
           ? require('../../../assets/icons/check.png')
+          : type == 'alert'
+          ? icons.alertIcon
           : require('../../../assets/icons/cross.png'),
-      name: type === 'success' ? 'Success' : 'Error',
+      name:
+        type === 'success' ? 'Success' : type == 'alert' ? 'Alert' : 'Error',
       detail: message,
       buttonName: 'Okay',
       onPress: () => setModalVisible(false),
@@ -170,16 +182,16 @@ const ProductDetail = ({ navigation, route }) => {
 
   const BottomButtons = () => (
     <View style={styles.bottomBar}>
-      <View style={{ width: width(45) }}>
+      <View style={{width: width(45)}}>
         <ActionButton
-          onPress={() => showModal('error', 'This Feature Will Enable Soon')}
+          onPress={() => showModal('alert', 'This Feature Will Enable Soon')}
           height={46}
           width={width(45)}
           name={'Pre-order'}
           fontColor={Colors.black}
         />
       </View>
-      <View style={{ width: width(45) }}>
+      <View style={{width: width(45)}}>
         <ActionButton
           height={46}
           width={width(45)}
@@ -193,12 +205,12 @@ const ProductDetail = ({ navigation, route }) => {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.white }}>
+    <View style={{flex: 1, backgroundColor: Colors.white}}>
       <ScrollView>
         {/* IMAGE */}
         <Image
-          source={{ uri: productDetails?.image }}
-          style={{ height: width(100), width: '100%', marginTop: -45 }}
+          source={{uri: productDetails?.image}}
+          style={{height: width(100), width: '100%', marginTop: -45}}
           resizeMode="cover"
         />
 
@@ -228,10 +240,10 @@ const ProductDetail = ({ navigation, route }) => {
 
           <FlatList
             data={productDetails?.nutritions}
-            renderItem={({ item }) => <ProgressCard item={item} />}
+            renderItem={({item}) => <ProgressCard item={item} />}
             ListEmptyComponent={
-              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
-                <Text style={{ fontSize: 14, color: '#999' }}>
+              <View style={{alignItems: 'center', paddingVertical: 20}}>
+                <Text style={{fontSize: 14, color: '#999'}}>
                   No nutrition data available
                 </Text>
               </View>
@@ -255,14 +267,14 @@ const ProductDetail = ({ navigation, route }) => {
           <FlatList
             horizontal
             data={AllergiesData || []}
-            renderItem={({ item }) => (
+            renderItem={({item}) => (
               <SegmentedButtons
                 item={item}
                 backgroundColor={Colors.softred}
                 color={Colors.red}
               />
             )}
-            ItemSeparatorComponent={<View style={{ width: 10 }} />}
+            ItemSeparatorComponent={<View style={{width: 10}} />}
           />
 
           <SectionHeader name={'Made by'} fontSize={16} />
@@ -281,8 +293,8 @@ const ProductDetail = ({ navigation, route }) => {
             horizontal
             showsHorizontalScrollIndicator={false}
             data={productDetails?.otherProducts || []}
-            renderItem={({ item }) => <ChefsCard item={item} />}
-            ItemSeparatorComponent={<View style={{ width: 10 }} />}
+            renderItem={({item}) => <ChefsCard item={item} />}
+            ItemSeparatorComponent={<View style={{width: 10}} />}
             contentContainerStyle={{
               paddingVertical: width(2),
               paddingHorizontal: width(1),
@@ -290,7 +302,7 @@ const ProductDetail = ({ navigation, route }) => {
           />
         </View>
         <BottomButtons />
-        <View style={{ height: width(2) }} />
+        <View style={{height: width(2)}} />
       </ScrollView>
       <CustomModal
         visible={modalVisible}
@@ -308,20 +320,23 @@ const ProductDetail = ({ navigation, route }) => {
 
 export default ProductDetail;
 
-const HeaderIcons = ({ navigation }) => (
+const HeaderIcons = ({navigation}) => (
   <View style={styles.headerIcons}>
     <IconButton icon={icons.ArrowLeft} onPress={() => navigation.goBack()} />
-    <IconButton icon={icons.ShoppingCart} />
+    <IconButton
+      icon={icons.ShoppingCart}
+      onPress={() => navigation.navigate('CartScreen')}
+    />
   </View>
 );
 
-const IconButton = ({ icon, onPress }) => (
+const IconButton = ({icon, onPress}) => (
   <TouchableOpacity style={styles.iconBtn} onPress={onPress}>
-    <Image source={icon} style={styles.iconSize} resizeMode='contain' />
+    <Image source={icon} style={styles.iconSize} resizeMode="contain" />
   </TouchableOpacity>
 );
 
-const TitleRow = ({ productDetails, onShareProduct, onFavIconPress }) => {
+const TitleRow = ({productDetails, onShareProduct, onFavIconPress}) => {
   return (
     <View style={styles.titleRow}>
       <Text numberOfLines={2} style={styles.title}>
@@ -332,13 +347,13 @@ const TitleRow = ({ productDetails, onShareProduct, onFavIconPress }) => {
           icon={productDetails?.isFav ? icons.fillHeart : icons.heart}
           onPress={() => onFavIconPress(productDetails)}
         />
-        {/* <IconButton icon={icons.share} onPress={onShareProduct} /> */}
+        <IconButton icon={icons.share} onPress={onShareProduct} />
       </View>
     </View>
   );
 };
 
-const PriceRow = ({ productDetails, getFinalPrice }) => (
+const PriceRow = ({productDetails, getFinalPrice}) => (
   <View style={styles.priceRow}>
     <View style={styles.priceLeft}>
       <Text style={styles.finalPrice}>
@@ -370,13 +385,13 @@ const Location = () => (
   </View>
 );
 
-const Description = ({ text }) => (
-  <View style={{ marginTop: width(2) }}>
+const Description = ({text}) => (
+  <View style={{marginTop: width(2)}}>
     <Text style={styles.description}>{text}</Text>
   </View>
 );
 
-const DeliveryInfo = ({ deliveryData }) => (
+const DeliveryInfo = ({deliveryData}) => (
   <View style={styles.deliveryRow}>
     {deliveryData.map((item, index) => (
       <View key={index} style={styles.deliveryItem}>
@@ -387,7 +402,7 @@ const DeliveryInfo = ({ deliveryData }) => (
   </View>
 );
 
-const Tabs = ({ activeTab, setActiveTab }) => (
+const Tabs = ({activeTab, setActiveTab}) => (
   <View style={styles.tabs}>
     {['Nutrition', 'Customize'].map(tab => (
       <TouchableOpacity
@@ -403,7 +418,7 @@ const Tabs = ({ activeTab, setActiveTab }) => (
         <Text
           style={[
             styles.tabText,
-            { color: activeTab === tab ? Colors.black : Colors.graydark },
+            {color: activeTab === tab ? Colors.black : Colors.graydark},
           ]}>
           {tab}
         </Text>
@@ -412,15 +427,15 @@ const Tabs = ({ activeTab, setActiveTab }) => (
   </View>
 );
 
-const ChefInfo = ({ merchant }) => (
+const ChefInfo = ({merchant}) => (
   <View style={styles.chefRow}>
     <View style={styles.chefLeft}>
       <Image
-        source={{ uri: merchant?.merchantImage }}
+        source={{uri: merchant?.merchantImage}}
         style={styles.chefImg}
         resizeMode="contain"
       />
-      <View style={{ marginLeft: 8 }}>
+      <View style={{marginLeft: 8}}>
         <Text style={styles.chefLabel}>Chef</Text>
         <View style={styles.chefNameRow}>
           <Text style={styles.chefName}>{merchant?.name}</Text>
@@ -428,7 +443,7 @@ const ChefInfo = ({ merchant }) => (
         </View>
       </View>
     </View>
-    <View style={{ width: width(20) }}>
+    <View style={{width: width(20)}}>
       <ActionButton
         name={'Hire'}
         bgcColor={Colors.black}
@@ -465,7 +480,7 @@ const styles = {
     borderWidth: 1,
     borderColor: Colors.clayDark,
   },
-  iconSize: { height: 20, width: 20 },
+  iconSize: {height: 20, width: 20},
 
   /* Title */
   titleRow: {
@@ -492,25 +507,25 @@ const styles = {
     justifyContent: 'space-between',
     marginTop: width(3),
   },
-  priceLeft: { flexDirection: 'row', alignItems: 'center' },
-  finalPrice: { fontSize: 30, fontWeight: '700', color: Colors.red },
+  priceLeft: {flexDirection: 'row', alignItems: 'center'},
+  finalPrice: {fontSize: 30, fontWeight: '700', color: Colors.red},
   oldPrice: {
     fontSize: 16,
     marginLeft: 6,
     textDecorationLine: 'line-through',
     color: Colors.gray,
   },
-  servings: { flexDirection: 'row', alignItems: 'center' },
-  servingsIcon: { height: width(7), width: width(7) },
-  servingsText: { marginLeft: width(2), color: Colors.black },
+  servings: {flexDirection: 'row', alignItems: 'center'},
+  servingsIcon: {height: width(7), width: width(7)},
+  servingsText: {marginLeft: width(2), color: Colors.black},
 
   /* Location */
-  location: { flexDirection: 'row', alignItems: 'center', marginTop: width(1) },
-  locationIcon: { height: 16, width: 16 },
-  locationText: { fontSize: 12, color: Colors.grayyy, marginLeft: width(1) },
+  location: {flexDirection: 'row', alignItems: 'center', marginTop: width(1)},
+  locationIcon: {height: 16, width: 16},
+  locationText: {fontSize: 12, color: Colors.grayyy, marginLeft: width(1)},
 
   /* Description */
-  description: { fontSize: 12, color: Colors.graydark },
+  description: {fontSize: 12, color: Colors.graydark},
 
   /* Delivery row */
   deliveryRow: {
@@ -522,9 +537,9 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  deliveryItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  deliveryIcon: { height: 16, width: 16 },
-  deliveryText: { fontSize: 12, color: Colors.redish },
+  deliveryItem: {flexDirection: 'row', alignItems: 'center', gap: 8},
+  deliveryIcon: {height: 16, width: 16},
+  deliveryText: {fontSize: 12, color: Colors.redish},
 
   /* Tabs */
   tabs: {
@@ -541,10 +556,10 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tabText: { fontSize: 13, fontWeight: 600 },
+  tabText: {fontSize: 13, fontWeight: 600},
 
   /* Flex wrap */
-  flexWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  flexWrap: {flexDirection: 'row', flexWrap: 'wrap', gap: 10},
 
   /* Chef */
   chefRow: {
@@ -552,12 +567,12 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  chefLeft: { flexDirection: 'row', alignItems: 'center' },
-  chefImg: { height: 34, width: 34, borderRadius: 100 },
-  chefLabel: { fontSize: 11, color: Colors.primaryOrange },
-  chefNameRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  chefName: { fontSize: 13, fontWeight: 600, color: Colors.black },
-  verifyIcon: { height: 15, width: 15 },
+  chefLeft: {flexDirection: 'row', alignItems: 'center'},
+  chefImg: {height: 34, width: 34, borderRadius: 100},
+  chefLabel: {fontSize: 11, color: Colors.primaryOrange},
+  chefNameRow: {flexDirection: 'row', alignItems: 'center', gap: 3},
+  chefName: {fontSize: 13, fontWeight: 600, color: Colors.black},
+  verifyIcon: {height: 15, width: 15},
 
   /* Bottom Bar */
   bottomBar: {

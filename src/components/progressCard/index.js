@@ -51,7 +51,7 @@ const ProgressCard = ({item}) => {
             }}>
             <View
               style={{
-                width: `${item?.amount}%`,
+                width: `£${item?.amount}%`,
                 height: 7,
                 backgroundColor: Colors.grayplus,
                 borderRadius: 500,
