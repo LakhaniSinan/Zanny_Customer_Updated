@@ -124,13 +124,10 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
           <View style={{flexDirection: 'row', marginTop: 10, gap: width(2)}}>
             <View style={{width: width(28)}}>
               <ActionBuuton
-                bgcColor={colors.black}
+                bgcColor={colors.redish}
                 fontColor={colors.white}
                 name="View Details"
                 onPress={() =>
-                  // navigation.navigate('ProductDetail', {
-                  //   productId: item?.foodId?._id || item._id,
-                  // })
                   navigation.navigate('ProductDetail', {
                     data: item,
                     productId: item?.foodId?._id || item._id,
@@ -157,11 +154,11 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
             border={1}
             onPress={() => onFavPress(item)}
           />
-          {/* <BackButton
+          <BackButton
             icon={icons.share}
             border={1}
             onPress={() => handleShareProduct(item)}
-          /> */}
+          />
         </View>
       </View>
 

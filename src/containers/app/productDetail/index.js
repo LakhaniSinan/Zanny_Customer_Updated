@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
-import {icons} from '../../../assets';
+import {fontFamily, icons} from '../../../assets';
 import ActionButton from '../../../components/actionButton';
 import ChefsCard from '../../../components/chefsCard';
 import CustomModal from '../../../components/customModal';
@@ -18,7 +18,7 @@ import OverLayLoader from '../../../components/loader';
 import ProgressCard from '../../../components/progressCard';
 import SectionHeader from '../../../components/sectionHeader';
 import SegmentedButtons from '../../../components/SegmentedButtons';
-import {Colors} from '../../../constants';
+import {colors, Colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {setCartData} from '../../../redux/slices/Cart';
 import {addToFavFun} from '../../../services/favourite';
@@ -35,6 +35,8 @@ const ProductDetail = ({navigation, route}) => {
   console.log(productDetails, 'productDataproductDataproductDataproductData');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Nutrition');
+  console.log(activeTab, 'activeTabactiveTabactiveTabactiveTabasdd');
+
   const {cartData} = useSelector(state => state.CartSlice);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -208,16 +210,24 @@ const ProductDetail = ({navigation, route}) => {
     <View style={{flex: 1, backgroundColor: Colors.white}}>
       <ScrollView>
         {/* IMAGE */}
-        <Image
-          source={{uri: productDetails?.image}}
-          style={{height: width(100), width: '100%', marginTop: -45}}
-          resizeMode="cover"
-        />
+        <View
+          style={{
+            backgroundColor: colors.orangeDark,
+          }}>
+          <Image
+            source={{uri: productDetails?.image}}
+            style={{
+              height: width(90),
+              width: '90%',
+              alignSelf: 'center',
+              borderRadius: 14,
+              marginTop: width(18),
+            }}
+            resizeMode="cover"
+          />
+        </View>
+        <HeaderIcons navigation={navigation} cartData={cartData} />
 
-        {/* HEADER ICONS */}
-        <HeaderIcons navigation={navigation} />
-
-        {/* CONTENT AREA */}
         <View style={styles.contentContainer}>
           <TitleRow
             productDetails={productDetails}
@@ -239,12 +249,14 @@ const ProductDetail = ({navigation, route}) => {
           <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
           <FlatList
-            data={productDetails?.nutritions}
+            data={activeTab == 'Nutrition' ? productDetails?.nutritions : []}
             renderItem={({item}) => <ProgressCard item={item} />}
             ListEmptyComponent={
               <View style={{alignItems: 'center', paddingVertical: 20}}>
                 <Text style={{fontSize: 14, color: '#999'}}>
-                  No nutrition data available
+                  {activeTab == 'Nutrition'
+                    ? 'No nutrition data available'
+                    : 'Coming Soon...'}
                 </Text>
               </View>
             }
@@ -320,13 +332,69 @@ const ProductDetail = ({navigation, route}) => {
 
 export default ProductDetail;
 
-const HeaderIcons = ({navigation}) => (
+const HeaderIcons = ({cartData, navigation}) => (
   <View style={styles.headerIcons}>
-    <IconButton icon={icons.ArrowLeft} onPress={() => navigation.goBack()} />
-    <IconButton
-      icon={icons.ShoppingCart}
-      onPress={() => navigation.navigate('CartScreen')}
-    />
+    <TouchableOpacity
+      style={{
+        height: width(10),
+        width: width(10),
+        marginTop: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 100,
+        borderWidth: 1,
+        borderColor: colors.orangeBorder,
+      }}
+      onPress={() => navigation.goBack()}>
+      <Image
+        source={icons.ArrowLeft}
+        style={styles.iconSize}
+        resizeMode="contain"
+        tintColor={colors.black}
+      />
+    </TouchableOpacity>
+    <TouchableOpacity
+      style={{
+        height: width(10),
+        width: width(10),
+        marginTop: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 100,
+        borderWidth: 1,
+        borderColor: colors.orangeBorder,
+      }}
+      onPress={() => navigation.navigate('CartScreen')}>
+      <Image
+        source={icons.ShoppingCart}
+        style={styles.iconSize}
+        resizeMode="contain"
+        tintColor={colors.black}
+      />
+      {cartData.length > 0 && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: -5,
+            backgroundColor: colors.red,
+            width: width(4),
+            height: width(4),
+            borderRadius: width(2),
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Text
+            style={{
+              color: colors.white,
+              fontSize: 10,
+              fontFamily: fontFamily.poppinRegular,
+            }}>
+            {cartData.length}
+          </Text>
+        </View>
+      )}
+    </TouchableOpacity>
   </View>
 );
 
@@ -411,16 +479,15 @@ const Tabs = ({activeTab, setActiveTab}) => (
         style={[
           styles.tabButton,
           {
-            backgroundColor:
-              activeTab === tab ? Colors.background : 'transparent',
+            backgroundColor: activeTab === tab ? Colors.redish : 'transparent',
           },
         ]}>
         <Text
           style={[
             styles.tabText,
-            {color: activeTab === tab ? Colors.black : Colors.graydark},
+            {color: activeTab === tab ? Colors.white : Colors.graydark},
           ]}>
-          {tab}
+          {tab == 'Nutrition' ? tab : `${tab} 👑`}
         </Text>
       </TouchableOpacity>
     ))}

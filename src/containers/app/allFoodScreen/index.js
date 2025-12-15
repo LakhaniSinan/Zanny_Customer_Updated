@@ -62,7 +62,10 @@ const AllFoodScreen = ({route}) => {
       <View style={{alignItems: 'center', marginTop: 50}}>
         <View style={{height: 10}} />
         <Text style={{fontSize: 16, color: colors.black}}>
-          Fetching products...
+          {data?.name
+            ? `Fetching products for ${data?.name}`
+            : 'Fetching products'}{' '}
+          ...
         </Text>
       </View>
     ) : (
@@ -232,7 +235,11 @@ const AllFoodScreen = ({route}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: colors.white}}>
-      <AppHeader goBack={true} cartIcon={true} text="Delicacies" />
+      <AppHeader
+        goBack={true}
+        cartIcon={true}
+        text={data?.name ? data?.name : 'Delicacies'}
+      />
 
       <FlatList
         data={products}

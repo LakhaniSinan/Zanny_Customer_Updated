@@ -16,6 +16,7 @@ export const colors = {
     '#f45001',
     '#e29127',
   ],
+  orangeBorder: '#C2820B',
   orangeColor: '#ff9935',
   white: '#ffffff',
   offwhite: '#FFF9F0',
