@@ -48,7 +48,12 @@ const ProductDetail = ({navigation, route}) => {
   });
 
   const deliveryData = [
-    {icon: icons.package, name: 'Delivery'},
+    {icon: icons.package, name: 'Delivery Only'},
+    {icon: icons.clock, name: '20mins'},
+    {icon: icons.yellowStar, name: '4.8 Rating'},
+  ];
+  const deliveryDataaa = [
+    {icon: icons.package, name: 'PickedUp Only'},
     {icon: icons.clock, name: '20mins'},
     {icon: icons.yellowStar, name: '4.8 Rating'},
   ];
@@ -243,8 +248,19 @@ const ProductDetail = ({navigation, route}) => {
           <Location />
 
           <Description text={productDetails?.description} />
+          {productDetails?.merchant?.isDelivery && (
+            <DeliveryInfoRow
+              label="Delivery"
+              time={productDetails?.merchant?.deliveryTimmings}
+            />
+          )}
 
-          <DeliveryInfo deliveryData={deliveryData} />
+          {productDetails?.merchant?.isPickUp && (
+            <DeliveryInfoRow
+              label="Pick Up"
+              time={productDetails?.merchant?.pickupTimmings}
+            />
+          )}
 
           <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
@@ -263,16 +279,20 @@ const ProductDetail = ({navigation, route}) => {
           />
 
           {/* Allergies */}
-          <SectionHeader name={'Allergies'} fontSize={16} />
-          <View style={styles.flexWrap}>
-            {productDetails?.allergiesData?.map(item => (
-              <SegmentedButtons
-                item={item}
-                backgroundColor={Colors.softred}
-                color={Colors.red}
-              />
-            ))}
-          </View>
+          {productDetails?.allergiesData?.length > 0 && (
+            <>
+              <SectionHeader name={'Allergies'} fontSize={16} />
+              <View style={styles.flexWrap}>
+                {productDetails?.allergiesData?.map(item => (
+                  <SegmentedButtons
+                    item={item}
+                    backgroundColor={Colors.softred}
+                    color={Colors.red}
+                  />
+                ))}
+              </View>
+            </>
+          )}
 
           {/* Dietary */}
           <SectionHeader name={'Dietary'} fontSize={16} />
@@ -459,16 +479,28 @@ const Description = ({text}) => (
   </View>
 );
 
-const DeliveryInfo = ({deliveryData}) => (
-  <View style={styles.deliveryRow}>
-    {deliveryData.map((item, index) => (
-      <View key={index} style={styles.deliveryItem}>
-        <Image source={item.icon} style={styles.deliveryIcon} />
-        <Text style={styles.deliveryText}>{item.name}</Text>
+const DeliveryInfoRow = ({label, time}) => {
+  if (!time) return null;
+
+  return (
+    <View style={styles.deliveryRow}>
+      <View style={styles.deliveryItem}>
+        <Image source={icons.package} style={styles.deliveryIcon} />
+        <Text style={styles.deliveryText}>{label}</Text>
       </View>
-    ))}
-  </View>
-);
+
+      <View style={styles.deliveryItem}>
+        <Image source={icons.clock} style={styles.deliveryIcon} />
+        <Text style={styles.deliveryText}>{time} mins</Text>
+      </View>
+
+      <View style={styles.deliveryItem}>
+        <Image source={icons.yellowStar} style={styles.deliveryIcon} />
+        <Text style={styles.deliveryText}>4.8 Rating</Text>
+      </View>
+    </View>
+  );
+};
 
 const Tabs = ({activeTab, setActiveTab}) => (
   <View style={styles.tabs}>
