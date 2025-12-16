@@ -228,10 +228,9 @@ const ChefDetails = ({route, navigation}) => {
                 item={item}
                 handleAddToCart={handleAddToCart}
                 onFavPress={handleFavToggle}
-                //   handleShareProduct={handleShareProduct}
               />
             );
-          }} //renderRecommendedItem}
+          }}
           keyExtractor={item => item._id}
           contentContainerStyle={
             details?.products.length === 0 ? {flex: 1} : {paddingBottom: 20}

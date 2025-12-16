@@ -121,7 +121,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
           </View>
 
           {/* Buttons */}
-          <View style={{flexDirection: 'row', marginTop: 10, gap: width(2)}}>
+          <View style={{flexDirection: 'row', marginTop: width(5), gap: width(2)}}>
             <View style={{width: width(28)}}>
               <ActionBuuton
                 bgcColor={colors.redish}
@@ -148,7 +148,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
         </View>
 
         {/* Heart & Share Icons */}
-        <View style={{marginLeft: 8, alignItems: 'center', gap: 5}}>
+        <View style={{marginLeft: 8, alignItems: 'center', gap: 5, marginBottom: 5}}>
           <BackButton
             icon={foodData.isFavourite ? icons.fillHeart : icons.heartBrown}
             border={1}
