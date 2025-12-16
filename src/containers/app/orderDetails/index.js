@@ -219,36 +219,35 @@ const OrderDetail = ({navigation, route}) => {
         <View style={styles.borderstyle}>
           {data.order.map((item, ind) => {
             console.log(item, 'itemitemitemitemitemitemasdsd');
-
             return (
-              <>
-                <View key={ind} style={styles.ordertxtview}>
-                  <Text style={styles.subheading}>
-                    {item.quantity || item.selectedQty}x {item.name}
-                  </Text>
+              <View key={ind} style={styles.ordertxtview}>
+                <Text style={styles.subheading}>
+                  {item.quantity || item.selectedQty}x {item.name}
+                </Text>
 
-                  <Text style={styles.pricetxt}>
-                    £ {item?.discount > 0 ? item?.discount : item?.price}
-                  </Text>
-                </View>
-                <View key={ind} style={styles.ordertxtview}>
-                  <Text style={styles.subheading}>Promo Code</Text>
-
-                  <Text style={styles.pricetxt}>
-                    {data?.promoData?.promoCode}
-                  </Text>
-                </View>
-                <View key={ind} style={styles.ordertxtview}>
-                  <Text style={styles.subheading}>Promo Discount</Text>
-
-                  <Text style={styles.pricetxt}>
-                    {data?.promoData?.discount} %OFF
-                  </Text>
-                </View>
-              </>
+                <Text style={styles.pricetxt}>
+                  £ {item?.discount > 0 ? item?.discount : item?.price}
+                </Text>
+              </View>
             );
           })}
         </View>
+        {data?.promoData?.promoCode && (
+          <>
+            <View style={styles.ordertxtview}>
+              <Text style={styles.subheading}>Promo Code</Text>
+
+              <Text style={styles.pricetxt}>{data?.promoData?.promoCode}</Text>
+            </View>
+            <View style={styles.ordertxtview}>
+              <Text style={styles.subheading}>Promo Discount</Text>
+
+              <Text style={styles.pricetxt}>
+                {data?.promoData?.discount} %OFF
+              </Text>
+            </View>
+          </>
+        )}
         <View style={styles.borderstyle}>
           <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Delivery fee</Text>

@@ -184,13 +184,16 @@ const PaymentOptions = ({navigation}) => {
       Icon: icons.alertIcon,
       name: 'Confirmation',
       detail: 'Are you sure you want to delete this card?',
-      onConfirm: async () => {
+      onPress: async () => {
         try {
           setIsLoading(true);
-          const response = await deletePaymentCard({
+          let params = {
             paymentId: cardItem?.paymentMethodId,
             userId: user?._id,
-          });
+          };
+          const response = await deletePaymentCard(params);
+
+          console.log(response, 'responseresponseresponse');
 
           if (response.status === 200 || response.status === 201) {
             getUserPaymentCards();
