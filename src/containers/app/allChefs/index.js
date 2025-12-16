@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
   rowWrapper: {
     justifyContent: 'space-between',
     paddingHorizontal: 10,
+    gap: width(3),
   },
   contentContainer: {
     gap: width(5),

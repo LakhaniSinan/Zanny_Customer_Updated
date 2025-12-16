@@ -10,7 +10,6 @@ const HireCheifCard = ({item}) => {
     <View
       style={{
         height: 280,
-        maxWidth: 190,
         width: '100%',
         backgroundColor: Colors.white,
         borderRadius: 19,
