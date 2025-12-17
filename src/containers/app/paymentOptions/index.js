@@ -37,8 +37,13 @@ const PaymentOptions = ({navigation}) => {
     state => state.PaymentCardSlice.currentPaymentCard,
   );
   const [isCardValid, setIsCardValid] = useState(false);
+  const {cardsData} = useSelector(
+    state => console.log(state, 'asdasdasdadasdasd') || state.CardSlice,
+  );
+  console.log(cardsData, 'cardsDatacardsDatacardsDatacardsData');
+
   const [selectedMethod, setSelectedMethod] = useState(null);
-  const [paymentCards, setPaymentCards] = useState([]);
+  const [paymentCards, setPaymentCards] = useState(cardsData || []);
   const [isLoading, setIsLoading] = useState(false);
   const [cardDetails, setCardDetails] = useState(null);
   const [cardFieldKey, setCardFieldKey] = useState(0);

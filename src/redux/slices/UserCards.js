@@ -37,9 +37,10 @@ export function handleFetchCardsData(userId) {
     dispatch(fetchCards());
     try {
       const response = await getPaymentCardById(userId);
+      console.log(response, 'responseresponseresponseresponse');
 
       if (response?.status === 200 || response?.status === 201) {
-        dispatch(fetchCardsSuccess(response.data.data));
+        dispatch(fetchCardsSuccess(response.data.cards || []));
       } else {
         dispatch(fetchCardsFailure('Something went wrong'));
       }

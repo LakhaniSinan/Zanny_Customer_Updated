@@ -43,9 +43,7 @@ const AppHeader = ({
       )}
       {notificationsIcon && (
         <View style={styles.rightIconWrapper}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => {}}>
             <Image
               source={icons.bellIcon}
               resizeMode="contain"

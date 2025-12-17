@@ -187,35 +187,47 @@ const ProductDetail = ({navigation, route}) => {
   };
 
   const handleAddForPreOrder = async () => {
-    if (!user) return showModal('error', 'Please login first to pre order');
+    if (!user) {
+      return showModal('error', 'Please login first to pre order');
+    }
+
     try {
       let tempArr = [...preOrderData];
-      const findIndex = tempArr.findIndex(i => i._id === productData._id);
+      const findIndex = tempArr.findIndex(item => item._id === productData._id);
+
+      // ✅ Merchant check
       if (
-        preOrderData.length === 0 ||
-        preOrderData[0].merchantId === productData.merchantId
+        tempArr.length > 0 &&
+        tempArr[0].merchantId !== productData.merchantId
       ) {
-        if (findIndex !== -1) {
-          tempArr[findIndex] = {
-            ...tempArr[findIndex],
-            selectedQty: (tempArr[findIndex].selectedQty || 1) + 1,
-            isSelected: true,
-          };
-        } else {
-          tempArr.push({...productDetails, selectedQty: 1, isSelected: true});
-        }
-        dispatch(setPreOrderData(tempArr));
-        await AsyncStorage.setItem('preOrder', JSON.stringify(tempArr));
-        navigation.navigate('PreOrderScreen');
-      } else {
-        showModal(
+        return showModal(
           'error',
           'You can only add items from one restaurant at a time',
         );
       }
+
+      // ✅ CASE 1: Product already exists → ONLY navigate
+      if (findIndex !== -1) {
+        navigation.navigate('PreOrderScreen');
+        return;
+      }
+
+      // ✅ CASE 2: Product does NOT exist → add with qty = 1
+      const newItem = {
+        ...productDetails,
+        selectedQty: 1,
+        isSelected: true,
+      };
+
+      tempArr.push(newItem);
+
+      dispatch(setPreOrderData(tempArr));
+      await AsyncStorage.setItem('preOrder', JSON.stringify(tempArr));
+
+      navigation.navigate('PreOrderScreen');
     } catch (err) {
-      console.log('Add to Cart Error:', err);
-      showModal('error', 'Something went wrong while adding to cart');
+      console.log('Add to PreOrder Error:', err);
+      showModal('error', 'Something went wrong while adding to pre order');
     }
   };
 
