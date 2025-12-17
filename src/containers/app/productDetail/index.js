@@ -22,6 +22,7 @@ import SegmentedButtons from '../../../components/SegmentedButtons';
 import {colors, Colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {setCartData} from '../../../redux/slices/Cart';
+import {setPreOrderData} from '../../../redux/slices/PreOrder';
 import {addToFavFun} from '../../../services/favourite';
 import {getProductDetailById} from '../../../services/product';
 import { useNavigation } from '@react-navigation/native';
@@ -35,12 +36,10 @@ const ProductDetail = ({ route}) => {
 
   const {user} = useSelector(state => state.LoginSlice);
   const [productDetails, setProductDetails] = useState(null);
-  console.log(productDetails, 'productDataproductDataproductDataproductData');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Nutrition');
-  console.log(activeTab, 'activeTabactiveTabactiveTabactiveTabasdd');
-
   const {cartData} = useSelector(state => state.CartSlice);
+  const {preOrderData} = useSelector(state => state.PreOrderDataSlice);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     Icon: '',
@@ -193,6 +192,39 @@ const ProductDetail = ({ route}) => {
       onPress: () => setModalVisible(false),
     });
     setModalVisible(true);
+  };
+
+  const handleAddForPreOrder = async () => {
+    if (!user) return showModal('error', 'Please login first to pre order');
+    try {
+      let tempArr = [...preOrderData];
+      const findIndex = tempArr.findIndex(i => i._id === productData._id);
+      if (
+        preOrderData.length === 0 ||
+        preOrderData[0].merchantId === productData.merchantId
+      ) {
+        if (findIndex !== -1) {
+          tempArr[findIndex] = {
+            ...tempArr[findIndex],
+            selectedQty: (tempArr[findIndex].selectedQty || 1) + 1,
+            isSelected: true,
+          };
+        } else {
+          tempArr.push({...productDetails, selectedQty: 1, isSelected: true});
+        }
+        dispatch(setPreOrderData(tempArr));
+        await AsyncStorage.setItem('preOrder', JSON.stringify(tempArr));
+        navigation.navigate('PreOrderScreen');
+      } else {
+        showModal(
+          'error',
+          'You can only add items from one restaurant at a time',
+        );
+      }
+    } catch (err) {
+      console.log('Add to Cart Error:', err);
+      showModal('error', 'Something went wrong while adding to cart');
+    }
   };
 
   const BottomButtons = () => (

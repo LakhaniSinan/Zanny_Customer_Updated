@@ -35,6 +35,7 @@ import {
 } from '../../../services/paymentCard';
 import {handelGetCard} from '../../../redux/slices/UserCards';
 import {setUserData} from '../../../redux/slices/Login';
+import {handleFetchCardsData} from '../../../redux/slices/UserCards';
 
 const PaymentOptions = ({navigation}) => {
   const dispatch = useDispatch();
@@ -191,6 +192,70 @@ const PaymentOptions = ({navigation}) => {
       });
 
       setModalVisible(true);
+      return;
+    }
+
+    if (method === 'google') {
+      dispatch(setPaymentType('GooglePay'));
+      await AsyncStorage.setItem('paymentType', JSON.stringify('GooglePay'));
+      navigation.goBack();
+      return;
+    }
+
+    if (method === 'apple') {
+      dispatch(setPaymentType('ApplePay'));
+      await AsyncStorage.setItem('paymentType', JSON.stringify('ApplePay'));
+      navigation.goBack();
+      return;
+    }
+  };
+
+  const handleSaveCard = () => {
+    if (!isCardValid || !cardDetails) {
+      showModal('error', 'Please enter complete card details');
+      return;
+    }
+
+    const detailsToSave = cardDetails;
+    setCardFieldKey(prev => prev + 1); // reset CardField
+    setCardDetails(null);
+    setIsCardValid(false);
+    createTokenForStripe(detailsToSave);
+  };
+
+  const createTokenForStripe = async details => {
+    try {
+      setIsLoading(true);
+
+      const {paymentMethod, error} = await createPaymentMethod({
+        paymentMethodType: 'Card',
+        card: details,
+      });
+
+      if (error) {
+        showModal('error', error.message);
+        return;
+      }
+
+      let payload = {
+        paymentId: paymentMethod.id,
+        email: user?.email,
+        userId: user?._id,
+      };
+
+      const response = await addPaymentCard(payload);
+
+      if (response.status === 200 || response.status === 201) {
+        dispatch(handleFetchCardsData(user?._id));
+        showModal('success', 'Card added successfully');
+      } else {
+        showModal('error', response.data.message);
+      }
+    } catch (error) {
+      console.log('Error creating payment method:', error);
+      showModal('error', 'Something went wrong while adding card');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -210,9 +275,11 @@ const PaymentOptions = ({navigation}) => {
             userId: user?._id,
           });
 
-          if (response?.status === 200 || response?.status === 201) {
-            dispatch(handelGetCard(user?._id));
-            showModal('success', response?.data?.message);
+          console.log(response, 'responseresponseresponse');
+
+          if (response.status === 200 || response.status === 201) {
+            dispatch(handleFetchCardsData(user?._id));
+            showModal('success', response.data.message);
           } else {
             showModal('error', response?.data?.message);
           }
