@@ -1,6 +1,6 @@
 // CheckoutScreen.js (updated with CustomModal)
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {CommonActions, useFocusEffect, useNavigation} from '@react-navigation/native';
 import moment from 'moment';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
@@ -452,7 +452,7 @@ const CheckoutScreen = ({route}) => {
           color: colors.black,
           marginBottom: width(2),
         }}>
-        Your Cart is Empty
+        Your Pre Order Cart is Empty
       </Text>
       <Text
         style={{
@@ -470,7 +470,14 @@ const CheckoutScreen = ({route}) => {
           fontSize={14}
           bgcColor={colors.redish}
           fontColor={colors.white}
-          onPress={() => navigation.navigate('AllFoodScreen')}
+          onPress={() =>
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{name: 'BottomStack'}],
+              }),
+            )
+          }
         />
       </View>
     </View>

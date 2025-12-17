@@ -25,22 +25,17 @@ const PreOrderScreen = ({navigation}) => {
   const {preOrderData} = useSelector(state => state.PreOrderDataSlice);
   const dispatch = useDispatch();
 
-  const [selectedDate, setSelectedDate] = useState(
-    moment().format('YYYY-MM-DD'),
-  );
   const [showCalendar, setShowCalendar] = useState(false);
-
-  const [time, setTime] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [time, setTime] = useState(null);
   const [openTimePicker, setOpenTimePicker] = useState(false);
-  const [amPm, setAmPm] = useState('AM');
 
   const handleDaySelect = day => {
     setSelectedDate(day.dateString);
     setShowCalendar(false);
   };
-  const handleIncreaseQuantity = async item => {
-    console.log(item, 'asdasdasds');
 
+  const handleIncreaseQuantity = async item => {
     const updated = preOrderData.map(prod =>
       prod._id === item._id
         ? {...prod, selectedQty: prod.selectedQty + 1}
@@ -100,13 +95,15 @@ const PreOrderScreen = ({navigation}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: colors.white}}>
-      <AppHeader text={'Pre Order'} goBack={true} />
+      <AppHeader text={'Pre Order'} goBack />
 
       <FlatList
         data={preOrderData}
         renderItem={renderItem}
+        keyExtractor={item => item._id}
         ListHeaderComponent={
           <>
+            {/* DATE */}
             <View style={{padding: width(3)}}>
               <Text
                 style={{
@@ -127,10 +124,11 @@ const PreOrderScreen = ({navigation}) => {
                   alignItems: 'center',
                   borderColor: colors.softgray,
                   borderWidth: 1,
+                  marginTop: width(2),
                 }}>
                 <Image
-                  resizeMode="contain"
                   source={icons.calendarIcon}
+                  resizeMode="contain"
                   style={{height: width(7), width: width(7)}}
                 />
 
@@ -139,24 +137,29 @@ const PreOrderScreen = ({navigation}) => {
                     fontFamily: fontFamily.poppinRegular,
                     color: colors.gray,
                     marginLeft: width(3),
-                    marginTop: width(1),
                   }}>
-                  {moment(selectedDate).format('dddd DD-MM-YYYY')}
+                  {selectedDate
+                    ? moment(selectedDate).format('dddd DD-MM-YYYY')
+                    : 'Select delivery date'}
                 </Text>
               </TouchableOpacity>
 
               {showCalendar && (
                 <View style={{marginTop: width(4)}}>
                   <Calendar
-                    current={selectedDate}
+                    current={selectedDate || moment().format('YYYY-MM-DD')}
                     onDayPress={handleDaySelect}
-                    markedDates={{
-                      [selectedDate]: {
-                        selected: true,
-                        selectedColor: colors.redish,
-                        selectedTextColor: colors.white,
-                      },
-                    }}
+                    markedDates={
+                      selectedDate
+                        ? {
+                            [selectedDate]: {
+                              selected: true,
+                              selectedColor: colors.redish,
+                              selectedTextColor: colors.white,
+                            },
+                          }
+                        : {}
+                    }
                     theme={{
                       todayTextColor: colors.redish,
                       arrowColor: colors.redish,
@@ -169,6 +172,7 @@ const PreOrderScreen = ({navigation}) => {
               )}
             </View>
 
+            {/* TIME */}
             <View style={{padding: width(3)}}>
               <Text
                 style={{
@@ -176,7 +180,7 @@ const PreOrderScreen = ({navigation}) => {
                   color: colors.black,
                   fontSize: 16,
                 }}>
-                Select Time of Delivery
+                Select Time Of Delivery
               </Text>
 
               <TouchableOpacity
@@ -184,7 +188,6 @@ const PreOrderScreen = ({navigation}) => {
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  justifyContent: 'space-between',
                   borderColor: colors.softgray,
                   borderRadius: 100,
                   borderWidth: 1,
@@ -198,8 +201,8 @@ const PreOrderScreen = ({navigation}) => {
                     alignItems: 'center',
                   }}>
                   <Image
-                    resizeMode="contain"
                     source={icons.timeIcon}
+                    resizeMode="contain"
                     style={{height: width(5), width: width(5)}}
                   />
 
@@ -208,106 +211,100 @@ const PreOrderScreen = ({navigation}) => {
                       fontFamily: fontFamily.poppinRegular,
                       color: colors.gray,
                       marginLeft: width(3),
-                      marginTop: width(1),
                     }}>
-                    {moment(time).format('hh:mm')} {amPm}
+                    {time
+                      ? moment(time).format('hh:mm A')
+                      : 'Select delivery time'}
                   </Text>
-                </View>
-
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <TouchableOpacity
-                    onPress={() => setAmPm('AM')}
-                    style={{
-                      paddingHorizontal: width(3),
-                      backgroundColor:
-                        amPm === 'AM' ? colors.redish : colors.softgray,
-                      borderRadius: 6,
-                    }}>
-                    <Text
-                      style={{
-                        fontFamily: fontFamily.poppinRegular,
-                        color: amPm === 'AM' ? colors.white : colors.black,
-                      }}>
-                      AM
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => setAmPm('PM')}
-                    style={{
-                      paddingHorizontal: width(3),
-                      marginHorizontal: width(3),
-                      backgroundColor:
-                        amPm === 'PM' ? colors.redish : colors.softgray,
-                      borderRadius: 6,
-                    }}>
-                    <Text
-                      style={{
-                        fontFamily: fontFamily.poppinRegular,
-                        color: amPm === 'PM' ? colors.white : colors.black,
-                      }}>
-                      PM
-                    </Text>
-                  </TouchableOpacity>
                 </View>
               </TouchableOpacity>
             </View>
           </>
         }
       />
+
+      {/* FOOTER */}
       <View
         style={{
           height: width(20),
-          backgroundColor: colors.white,
-          alignItems: 'center',
+          flexDirection: 'row',
           justifyContent: 'space-between',
           paddingHorizontal: width(4),
-          flexDirection: 'row',
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-
+          alignItems: 'center',
+          backgroundColor: colors.white,
           elevation: 5,
         }}>
         <View style={{width: width(45)}}>
           <ActionButton
-            onPress={() =>
+            name="Checkout"
+            width={width(45)}
+            height={46}
+            bgcColor={Colors.black}
+            fontColor={Colors.white}
+            onPress={() => {
+              if (!selectedDate)
+                return Alert.alert(
+                  'Missing Date',
+                  'Please select delivery date',
+                );
+
+              if (!time)
+                return Alert.alert(
+                  'Missing Time',
+                  'Please select delivery time',
+                );
+
+              if (selectedDate < moment().format('YYYY-MM-DD')) {
+                return Alert.alert(
+                  'Invalid Date',
+                  'Please select a valid delivery date',
+                );
+              }
+
+              if (
+                selectedDate === moment().format('YYYY-MM-DD') &&
+                moment(time).isBefore(moment())
+              ) {
+                return Alert.alert(
+                  'Invalid Time',
+                  'Please select a valid delivery time',
+                );
+              }
+
+              if (preOrderData.filter(i => i.isSelected).length === 0) {
+                return Alert.alert(
+                  'No Items Selected',
+                  'Please select at least one item',
+                );
+              }
+
               navigation.navigate('CheckoutScreen', {
                 selectedDate,
                 time,
-              })
-            }
-            height={46}
-            width={width(45)}
-            name={'Checkout'}
-            fontColor={Colors.white}
-            bgcColor={Colors.black}
+              });
+            }}
           />
         </View>
         <View style={{width: width(45)}}>
           <ActionButton
-            height={46}
+            name="Re-occuring 👑"
             width={width(45)}
-            name={'Re-occuring 👑'}
+            height={46}
             bgcColor={Colors.white}
             fontColor={Colors.black}
-            // onPress={handleAddToCart}
           />
         </View>
       </View>
 
+      {/* TIME PICKER */}
       <DatePicker
         modal
         open={openTimePicker}
-        date={time}
+        date={time || new Date()}
         mode="time"
-        onConfirm={selectedTime => {
+        onConfirm={t => {
           setOpenTimePicker(false);
-          setTime(selectedTime);
+          setTime(t);
         }}
         onCancel={() => setOpenTimePicker(false)}
       />
