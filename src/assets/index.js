@@ -37,6 +37,9 @@ export const images = {
 };
 
 export const icons = {
+  tickIcon: require('../assets/icons/tickIcon.png'),
+  timeIcon: require('../assets/icons/timeIcon.png'),
+  calendarIcon: require('../assets/icons/calendarIcon.png'),
   foodIcon: require('../assets/icons/foodIcon.png'),
   ShoppingCart: require('../assets/icons/ShoppingCart.png'),
   Ticket: require('../assets/icons/Ticket.png'),

@@ -28,6 +28,7 @@ import {
   deletePaymentCard,
   getPaymentCardById,
 } from '../../../services/paymentCard';
+import {handleFetchCardsData} from '../../../redux/slices/UserCards';
 
 const PaymentOptions = ({navigation}) => {
   const dispatch = useDispatch();
@@ -64,27 +65,21 @@ const PaymentOptions = ({navigation}) => {
     setModalVisible(true);
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getUserPaymentCards();
-    }, []),
-  );
-
-  const getUserPaymentCards = async () => {
-    try {
-      setIsLoading(true);
-      const response = await getPaymentCardById(user?._id);
-      const cards = response?.data?.cards || [];
-      if (response?.status === 200 || response?.status === 201) {
-        setPaymentCards(cards);
-      }
-    } catch (error) {
-      console.error('Error fetching payment cards:', error);
-      showModal('error', 'Failed to fetch payment cards');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const getUserPaymentCards = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     const response = await getPaymentCardById(user?._id);
+  //     const cards = response?.data?.cards || [];
+  //     if (response?.status === 200 || response?.status === 201) {
+  //       setPaymentCards(cards);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching payment cards:', error);
+  //     showModal('error', 'Failed to fetch payment cards');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleSelectPayment = async (method, cardItem = null) => {
     setSelectedMethod(method);
@@ -165,7 +160,7 @@ const PaymentOptions = ({navigation}) => {
       const response = await addPaymentCard(payload);
 
       if (response.status === 200 || response.status === 201) {
-        getUserPaymentCards();
+        dispatch(handleFetchCardsData(user?._id));
         showModal('success', 'Card added successfully');
       } else {
         showModal('error', response.data.message);
@@ -196,7 +191,7 @@ const PaymentOptions = ({navigation}) => {
           console.log(response, 'responseresponseresponse');
 
           if (response.status === 200 || response.status === 201) {
-            getUserPaymentCards();
+            dispatch(handleFetchCardsData(user?._id));
             showModal('success', response.data.message);
           } else {
             showModal('error', response.data.message);

@@ -4,24 +4,31 @@ import {
   TransitionSpecs,
   createStackNavigator,
 } from '@react-navigation/stack';
+import {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import PaymentScreen from '../../components/stripePayment/PaymentScreen';
 import Address from '../../containers/app/address';
 import AddEditAddress from '../../containers/app/address/addEditAddress';
 import AllCategories from '../../containers/app/allCategories';
+import AllChefs from '../../containers/app/allChefs';
 import EditAllergies from '../../containers/app/allergies/editAllergies';
 import AllFoodScreen from '../../containers/app/allFoodScreen';
 import CartScreen from '../../containers/app/cartScreen';
+import CheckoutScreen from '../../containers/app/checkoutScreen';
+import ChefDetails from '../../containers/app/chefDetails';
 import OrderDetail from '../../containers/app/orderDetails';
 import Orders from '../../containers/app/orders';
 import PaymentCard from '../../containers/app/paymentCard';
 import AddEditPaymentCard from '../../containers/app/paymentCard/addEditPaymentCard';
 import PaymentOptions from '../../containers/app/paymentOptions';
+import PreOrderScreen from '../../containers/app/preOrder';
+import PrivacyPolicy from '../../containers/app/privacyPolicy';
 import PrivateOrder from '../../containers/app/privateOrder';
 import ProductDetail from '../../containers/app/productDetail';
 import Profile from '../../containers/app/profile';
 import ChangePassword from '../../containers/app/profile/chnagePassword';
 import PersonalInfo from '../../containers/app/profile/personalInfo';
+import restaurants from '../../containers/app/restaurants';
 import Cart from '../../containers/app/restaurants/cart';
 import Checkout from '../../containers/app/restaurants/checkout';
 import Products from '../../containers/app/restaurants/products';
@@ -29,22 +36,18 @@ import Reviews from '../../containers/app/restaurants/reviews';
 import SearchScreen from '../../containers/app/searchScreen';
 import Support from '../../containers/app/support';
 import AddSupportMsg from '../../containers/app/support/addSupportMsg';
+import TermsAndConditions from '../../containers/app/termsAndConditions';
 import UpdateAllergies from '../../containers/app/updateAllergies';
 import UserAllergies from '../../containers/app/userAllergies';
 import AllVouchers from '../../containers/app/vouchers';
-import BottomNavigation from './bottomTab';
-import Login from '../../containers/auth/Login';
-import TermsAndConditions from '../../containers/app/termsAndConditions';
-import SignUpScreen from '../../containers/auth/SignUp';
 import CodeVerification from '../../containers/auth/Codeverification';
 import ForgotPassword from '../../containers/auth/forgotPassword';
+import Login from '../../containers/auth/Login';
 import ResetPassword from '../../containers/auth/resetPassword';
-import restaurants from '../../containers/app/restaurants';
+import SignUpScreen from '../../containers/auth/SignUp';
 import {handelGetAddress} from '../../redux/slices/Address';
-import {useEffect} from 'react';
-import ChefDetails from '../../containers/app/chefDetails';
-import PrivacyPolicy from '../../containers/app/privacyPolicy';
-import AllChefs from '../../containers/app/allChefs';
+import {handleFetchCardsData} from '../../redux/slices/UserCards';
+import BottomNavigation from './bottomTab';
 
 const Stack = createStackNavigator();
 
@@ -84,6 +87,7 @@ export function CustomerStack() {
 
   useEffect(() => {
     if (user) dispatch(handelGetAddress());
+    if (user) dispatch(handleFetchCardsData(user?._id));
   }, [dispatch, user]);
 
   // useEffect(() => {
@@ -137,6 +141,22 @@ export function CustomerStack() {
         }}
         name="AllChefs"
         component={AllChefs}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="CheckoutScreen"
+        component={CheckoutScreen}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="PreOrderScreen"
+        component={PreOrderScreen}
       />
       <Stack.Screen
         name="UserAllergies"

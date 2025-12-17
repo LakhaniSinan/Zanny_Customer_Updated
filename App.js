@@ -18,8 +18,10 @@ import SplachScreen from './src/components/splashScreen';
 import store from './src/redux/index';
 import {handleFetchHomeData} from './src/redux/slices/HomeData';
 LogBox.ignoreLogs(['useInsertionEffect must not schedule updates']);
+LogBox.ignoreLogs(['Encountered two children with the same key']);
 const App = () => {
   const [termsAccepted, setTermsAccepted] = useState(null);
+
   const [isloading, setIsLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
   const dispatch = store.dispatch;

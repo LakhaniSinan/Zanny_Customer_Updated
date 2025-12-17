@@ -12,11 +12,14 @@ import OrderType from './slices/OrderType';
 import PaymentCardSlice from './slices/paymentCard';
 import PaymentType from './slices/PaymentType';
 import QuestionsSlice from './slices/Questions';
+import PreOrderDataSlice from './slices/PreOrder';
 import AllergiesSlice from './slices/userAllergies';
 import HomeDataSlice from './slices/HomeData';
+import CardSlice from './slices/UserCards';
 
 const reducer = combineReducers({
   LoginSlice,
+  PreOrderDataSlice,
   CartSlice,
   QuestionsSlice,
   MerchantSlice,
@@ -28,6 +31,7 @@ const reducer = combineReducers({
   AllergiesSlice,
   GetStarted,
   HomeDataSlice,
+  CardSlice,
 });
 
 const store = configureStore({
@@ -38,10 +42,6 @@ const store = configureStore({
       serializableCheck: false,
     }),
 });
-
-// -----------------------------
-// 🔥 LOAD DATA FROM STORAGE HERE
-// -----------------------------
 
 const loadInitialData = async () => {
   try {

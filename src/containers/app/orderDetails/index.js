@@ -63,11 +63,17 @@ const OrderDetail = ({navigation, route}) => {
 
   useEffect(() => {
     let total = 0;
-    data.order.map(item => {
-      total += item.selectedQty * item.price;
+
+    data?.order?.forEach(item => {
+      const qty = item?.selectedQty || item?.quantity || 1;
+      const price =
+        item?.discount && item?.discount > 0 ? item.discount : item.price;
+
+      total += qty * price;
     });
+
     setSubTotal(total);
-  }, []);
+  }, [data]);
 
   const handleAccept = () => {
     if (prepareTime == '') {
@@ -109,6 +115,22 @@ const OrderDetail = ({navigation, route}) => {
       {text: 'Yes', onPress: () => handleCancelOrder()},
     ]);
   };
+  const getStatusStyle = status => {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return {bg: 'rgba(255,165,0,0.2)', color: '#FFA500'};
+      case 'accepted':
+        return {bg: 'rgba(30,144,255,0.2)', color: '#1E90FF'};
+      case 'rejected':
+        return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
+      case 'completed':
+        return {bg: 'rgba(50,205,50,0.2)', color: '#32CD32'};
+      default:
+        return {bg: 'rgba(144,238,144,0.3)', color: '#32CD32'};
+    }
+  };
+
+  const statusStyle = getStatusStyle(data?.status);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -131,7 +153,18 @@ const OrderDetail = ({navigation, route}) => {
           </View>
           <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Order Status</Text>
-            <Text style={styles.oredernotxt}>{data.status}</Text>
+            <Text
+              style={[
+                styles.oredernotxt,
+                {
+                  backgroundColor: statusStyle.bg,
+                  borderColor: statusStyle.color,
+                  color: statusStyle.color,
+                  borderRadius: 100,
+                },
+              ]}>
+              {data.status}
+            </Text>
           </View>
           {data.pickupTimmings && data.orderType == 'pickup' && (
             <View style={styles.ordertxtview}>
@@ -159,9 +192,9 @@ const OrderDetail = ({navigation, route}) => {
           ) : null}
           <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Order from</Text>
-            {/* <Text style={styles.orderfromtxt}>
+            <Text style={styles.orderfromtxt}>
               {data.merchantDetails?.name}
-            </Text> */}
+            </Text>
           </View>
           <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Delivery address:</Text>
@@ -218,11 +251,10 @@ const OrderDetail = ({navigation, route}) => {
 
         <View style={styles.borderstyle}>
           {data.order.map((item, ind) => {
-            console.log(item, 'itemitemitemitemitemitemasdsd');
             return (
               <View key={ind} style={styles.ordertxtview}>
                 <Text style={styles.subheading}>
-                  {item.quantity || item.selectedQty}x {item.name}
+                  QTY : {item.quantity || item.selectedQty}x {item.name}
                 </Text>
 
                 <Text style={styles.pricetxt}>
@@ -250,15 +282,20 @@ const OrderDetail = ({navigation, route}) => {
         )}
         <View style={styles.borderstyle}>
           <View style={styles.ordertxtview}>
+            <Text style={styles.subheading}>Sub Total</Text>
+            <Text style={styles.pricetxt}>£ {subTotal}</Text>
+          </View>
+          <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Delivery fee</Text>
             <Text style={styles.pricetxt}>
               £ {data.deliveryCharges ? data.deliveryCharges : 0}
             </Text>
           </View>
-          {/* <View style={styles.ordertxtview}>
-            <Text style={styles.subheading}>Discount</Text>
-            <Text style={styles.pricetxt}>£ {data.discount}</Text>
-          </View> */}
+          <View style={styles.ordertxtview}>
+            <Text style={styles.subheading}>Service Charges</Text>
+            <Text style={styles.pricetxt}>£ {data?.serviceCharges}</Text>
+          </View>
+
           {data.status == 'Accepted' || data.status == 'Completed' ? (
             <View
               style={{
@@ -275,7 +312,7 @@ const OrderDetail = ({navigation, route}) => {
             </View>
           ) : null}
           <View style={styles.ordertxtview}>
-            <Text style={styles.subtotaltxt}>Total</Text>
+            <Text style={styles.subtotaltxt}>Total Amount</Text>
             <Text style={styles.pricetxt}>£ {data?.totalBill}</Text>
           </View>
         </View>
