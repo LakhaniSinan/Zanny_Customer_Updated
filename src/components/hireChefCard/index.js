@@ -5,7 +5,7 @@ import {icons} from '../../assets';
 import {Colors} from '../../constants';
 import PrimaryButton from '../primaryButton';
 
-const HireCheifCard = ({item}) => {
+const HireCheifCard = ({item, handleHireChef}) => {
   return (
     <View
       style={{
@@ -113,15 +113,7 @@ const HireCheifCard = ({item}) => {
           marginTop: width(2),
           paddingHorizontal: width(3),
         }}>
-        <PrimaryButton
-          name={'Hire'}
-          onPress={() =>
-            Alert.alert(
-              'Coming Soon',
-              'This feature is currently under development. Please check back later!',
-            )
-          }
-        />
+        <PrimaryButton name={'Hire'} onPress={handleHireChef} />
       </View>
     </View>
   );
