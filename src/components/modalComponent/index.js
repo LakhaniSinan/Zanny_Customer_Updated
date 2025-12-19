@@ -1,11 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Platform,
+} from 'react-native';
 import {width} from 'react-native-dimension';
 import Modal from 'react-native-modal';
 import {icons} from '../../assets';
 import {Colors} from '../../constants';
 import CustomInput from '../customInput';
 import GooglePlacesInput from '../googlePlaceInput';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const ChangeAddressModal = ({
   visible,
@@ -21,7 +29,7 @@ const ChangeAddressModal = ({
   });
 
   useEffect(() => {
-    if (data && mode == 'edit') {
+    if (data && mode === 'edit') {
       setSelectedLocation({
         userAddress: data?.address,
         latLng: {
@@ -36,7 +44,7 @@ const ChangeAddressModal = ({
     } else {
       resetForm();
     }
-  }, [data, mode == 'edit', visible]);
+  }, [data, mode, visible]);
 
   const resetForm = () => {
     setSelectedLocation(null);
@@ -62,50 +70,56 @@ const ChangeAddressModal = ({
       animationOut="slideOutDown"
       backdropOpacity={0.5}
       onBackdropPress={handleClose}
-      style={styles.modal}>
+      style={styles.modal}
+      avoidKeyboard={true}>
       <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>
-            {mode === 'edit' ? 'Edit Address' : 'Add Address'}
-          </Text>
-          <TouchableOpacity onPress={handleClose}>
-            <Image source={icons.cross} style={styles.closeIcon} />
+        <KeyboardAwareScrollView
+          enableOnAndroid={true}
+          extraScrollHeight={Platform.OS === 'ios' ? 20 : 0}
+          keyboardShouldPersistTaps="handled">
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>
+              {mode === 'edit' ? 'Edit Address' : 'Add Address'}
+            </Text>
+            <TouchableOpacity onPress={handleClose}>
+              <Image source={icons.cross} style={styles.closeIcon} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Current Address */}
+          <Text style={styles.sectionTitle}>Current Address</Text>
+          <View style={{height: width(2)}} />
+
+          <GooglePlacesInput
+            showLeftIcon
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+            placeholder="Select your location"
+          />
+
+          <View style={{height: width(4)}} />
+          <CustomInput
+            title="Street Number"
+            value={form.street}
+            onChangeText={txt => handleChange('street', txt)}
+            placeholder="Enter Street Number"
+          />
+          <View style={{height: width(4)}} />
+          <CustomInput
+            title="City"
+            value={form.city}
+            onChangeText={txt => handleChange('city', txt)}
+            placeholder="Enter City"
+          />
+
+          {/* Update Button */}
+          <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
+            <Text style={styles.updateButtonText}>
+              {mode === 'edit' ? 'Update' : 'Add'}
+            </Text>
           </TouchableOpacity>
-        </View>
-
-        {/* Current Address */}
-        <Text style={styles.sectionTitle}>Current Address</Text>
-        <View style={{height: width(2)}} />
-
-        <GooglePlacesInput
-          showLeftIcon
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
-          placeholder="Select your location"
-        />
-
-        <View style={{height: width(4)}} />
-        <CustomInput
-          title="Street Number"
-          value={form.street}
-          onChangeText={txt => handleChange('street', txt)}
-          placeholder="Enter Street Number"
-        />
-        <View style={{height: width(4)}} />
-        <CustomInput
-          title="City"
-          value={form.city}
-          onChangeText={txt => handleChange('city', txt)}
-          placeholder="Enter City"
-        />
-
-        {/* Update Button */}
-        <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
-          <Text style={styles.updateButtonText}>
-            {mode === 'edit' ? 'Update' : 'Add'}
-          </Text>
-        </TouchableOpacity>
+        </KeyboardAwareScrollView>
       </View>
     </Modal>
   );
