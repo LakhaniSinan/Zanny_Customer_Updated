@@ -113,7 +113,15 @@ const HireCheifCard = ({item, handleHireChef}) => {
           marginTop: width(2),
           paddingHorizontal: width(3),
         }}>
-        <PrimaryButton name={'Hire'} onPress={handleHireChef} />
+        <PrimaryButton
+          name={'Hire'}
+          onPress={() =>
+            Alert.alert(
+              'Coming Soon',
+              'This feature is currently under development. Please check back later!',
+            )
+          }
+        />
       </View>
     </View>
   );

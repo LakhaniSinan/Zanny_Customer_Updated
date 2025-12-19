@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
+  Alert,
   FlatList,
   Image,
   ScrollView,
@@ -191,7 +192,12 @@ const ProductDetail = ({navigation, route}) => {
     <View style={styles.bottomBar}>
       <View style={{width: width(45)}}>
         <ActionButton
-          onPress={() => showModal('alert', 'This Feature Will Enable Soon')}
+          onPress={() =>
+            Alert.alert(
+              'Coming Soon',
+              'This feature is currently under development. Please check back later!',
+            )
+          }
           height={46}
           width={width(45)}
           name={'Pre-order'}
@@ -507,7 +513,15 @@ const Tabs = ({activeTab, setActiveTab}) => (
     {['Nutrition', 'Customize'].map(tab => (
       <TouchableOpacity
         key={tab}
-        onPress={() => setActiveTab(tab)}
+        onPress={
+          tab == 'Customize'
+            ? () =>
+                Alert.alert(
+                  'Coming Soon',
+                  'This feature is currently under development. Please check back later!',
+                )
+            : () => setActiveTab(tab)
+        }
         style={[
           styles.tabButton,
           {
@@ -547,6 +561,12 @@ const ChefInfo = ({merchant}) => (
         name={'Hire'}
         bgcColor={Colors.black}
         fontColor={Colors.white}
+        onPress={() =>
+          Alert.alert(
+            'Coming Soon',
+            'This feature is currently under development. Please check back later!',
+          )
+        }
       />
     </View>
   </View>
