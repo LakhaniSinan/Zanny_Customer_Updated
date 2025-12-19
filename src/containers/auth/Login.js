@@ -136,26 +136,31 @@ const Login = ({navigation}) => {
 
   const handleGoogleLogin = async () => {
     try {
-      // setIsVisible(true);
-      await GoogleSignin.hasPlayServices();
+      setIsVisible(true);
+
+      if (Platform.OS === 'android') {
+        await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+      }
+
       const userInfo = await GoogleSignin.signIn();
-      console.log(userInfo, 'userInfouserInfouserInfouserInfoasdasd');
+      const googleUser = userInfo?.user;
+      console.log(userInfo, 'Google sign-in response');
 
       const payload = {
-        customerImage: userInfo?.data?.user?.photo,
-        email: userInfo?.data?.user?.email,
+        customerImage: googleUser?.photo,
+        email: googleUser?.email,
         fcm: inputValues.fcm,
         isActive: 'Active',
-        name: userInfo?.data?.user?.name,
+        name: googleUser?.name,
         password: null,
       };
-      console.log(payload, 'payloadpayloadpayloadpayloadpayloadasds');
+      console.log(payload, 'Google login payload');
 
       const response = await socialLogin(payload);
       if (response.status === 200 || response.status === 201) {
         const user = {
           ...response.data.data.userDetails,
-          customerImage: userInfo?.user?.photo,
+          customerImage: googleUser?.photo,
         };
         await AsyncStorage.setItem('user_token', response.data.data.token);
         await AsyncStorage.setItem('user', JSON.stringify(user));
