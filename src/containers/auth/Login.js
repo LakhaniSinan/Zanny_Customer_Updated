@@ -139,11 +139,13 @@ const Login = ({navigation}) => {
       setIsVisible(true);
 
       if (Platform.OS === 'android') {
-        await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+        await GoogleSignin.hasPlayServices({
+          showPlayServicesUpdateDialog: true,
+        });
       }
 
       const userInfo = await GoogleSignin.signIn();
-      const googleUser = userInfo?.user;
+      const googleUser = userInfo?.data?.user;
       console.log(userInfo, 'Google sign-in response');
 
       const payload = {
@@ -190,7 +192,7 @@ const Login = ({navigation}) => {
   const handleAppleLogin = async () => {
     try {
       setIsVisible(true);
-      
+
       // Check if Apple Auth is available on this device
       if (!appleAuth.isSupported) {
         showModal('error', 'Apple Sign-In is not supported on this device');
