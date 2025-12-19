@@ -12,7 +12,6 @@ import {
 import React, {useEffect, useState} from 'react';
 import {Image, Platform, Text, TouchableOpacity, View} from 'react-native';
 import {width} from 'react-native-dimension';
-import {requestNotifications} from 'react-native-permissions';
 import {useDispatch} from 'react-redux';
 import {icons} from '../../assets';
 import CustomInput from '../../components/customInput';
@@ -79,9 +78,12 @@ const Login = ({navigation}) => {
   }, []);
   const requestUserPermission = async () => {
     try {
-      const {status} = await requestNotifications(['alert', 'sound', 'badge']);
+      const authStatus = await messaging().requestPermission();
+      const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-      if (status === 'granted') {
+      if (enabled) {
         console.log('NOTIFICATION PERMISSION GRANTED');
         await initFCM();
       } else {
@@ -134,17 +136,20 @@ const Login = ({navigation}) => {
 
   const handleGoogleLogin = async () => {
     try {
-      setIsVisible(true);
+      // setIsVisible(true);
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
+      console.log(userInfo, 'userInfouserInfouserInfouserInfoasdasd');
+
       const payload = {
-        customerImage: userInfo?.user?.photo,
-        email: userInfo?.user?.email,
+        customerImage: userInfo?.data?.user?.photo,
+        email: userInfo?.data?.user?.email,
         fcm: inputValues.fcm,
         isActive: 'Active',
-        name: userInfo?.user?.name,
+        name: userInfo?.data?.user?.name,
         password: null,
       };
+      console.log(payload, 'payloadpayloadpayloadpayloadpayloadasds');
 
       const response = await socialLogin(payload);
       if (response.status === 200 || response.status === 201) {
@@ -351,6 +356,39 @@ const Login = ({navigation}) => {
         <View style={{flex: 1, height: 1, backgroundColor: Colors.softgray}} />
         <Text style={{marginHorizontal: 10}}>Or</Text>
         <View style={{flex: 1, height: 1, backgroundColor: Colors.softgray}} />
+      </View>
+
+      {/* Google Login Button */}
+      <View
+        style={{
+          height: width(15),
+          width: '100%',
+          marginTop: width(2),
+          paddingHorizontal: width(3),
+        }}>
+        <TouchableOpacity
+          onPress={handleGoogleLogin}
+          style={{
+            height: '100%',
+            width: '100%',
+            backgroundColor: Colors.white,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: Colors.border,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+          }}>
+          <Image
+            source={icons.Google}
+            resizeMode="contain"
+            style={{height: width(6), width: width(6)}}
+          />
+          <Text style={{fontSize: 16, fontWeight: '500', color: Colors.black}}>
+            Continue with Google
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Register Link */}

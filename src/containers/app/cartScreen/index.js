@@ -3,7 +3,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import moment from 'moment';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {FlatList, Image, Keyboard, Text, TextInput, View} from 'react-native';
+import {
+  FlatList,
+  Image,
+  Keyboard,
+  Platform,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import {
+  PlatformPay,
+  StripeProvider,
+  usePlatformPay,
+} from '@stripe/stripe-react-native';
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons} from '../../../assets';
@@ -12,12 +25,13 @@ import CartCard from '../../../components/cartCard';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import {colors} from '../../../constants';
+import {STRIPE_PUBLISH_TEST, colors} from '../../../constants';
 import {setCartData} from '../../../redux/slices/Cart';
 import {getAdminSettings} from '../../../services/adminSettings';
 import {getMerchantProfile} from '../../../services/merchant';
 import {
   applyPromoCode,
+  createStripeClientSecret,
   getCalculatedDeliveryFee,
   placeUserOrder,
 } from '../../../services/order';
@@ -87,22 +101,22 @@ const CartScreen = () => {
   const [isPromoApplied, setIsPromoApplied] = useState(false);
   const [promoData, setPromoData] = useState(null);
   const [merchantDetails, setMerchantDetails] = useState(null);
-  console.log(
-    cartData,
-    'merchantDetailsmerchantDetailsmerchantDetailsmerchantDetails',
-  );
-
   const [loading, setLoading] = useState(false);
   const [serviceCharges, setServiceCharges] = useState(0);
   const [deliveryCharges, setDeliveryCharges] = useState(0);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+  const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
 
-  const location = useSelector(s => s.LocationSlice.currentLocation);
+  const {copiedCode} = useSelector(state => state.CopiedCodeSlice);
   const {user} = useSelector(s => s.LoginSlice);
   const wallet = useSelector(s => s.PaymentCardSlice.currentPaymentCard);
+  console.log(wallet, 'walletwalletwalletwalletwallet');
+
   const {address} = useSelector(s => s.AddressSlice);
   const selectedAddress = address && address.length ? address[0] : null;
   const {currentLocation} = useSelector(state => state.LocationSlice);
+  const {isPlatformPaySupported, confirmPlatformPayPayment} = usePlatformPay();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -139,11 +153,31 @@ const CartScreen = () => {
   }, [cartData, promoData, deliveryCharges, serviceCharges]);
 
   useEffect(() => {
-    setLoading(true);
+    if (copiedCode?.promoCode) {
+      handleApplyPromo();
+    }
     getAdminSettings()
       .catch(e => console.log('getAdminSettings error', e))
       .finally(() => setLoading(false));
   }, []);
+
+  // Detect Apple Pay / Google Pay availability
+  useEffect(() => {
+    (async () => {
+      try {
+        const supported = await isPlatformPaySupported();
+        if (supported) {
+          if (Platform.OS === 'ios') {
+            setIsApplePaySupported(true);
+          } else {
+            setIsGooglePaySupported(true);
+          }
+        }
+      } catch (e) {
+        console.log('isPlatformPaySupported error', e);
+      }
+    })();
+  }, [isPlatformPaySupported]);
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () =>
@@ -160,11 +194,6 @@ const CartScreen = () => {
 
   useEffect(() => {
     if (cartData?.length) {
-      console.log(
-        cartData[0]?.merchantId,
-        'cartData[0]?.merchantIdcartData[0]?.merchantId',
-      );
-
       fetchMerchantDetails(cartData[0]?.merchantId);
     } else {
       setMerchantDetails(null);
@@ -234,7 +263,6 @@ const CartScreen = () => {
     }, [calculateServiceCharges, fetchDeliveryCharges]),
   );
 
-  // ---------- Replace Alert.alert with CustomModal ----------
   const showModal = ({icons, title, message, onConfirm}) => {
     setModalData({
       type: 'default',
@@ -251,14 +279,21 @@ const CartScreen = () => {
   };
 
   const handleApplyPromo = useCallback(async () => {
-    if (!promoCode.trim())
+    if (
+      copiedCode?.promoCode?.trim()
+        ? !copiedCode?.promoCode?.trim()
+        : !promoCode.trim()
+    )
       return showModal({
         title: 'Enter Promo',
         message: 'Please enter a promo code first',
       });
     setLoading(true);
     try {
-      const response = await applyPromoCode({promoCode});
+      const response = await applyPromoCode({
+        promoCode: copiedCode?.promoCode || promoCode,
+        userId: user?._id,
+      });
       if (response?.status === 200 || response?.status === 201) {
         setPromoData(response.data.data);
         setIsPromoApplied(true);
@@ -315,6 +350,146 @@ const CartScreen = () => {
     [dispatch, navigation],
   );
 
+  const payWithGoogle = useCallback(
+    async orderPayload => {
+      if (!isGooglePaySupported) {
+        showModal({
+          title: 'Google Pay',
+          message: 'Google Pay is not available on this device.',
+        });
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const intentRes = await createStripeClientSecret({
+          amount: total,
+        });
+        const clientSecret = intentRes?.data?.secretKey;
+
+        const {error} = await confirmPlatformPayPayment(clientSecret, {
+          googlePay: {
+            testEnv: true,
+            merchantName: 'Zannys Foods',
+            merchantCountryCode: 'GB',
+            currencyCode: 'GBP',
+            billingAddressConfig: {
+              format: PlatformPay.BillingAddressFormat.Full,
+              isPhoneNumberRequired: true,
+              isRequired: true,
+            },
+          },
+        });
+
+        if (error) {
+          console.log('Google Pay error', error);
+          showModal({
+            title: 'Payment Failed',
+            message: error.message || 'Google Pay payment failed',
+          });
+          return;
+        }
+
+        const res = await placeUserOrder(orderPayload);
+        if (res?.status === 200 || res?.status === 201) {
+          afterOrderSuccess(res?.data?.message);
+        } else {
+          showModal({
+            title: 'Error',
+            message: res?.data?.message || 'Failed to place order',
+          });
+        }
+      } catch (err) {
+        console.log('payWithGoogle err', err);
+        showModal({
+          title: 'Error',
+          message: err?.response?.data?.message || 'Google Pay failed',
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      isGooglePaySupported,
+      total,
+      confirmPlatformPayPayment,
+      afterOrderSuccess,
+      showModal,
+    ],
+  );
+
+  const payWithApple = useCallback(
+    async orderPayload => {
+      if (!isApplePaySupported) {
+        showModal({
+          title: 'Apple Pay',
+          message: 'Apple Pay is not available on this device.',
+        });
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const intentRes = await createStripeClientSecret({
+          amount: total,
+        });
+        const clientSecret = intentRes?.data?.secretKey;
+
+        const {error} = await confirmPlatformPayPayment(clientSecret, {
+          applePay: {
+            cartItems: [
+              {
+                label: 'to Zannys Foods',
+                amount: total.toString(),
+                paymentType: PlatformPay.PaymentType.Immediate,
+              },
+            ],
+            merchantCountryCode: 'GB',
+            currencyCode: 'GBP',
+            requiredShippingAddressFields: [
+              PlatformPay.ContactField.PostalAddress,
+            ],
+            requiredBillingContactFields: [PlatformPay.ContactField.PhoneNumber],
+          },
+        });
+
+        if (error) {
+          console.log('Apple Pay error', error);
+          showModal({
+            title: 'Payment Failed',
+            message: error.message || 'Apple Pay payment failed',
+          });
+          return;
+        }
+
+        const res = await placeUserOrder(orderPayload);
+        if (res?.status === 200 || res?.status === 201) {
+          afterOrderSuccess(res?.data?.message);
+        } else {
+          showModal({
+            title: 'Error',
+            message: res?.data?.message || 'Failed to place order',
+          });
+        }
+      } catch (err) {
+        console.log('payWithApple err', err);
+        showModal({
+          title: 'Error',
+          message: err?.response?.data?.message || 'Apple Pay failed',
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      isApplePaySupported,
+      total,
+      confirmPlatformPayPayment,
+      afterOrderSuccess,
+      showModal,
+    ],
+  );
+
   const handleOrderNow = useCallback(async () => {
     if (!cartData?.length)
       return showModal({
@@ -351,9 +526,27 @@ const CartScreen = () => {
       merchantDetails,
       userCardDetails: wallet,
       orderType: 'delivery',
-      paymentType: wallet ? 'card' : 'COD',
+      paymentType:
+        wallet?.paymentMethodId === 'GOOGLE_PAY'
+          ? 'GOOGLE_PAY'
+          : wallet?.paymentMethodId === 'APPLE_PAY'
+          ? 'APPLE_PAY'
+          : wallet
+          ? 'card'
+          : 'COD',
       promoData: promoData,
     };
+
+    // Route to correct payment flow
+    if (wallet?.paymentMethodId === 'GOOGLE_PAY') {
+      await payWithGoogle(payload);
+      return;
+    }
+
+    if (wallet?.paymentMethodId === 'APPLE_PAY') {
+      await payWithApple(payload);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -388,6 +581,8 @@ const CartScreen = () => {
     wallet,
     selectedAddress,
     afterOrderSuccess,
+    payWithGoogle,
+    payWithApple,
   ]);
 
   const renderEmpty = () => (
@@ -474,7 +669,11 @@ const CartScreen = () => {
               marginBottom: width(2),
               fontFamily: fontFamily.poppin,
             }}>
-            {wallet?.last4
+            {wallet?.paymentMethodId === 'GOOGLE_PAY'
+              ? 'Google Pay'
+              : wallet?.paymentMethodId === 'APPLE_PAY'
+              ? 'Apple Pay'
+              : wallet?.last4
               ? `**** ${wallet?.last4}`
               : 'Select a payment method'}
           </Text>
@@ -496,7 +695,7 @@ const CartScreen = () => {
           </Text>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TextInput
-              value={promoCode}
+              value={promoCode || copiedCode?.promoCode}
               onChangeText={text => {
                 setPromoCode(text);
                 setIsPromoApplied(false);
@@ -566,52 +765,58 @@ const CartScreen = () => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: colors.white}}>
-      <AppHeader goBack notificationsIcon text="Cart" />
-      <FlatList
-        data={cartData}
-        renderItem={({item, index}) => <CartCard item={item} index={index} />}
-        keyExtractor={(item, i) =>
-          item?._id ? `cart-${item._id}` : `cart-${i}`
-        }
-        ListEmptyComponent={renderEmpty()}
-        ListFooterComponent={renderFooter()}
-        contentContainerStyle={{paddingBottom: cartData?.length ? width(1) : 0}}
-      />
+    <StripeProvider
+      publishableKey={STRIPE_PUBLISH_TEST}
+      merchantIdentifier="merchant.com.zannycustomer">
+      <View style={{flex: 1, backgroundColor: colors.white}}>
+        <AppHeader goBack notificationsIcon text="Cart" />
+        <FlatList
+          data={cartData}
+          renderItem={({item, index}) => <CartCard item={item} index={index} />}
+          keyExtractor={(item, i) =>
+            item?._id ? `cart-${item._id}` : `cart-${i}`
+          }
+          ListEmptyComponent={renderEmpty()}
+          ListFooterComponent={renderFooter()}
+          contentContainerStyle={{
+            paddingBottom: cartData?.length ? width(1) : 0,
+          }}
+        />
 
-      {cartData?.length > 0 && !keyboardVisible && (
-        <View
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 10,
-            paddingHorizontal: width(4),
-            backgroundColor: colors.white,
-          }}>
-          <ActionBuuton
-            name="Place Order"
-            height={width(12)}
-            fontSize={14}
-            bgcColor={colors.black}
-            fontColor={colors.white}
-            onPress={handleOrderNow}
-          />
-        </View>
-      )}
+        {cartData?.length > 0 && !keyboardVisible && (
+          <View
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 10,
+              paddingHorizontal: width(4),
+              backgroundColor: colors.white,
+            }}>
+            <ActionBuuton
+              name="Place Order"
+              height={width(12)}
+              fontSize={14}
+              bgcColor={colors.black}
+              fontColor={colors.white}
+              onPress={handleOrderNow}
+            />
+          </View>
+        )}
 
-      <CustomModal
-        visible={modalVisible}
-        type={modalData.type}
-        Icon={modalData.Icon}
-        name={modalData.name}
-        detail={modalData.detail}
-        onConfirm={modalData.onConfirm}
-        onCancel={modalData.onCancel}
-        close={() => setModalVisible(false)}
-      />
-      <OverLayLoader isloading={loading} />
-    </View>
+        <CustomModal
+          visible={modalVisible}
+          type={modalData.type}
+          Icon={modalData.Icon}
+          name={modalData.name}
+          detail={modalData.detail}
+          onConfirm={modalData.onConfirm}
+          onCancel={modalData.onCancel}
+          close={() => setModalVisible(false)}
+        />
+        <OverLayLoader isloading={loading} />
+      </View>
+    </StripeProvider>
   );
 };
 

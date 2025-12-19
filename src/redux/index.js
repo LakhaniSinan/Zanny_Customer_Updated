@@ -14,14 +14,18 @@ import PaymentType from './slices/PaymentType';
 import QuestionsSlice from './slices/Questions';
 import AllergiesSlice from './slices/userAllergies';
 import HomeDataSlice from './slices/HomeData';
+import CardSlice from './slices/UserCards';
+import CopiedCodeSlice from './slices/ClaimedPromo';
 
 const reducer = combineReducers({
   LoginSlice,
   CartSlice,
   QuestionsSlice,
+  CopiedCodeSlice,
   MerchantSlice,
   LocationSlice,
   PaymentCardSlice,
+  CardSlice,
   OrderType,
   PaymentType,
   AddressSlice,

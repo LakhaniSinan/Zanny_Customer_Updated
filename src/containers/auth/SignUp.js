@@ -91,6 +91,8 @@ const SignUpScreen = ({navigation}) => {
             'We’ve sent an OTP to your email! If you don’t see it in your inbox, check spam/promotions.',
           buttonName: 'Okay',
           onPress: () => {
+            console.log('asdasdadasd');
+
             setModalVisible(false);
             navigation.navigate('CodeVerification', form);
           },
@@ -181,7 +183,7 @@ const SignUpScreen = ({navigation}) => {
         name={modalData.title}
         detail={modalData.detail}
         buttonName={modalData.buttonName}
-        onPress={modalData.onPress}
+        onConfirm={modalData.onPress}
         close={() => setModalVisible(false)}
       />
       <OverLayLoader isloading={isLoading} />
