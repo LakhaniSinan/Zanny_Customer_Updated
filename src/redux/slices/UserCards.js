@@ -36,10 +36,8 @@ export function handelGetCard(userId) {
     return async dispatch => {
       getPaymentCardById(userId)
         .then(response => {
-          console.log(response, 'responseresponseresponseresponse');
-
           if (response.status === 200 || response.status === 201) {
-            dispatch(getCardSuccess(data));
+            dispatch(getCardSuccess(response?.data?.cards));
           } else {
             dispatch(getCardFailure(response.data));
           }

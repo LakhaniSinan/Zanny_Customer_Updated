@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   CardField,
-  StripeProvider,
   createPaymentMethod,
+  StripeProvider,
   usePlatformPay,
 } from '@stripe/stripe-react-native';
 import React, {useCallback, useEffect, useState} from 'react';
@@ -27,8 +27,8 @@ import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
 
 import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
 import {setPaymentType} from '../../../redux/slices/PaymentType';
-import {handleFetchCardsData} from '../../../redux/slices/UserCards';
 import {addPaymentCard, deletePaymentCard} from '../../../services/paymentCard';
+import {handelGetCard} from '../../../redux/slices/UserCards';
 
 const PaymentOptions = ({navigation}) => {
   const dispatch = useDispatch();
@@ -44,7 +44,7 @@ const PaymentOptions = ({navigation}) => {
   const [selectedPaymentType, setSelectedPaymentType] = useState('');
 
   // Wrapper to handle payment type selection with logging
-  const handlePaymentTypeSelect = useCallback((type) => {
+  const handlePaymentTypeSelect = useCallback(type => {
     console.log('Payment type selected:', type, 'Platform:', Platform.OS);
     setSelectedPaymentType(type);
   }, []);
@@ -54,8 +54,13 @@ const PaymentOptions = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [cardFieldKey, setCardFieldKey] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
-  const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
+  // Always enable Apple Pay and Google Pay on iOS devices
+  const [isApplePaySupported, setIsApplePaySupported] = useState(
+    Platform.OS === 'ios',
+  );
+  const [isGooglePaySupported, setIsGooglePaySupported] = useState(
+    Platform.OS === 'ios',
+  );
   const {isPlatformPaySupported} = usePlatformPay();
 
   const [modalData, setModalData] = useState({
@@ -86,24 +91,23 @@ const PaymentOptions = ({navigation}) => {
 
   /* ================= PLATFORM PAY SUPPORT ================= */
   useEffect(() => {
-    (async () => {
-      try {
-        const supported = await isPlatformPaySupported();
-        if (supported) {
-          if (Platform.OS === 'ios') {
-            setIsApplePaySupported(true);
-          } else {
+    // On iOS, always enable Apple Pay and Google Pay
+    if (Platform.OS === 'ios') {
+      setIsApplePaySupported(true);
+      setIsGooglePaySupported(true);
+    } else {
+      // On Android, check for Google Pay support
+      (async () => {
+        try {
+          const supported = await isPlatformPaySupported();
+          if (supported) {
             setIsGooglePaySupported(true);
           }
+        } catch (error) {
+          console.log('Platform pay support check error:', error);
         }
-      } catch (error) {
-        console.log('Platform pay support check error:', error);
-        // On iOS, assume Apple Pay is available if check fails (fallback)
-        if (Platform.OS === 'ios') {
-          setIsApplePaySupported(true);
-        }
-      }
-    })();
+      })();
+    }
   }, []);
 
   /* ================= CARD CHANGE ================= */
@@ -171,7 +175,7 @@ const PaymentOptions = ({navigation}) => {
           });
 
           if (response?.status === 200 || response?.status === 201) {
-            dispatch(handleFetchCardsData(user?._id));
+            dispatch(handelGetCard(user?._id));
             showModal('success', response?.data?.message);
           } else {
             showModal('error', response?.data?.message);
@@ -192,16 +196,20 @@ const PaymentOptions = ({navigation}) => {
   const handleContinue = async () => {
     if (selectedPaymentType === 'apple' || selectedPaymentType === 'google') {
       const isApple = selectedPaymentType === 'apple';
-      const isSupported = isApple ? isApplePaySupported : isGooglePaySupported;
-
-      if (!isSupported) {
-        showModal(
-          'error',
-          isApple
-            ? 'Apple Pay is not available on this device'
-            : 'Google Pay is not available on this device',
-        );
-        return;
+      
+      // On iOS, always allow Apple Pay and Google Pay
+      // On Android, check support for Google Pay only
+      if (Platform.OS !== 'ios') {
+        const isSupported = isApple ? isApplePaySupported : isGooglePaySupported;
+        if (!isSupported) {
+          showModal(
+            'error',
+            isApple
+              ? 'Apple Pay is not available on this device'
+              : 'Google Pay is not available on this device',
+          );
+          return;
+        }
       }
 
       const platformPayload = {
@@ -259,7 +267,7 @@ const PaymentOptions = ({navigation}) => {
           return;
         }
 
-        dispatch(handleFetchCardsData(user?._id));
+        dispatch(handelGetCard(user?._id));
       }
 
       dispatch(
@@ -288,15 +296,15 @@ const PaymentOptions = ({navigation}) => {
   };
   // Enable button when:
   // - Card selected AND card is valid
-  // - Apple Pay selected on iOS (immediately, check happens in handleContinue)
-  // - Google Pay selected on Android (immediately, check happens in handleContinue)
+  // - Apple Pay selected on iOS (always enabled on iOS)
+  // - Google Pay selected on iOS (always enabled on iOS) or Android (if supported)
   const canSubmit =
     selectedPaymentType === 'card'
       ? isCardValid
       : selectedPaymentType === 'apple'
       ? Platform.OS === 'ios' || isApplePaySupported
       : selectedPaymentType === 'google'
-      ? Platform.OS === 'android' || isGooglePaySupported
+      ? Platform.OS === 'ios' || (Platform.OS === 'android' && isGooglePaySupported)
       : false;
 
   // Debug logging for iOS issues
