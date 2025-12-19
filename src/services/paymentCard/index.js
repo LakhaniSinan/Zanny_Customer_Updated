@@ -16,3 +16,6 @@ export const deletePaymentCard = params => {
 export const updatePaymentCard = (id, params) => {
   return Api(`${endPoints.updatePaymentCard}/${id}`, params, requestType.PUT);
 };
+export const createStripId = params => {
+  return Api(endPoints.createStripId, params, requestType.POST);
+};

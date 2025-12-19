@@ -7,6 +7,7 @@ import {
 } from '@stripe/stripe-react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
+  Alert,
   Image,
   Platform,
   SafeAreaView,
@@ -27,8 +28,13 @@ import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
 
 import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
 import {setPaymentType} from '../../../redux/slices/PaymentType';
-import {addPaymentCard, deletePaymentCard} from '../../../services/paymentCard';
+import {
+  addPaymentCard,
+  createStripId,
+  deletePaymentCard,
+} from '../../../services/paymentCard';
 import {handelGetCard} from '../../../redux/slices/UserCards';
+import {setUserData} from '../../../redux/slices/Login';
 
 const PaymentOptions = ({navigation}) => {
   const dispatch = useDispatch();
@@ -130,6 +136,34 @@ const PaymentOptions = ({navigation}) => {
     return paymentMethod;
   };
 
+  useEffect(() => {
+    if (!user?.stripeCustomerID) {
+      handleCreateStripId();
+    }
+  }, []);
+
+  const handleCreateStripId = async () => {
+    try {
+      let params = {
+        userId: user?._id,
+        email: user?.email,
+      };
+
+      console.log(params, 'paramsparamsparamsparamsparamsparamsasda ');
+
+      const response = await createStripId(params);
+      console.log(response, 'responseresponseresponseresponse');
+      if (response.status == 200 || response.status == 201) {
+        let userData = response?.data?.user;
+        await AsyncStorage.setItem('user', JSON.stringify(userData));
+        dispatch(setUserData(userData));
+      } else {
+        Alert.alert('Error', response.data.message);
+      }
+    } catch (error) {
+      console.log(error, 'verrorerrorerrorerrorerror');
+    }
+  };
   /* ================= SELECT SAVED CARD ================= */
   const handleSelectPayment = async (method, cardItem = null) => {
     if (method === 'card' && cardItem) {
@@ -473,7 +507,7 @@ const PaymentOptions = ({navigation}) => {
                     fontSize: 14,
                     color: colors.black,
                   }}>
-                  Save card for future
+                  Save card
                 </Text>
 
                 <Switch
@@ -488,15 +522,6 @@ const PaymentOptions = ({navigation}) => {
 
           {/* Previously Saved Cards */}
           <View style={{paddingHorizontal: width(4), marginTop: width(4)}}>
-            <Text
-              style={{
-                fontFamily: fontFamily.poppinMedium,
-                fontSize: 14,
-                paddingBottom: width(2),
-              }}>
-              Previously Saved Cards
-            </Text>
-
             {cardsData?.length > 0 ? (
               cardsData.map((item, index) => {
                 const isSelected =

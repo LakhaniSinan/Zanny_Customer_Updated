@@ -18,6 +18,9 @@ import {fontFamily, icons, images} from '../../../assets';
 import CustomModal from '../../../components/customModal';
 import {colors} from '../../../constants';
 import {setUserData} from '../../../redux/slices/Login';
+import {setCartData} from '../../../redux/slices/Cart';
+import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
+import {setCurrentLocation} from '../../../redux/slices/Location';
 
 const Row = ({activeOpacity = 0.7, iconSet, label, right, onPress}) => (
   <TouchableOpacity
@@ -75,6 +78,12 @@ const ProfileScreen = () => {
     await AsyncStorage.removeItem('user');
     dispatch(setUserData(null));
     navigation.replace('Login');
+    dispatch(setUserData(null));
+    await AsyncStorage.removeItem('cartData');
+    dispatch(setCartData([]));
+    await AsyncStorage.removeItem('userCurrentAddress');
+    dispatch(setCurrentLocation(null));
+    dispatch(setCurrentPaymentCard(null));
   };
 
   // ✅ SHOW "COMING SOON" MODAL

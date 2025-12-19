@@ -144,8 +144,8 @@ const ProductDetail = ({navigation, route}) => {
       let tempArr = [...cartData];
       const findIndex = tempArr.findIndex(i => i._id === productData._id);
       if (
-        cartData.length === 0 ||
-        cartData[0].merchantId === productData.merchantId
+        cartData?.length === 0 ||
+        cartData[0]?.merchantId === productData?.merchantId
       ) {
         if (findIndex !== -1) {
           // Copy the object before modifying
@@ -220,7 +220,6 @@ const ProductDetail = ({navigation, route}) => {
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
       <ScrollView>
-        {/* IMAGE */}
         <View
           style={{
             backgroundColor: colors.orangeDark,
@@ -397,7 +396,7 @@ const HeaderIcons = ({cartData, navigation}) => (
         resizeMode="contain"
         tintColor={colors.black}
       />
-      {cartData.length > 0 && (
+      {cartData?.length > 0 && (
         <View
           style={{
             position: 'absolute',
@@ -416,7 +415,7 @@ const HeaderIcons = ({cartData, navigation}) => (
               fontSize: 10,
               fontFamily: fontFamily.poppinRegular,
             }}>
-            {cartData.length}
+            {cartData?.length}
           </Text>
         </View>
       )}
