@@ -35,6 +35,7 @@ import {
   getCalculatedDeliveryFee,
   placeUserOrder,
 } from '../../../services/order';
+import {setCopiedCodeData} from '../../../redux/slices/ClaimedPromo';
 
 const parsePriceToNumber = price =>
   Number(String(price ?? '').replace(/[^0-9.]/g, '')) || 0;
@@ -153,7 +154,7 @@ const CartScreen = () => {
   }, [cartData, promoData, deliveryCharges, serviceCharges]);
 
   useEffect(() => {
-    if (copiedCode?.promoCode) {
+    if (copiedCode?.promoCode && cartData?.length > 0) {
       handleApplyPromo();
     }
     getAdminSettings()
@@ -161,7 +162,6 @@ const CartScreen = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // Detect Apple Pay / Google Pay availability
   useEffect(() => {
     (async () => {
       try {
@@ -223,7 +223,7 @@ const CartScreen = () => {
       userlong: currentLocation.longitude,
     };
 
-    setLoading(true);
+    // setLoading(true);
     try {
       const res = await getCalculatedDeliveryFee(payload);
       setDeliveryCharges(
@@ -315,6 +315,7 @@ const CartScreen = () => {
         icons: icons.cross,
         title: 'Error',
         message: err?.response?.data?.message || 'Failed to apply promo code',
+        onConfirm: () => dispatch(setCopiedCodeData(null)),
       });
     } finally {
       setLoading(false);
@@ -449,7 +450,9 @@ const CartScreen = () => {
             requiredShippingAddressFields: [
               PlatformPay.ContactField.PostalAddress,
             ],
-            requiredBillingContactFields: [PlatformPay.ContactField.PhoneNumber],
+            requiredBillingContactFields: [
+              PlatformPay.ContactField.PhoneNumber,
+            ],
           },
         });
 
