@@ -13,15 +13,24 @@ import {
 import {useDispatch} from 'react-redux';
 import {colors} from '../../constants';
 import {setUserData} from '../../redux/slices/Login';
+import {setCartData} from '../../redux/slices/Cart';
+import {setCurrentPaymentCard} from '../../redux/slices/paymentCard';
 
 const DrawerItem = props => {
   const {title, focused, iconName, user, translatedTitle, navigation} = props;
   const dispatch = useDispatch();
+  console.log(iconName, 'iconNameiconNameiconName');
 
   const handleLogout = async () => {
+    console.log('setCurrentPaymentCard');
+
     setTimeout(async () => {
       await AsyncStorage.removeItem('user');
       dispatch(setUserData(null));
+      await AsyncStorage.removeItem('cartData');
+      dispatch(setCartData(null));
+      dispatch(setCurrentPaymentCard(null));
+
       navigation.navigate('AuthStack');
     }, 500);
   };

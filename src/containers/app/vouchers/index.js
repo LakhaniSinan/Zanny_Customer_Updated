@@ -25,7 +25,7 @@ const AllVouchers = () => {
   const [promos, setPromos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [claimedPromoIds, setClaimedPromoIds] = useState([]);
+  const [selectedPromoId, setSelectedPromoId] = useState(null);
 
   useEffect(() => {
     if (user?._id) {
@@ -56,18 +56,19 @@ const AllVouchers = () => {
   };
 
   const handleClaimCode = item => {
-    console.log(item, 'itemitemitemitemitem');
+    if (selectedPromoId === item._id) {
+      setSelectedPromoId(null);
+      dispatch(setCopiedCodeData(null));
+      return;
+    }
 
-    setClaimedPromoIds(prev => [...prev, item._id]);
+    setSelectedPromoId(item._id);
     dispatch(setCopiedCodeData(item));
   };
 
   const renderItem = useCallback(
     ({item}) => {
-      console.log(item, 'itemitemitemitemitemitemitemasdasd');
-
-      const isClaimed =
-        claimedPromoIds.includes(item._id) || item.used === true;
+      const isClaimed = selectedPromoId === item._id || item.used === true;
 
       return (
         <View style={styles.cardContainer}>
@@ -104,7 +105,7 @@ const AllVouchers = () => {
         </View>
       );
     },
-    [claimedPromoIds],
+    [selectedPromoId],
   );
 
   const renderEmptyComponent = () => {

@@ -1,6 +1,11 @@
 // CartScreen.js (updated with CustomModal)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {
+  PlatformPay,
+  StripeProvider,
+  usePlatformPay,
+} from '@stripe/stripe-react-native';
 import moment from 'moment';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
@@ -12,11 +17,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import {
-  PlatformPay,
-  StripeProvider,
-  usePlatformPay,
-} from '@stripe/stripe-react-native';
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons} from '../../../assets';
@@ -27,6 +27,7 @@ import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import {STRIPE_PUBLISH_TEST, colors} from '../../../constants';
 import {setCartData} from '../../../redux/slices/Cart';
+import {setCopiedCodeData} from '../../../redux/slices/ClaimedPromo';
 import {getAdminSettings} from '../../../services/adminSettings';
 import {getMerchantProfile} from '../../../services/merchant';
 import {
@@ -35,7 +36,6 @@ import {
   getCalculatedDeliveryFee,
   placeUserOrder,
 } from '../../../services/order';
-import {setCopiedCodeData} from '../../../redux/slices/ClaimedPromo';
 
 const parsePriceToNumber = price =>
   Number(String(price ?? '').replace(/[^0-9.]/g, '')) || 0;
@@ -112,7 +112,7 @@ const CartScreen = () => {
   const {copiedCode} = useSelector(state => state.CopiedCodeSlice);
   const {user} = useSelector(s => s.LoginSlice);
   const wallet = useSelector(s => s.PaymentCardSlice.currentPaymentCard);
-  console.log(wallet, 'walletwalletwalletwalletwallet');
+  console.log(user, 'walletwalletwalletwalletwallet');
 
   const {address} = useSelector(s => s.AddressSlice);
   const selectedAddress = address && address.length ? address[0] : null;
@@ -554,6 +554,8 @@ const CartScreen = () => {
     setLoading(true);
     try {
       const res = await placeUserOrder(payload);
+      console.log(res, 'resresresresresresresresresresresres');
+
       if (res?.status === 200 || res?.status === 201) {
         afterOrderSuccess(res?.data?.message);
       } else {
