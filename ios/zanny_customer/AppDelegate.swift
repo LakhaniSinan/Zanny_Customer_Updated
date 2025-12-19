@@ -4,6 +4,7 @@ import React_RCTAppDelegate
 import ReactAppDependencyProvider
 import Firebase
 import UserNotifications
+import GoogleSignIn
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -65,6 +66,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         print("Notification tapped: \(response.notification.request.content.userInfo)")
         completionHandler()
+    }
+
+    // Handle URL opens for Google Sign-In
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        // Let Google Sign-In SDK try to handle the URL
+        if GIDSignIn.sharedInstance.handle(url) {
+            return true
+        }
+
+        return false
     }
 }
 
