@@ -18,6 +18,7 @@ import {getMessaging} from '@react-native-firebase/messaging';
 import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons} from '../../../assets';
 import Category from '../../../components/categoryCard';
+import CustomModal from '../../../components/customModal';
 import HireCheifCard from '../../../components/hireChefCard';
 import SectionHeader from '../../../components/sectionHeader';
 import {Colors, colors} from '../../../constants';
@@ -33,7 +34,28 @@ const Restaurants = ({navigation}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const {homeData} = useSelector(state => state.HomeDataSlice);
   console.log(homeData, 'homeDatahomeDatahomeDatahomeDatahomeData');
+  // ✅ Custom Modal State
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState({
+    Icon: null,
+    title: '',
+    detail: '',
+    buttonName: 'Okay',
+    onPress: () => setModalVisible(false),
+  });
 
+  // ✅ SHOW "COMING SOON" MODAL
+  const showComingSoon = () => {
+    setModalData({
+      Icon: null,
+      title: '🚧 Feature Coming Soon',
+      detail:
+        'We’re working hard to bring this feature to you.\n\nPlease stay tuned — it will be available in an upcoming update!',
+      buttonName: 'Got it',
+      onPress: () => setModalVisible(false),
+    });
+    setModalVisible(true);
+  };
   const [activeIndex, setActiveIndex] = useState(0);
   const {cartData} = useSelector(state => state.CartSlice);
 
@@ -301,9 +323,22 @@ const Restaurants = ({navigation}) => {
             gap: width(3),
           }}>
           {homeData?.merchants?.map((item, index) => (
-            <HireCheifCard key={item?._id || item?.id || index} item={item} />
+            <HireCheifCard
+              key={item?._id || item?.id || index}
+              item={item}
+              handleHireChef={showComingSoon}
+            />
           ))}
         </ScrollView>
+        <CustomModal
+          visible={modalVisible}
+          Icon={modalData.Icon}
+          name={modalData.title}
+          detail={modalData.detail}
+          buttonName={modalData.buttonName}
+          onPress={modalData.onPress}
+          close={() => setModalVisible(false)}
+        />
       </ScrollView>
     </View>
   );

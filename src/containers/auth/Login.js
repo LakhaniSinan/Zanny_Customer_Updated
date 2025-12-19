@@ -136,16 +136,15 @@ const Login = ({navigation}) => {
 
   const handleGoogleLogin = async () => {
     try {
-      // setIsVisible(true);
+      setIsVisible(true);
 
       if (Platform.OS === 'android') {
-        await GoogleSignin.hasPlayServices({
-          showPlayServicesUpdateDialog: true,
-        });
+        await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
       }
 
       const userInfo = await GoogleSignin.signIn();
-      const googleUser = userInfo?.data?.user;
+      const googleUser = userInfo?.user;
+      console.log(userInfo, 'Google sign-in response');
 
       const payload = {
         customerImage: googleUser?.photo,
@@ -155,7 +154,8 @@ const Login = ({navigation}) => {
         name: googleUser?.name,
         password: null,
       };
-      setIsVisible(true);
+      console.log(payload, 'Google login payload');
+
       const response = await socialLogin(payload);
       if (response.status === 200 || response.status === 201) {
         const user = {
@@ -175,8 +175,6 @@ const Login = ({navigation}) => {
         showModal('error', response?.data?.message || 'Google login failed');
       }
     } catch (error) {
-      console.log(error, 'errorerrorerrorerrorerrorasdad');
-
       if (error.code === statusCodes.SIGN_IN_CANCELLED)
         showModal('error', 'You cancelled the Google login process.');
       else if (error.code === statusCodes.IN_PROGRESS)
