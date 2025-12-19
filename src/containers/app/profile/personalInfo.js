@@ -232,7 +232,7 @@ function PersonalInfo({navigation}) {
             )}
           </View>
 
-          <Text
+          {/* <Text
             style={{
               marginTop: width(2),
               color: Colors.grey,
@@ -274,7 +274,7 @@ function PersonalInfo({navigation}) {
               }}>
               <Text style={{fontSize: width(7), color: Colors.grey}}>+</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
 
         <View style={{paddingHorizontal: width(4), marginTop: width(5)}}>
