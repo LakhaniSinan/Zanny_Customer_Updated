@@ -42,6 +42,12 @@ const PaymentOptions = ({navigation}) => {
 
   /* ================= STATES ================= */
   const [selectedPaymentType, setSelectedPaymentType] = useState('');
+
+  // Wrapper to handle payment type selection with logging
+  const handlePaymentTypeSelect = useCallback((type) => {
+    console.log('Payment type selected:', type, 'Platform:', Platform.OS);
+    setSelectedPaymentType(type);
+  }, []);
   const [saveCard, setSaveCard] = useState(false);
   const [isCardValid, setIsCardValid] = useState(false);
   const [cardDetails, setCardDetails] = useState(null);
@@ -90,11 +96,15 @@ const PaymentOptions = ({navigation}) => {
             setIsGooglePaySupported(true);
           }
         }
-      } catch {
-        // ignore - fallback handled in handlers
+      } catch (error) {
+        console.log('Platform pay support check error:', error);
+        // On iOS, assume Apple Pay is available if check fails (fallback)
+        if (Platform.OS === 'ios') {
+          setIsApplePaySupported(true);
+        }
       }
     })();
-  }, [isPlatformPaySupported]);
+  }, []);
 
   /* ================= CARD CHANGE ================= */
   const handleCardChange = useCallback(details => {
@@ -276,14 +286,30 @@ const PaymentOptions = ({navigation}) => {
       setIsLoading(false);
     }
   };
+  // Enable button when:
+  // - Card selected AND card is valid
+  // - Apple Pay selected on iOS (immediately, check happens in handleContinue)
+  // - Google Pay selected on Android (immediately, check happens in handleContinue)
   const canSubmit =
     selectedPaymentType === 'card'
       ? isCardValid
       : selectedPaymentType === 'apple'
-      ? isApplePaySupported
+      ? Platform.OS === 'ios' || isApplePaySupported
       : selectedPaymentType === 'google'
-      ? isGooglePaySupported
+      ? Platform.OS === 'android' || isGooglePaySupported
       : false;
+
+  // Debug logging for iOS issues
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      console.log('Payment Options State:', {
+        selectedPaymentType,
+        isApplePaySupported,
+        canSubmit,
+        isCardValid,
+      });
+    }
+  }, [selectedPaymentType, isApplePaySupported, canSubmit, isCardValid]);
 
   const PaymentOptionItem = ({value, label, icon, selectedValue, onSelect}) => {
     const isSelected = selectedValue === value;
@@ -372,21 +398,21 @@ const PaymentOptions = ({navigation}) => {
             label="Apple Pay"
             icon={icons.apple}
             selectedValue={selectedPaymentType}
-            onSelect={setSelectedPaymentType}
+            onSelect={handlePaymentTypeSelect}
           />
           <PaymentOptionItem
             value="google"
             label="Google Pay"
             icon={icons.Google}
             selectedValue={selectedPaymentType}
-            onSelect={setSelectedPaymentType}
+            onSelect={handlePaymentTypeSelect}
           />
           <PaymentOptionItem
             value="card"
             label="Credit Card"
             icon={icons.cardIcon}
             selectedValue={selectedPaymentType}
-            onSelect={setSelectedPaymentType}
+            onSelect={handlePaymentTypeSelect}
           />
 
           {selectedPaymentType === 'card' && (
@@ -638,12 +664,14 @@ const PaymentOptions = ({navigation}) => {
           }}>
           <TouchableOpacity
             disabled={!canSubmit}
+            activeOpacity={canSubmit ? 0.7 : 1}
             onPress={handleContinue}
             style={{
               backgroundColor: !canSubmit ? colors.gray : colors.black,
               paddingVertical: width(4),
               borderRadius: 30,
               alignItems: 'center',
+              opacity: !canSubmit ? 0.6 : 1,
             }}>
             <Text
               style={{
