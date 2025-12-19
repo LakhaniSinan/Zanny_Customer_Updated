@@ -196,11 +196,13 @@ const PaymentOptions = ({navigation}) => {
   const handleContinue = async () => {
     if (selectedPaymentType === 'apple' || selectedPaymentType === 'google') {
       const isApple = selectedPaymentType === 'apple';
-      
+
       // On iOS, always allow Apple Pay and Google Pay
       // On Android, check support for Google Pay only
       if (Platform.OS !== 'ios') {
-        const isSupported = isApple ? isApplePaySupported : isGooglePaySupported;
+        const isSupported = isApple
+          ? isApplePaySupported
+          : isGooglePaySupported;
         if (!isSupported) {
           showModal(
             'error',
@@ -304,7 +306,8 @@ const PaymentOptions = ({navigation}) => {
       : selectedPaymentType === 'apple'
       ? Platform.OS === 'ios' || isApplePaySupported
       : selectedPaymentType === 'google'
-      ? Platform.OS === 'ios' || (Platform.OS === 'android' && isGooglePaySupported)
+      ? Platform.OS === 'ios' ||
+        (Platform.OS === 'android' && isGooglePaySupported)
       : false;
 
   // Debug logging for iOS issues
@@ -401,20 +404,23 @@ const PaymentOptions = ({navigation}) => {
 
       <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
         <ScrollView style={{flex: 1}}>
-          <PaymentOptionItem
-            value="apple"
-            label="Apple Pay"
-            icon={icons.apple}
-            selectedValue={selectedPaymentType}
-            onSelect={handlePaymentTypeSelect}
-          />
-          <PaymentOptionItem
-            value="google"
-            label="Google Pay"
-            icon={icons.Google}
-            selectedValue={selectedPaymentType}
-            onSelect={handlePaymentTypeSelect}
-          />
+          {Platform.OS == 'ios' ? (
+            <PaymentOptionItem
+              value="apple"
+              label="Apple Pay"
+              icon={icons.apple}
+              selectedValue={selectedPaymentType}
+              onSelect={handlePaymentTypeSelect}
+            />
+          ) : (
+            <PaymentOptionItem
+              value="google"
+              label="Google Pay"
+              icon={icons.Google}
+              selectedValue={selectedPaymentType}
+              onSelect={handlePaymentTypeSelect}
+            />
+          )}
           <PaymentOptionItem
             value="card"
             label="Credit Card"
