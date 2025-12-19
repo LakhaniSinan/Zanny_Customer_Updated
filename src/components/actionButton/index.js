@@ -8,13 +8,18 @@ const ActionBuuton = ({
   bgcColor,
   onPress,
   height,
-  width,
+  customStyle,
   fontSize,
+  textStyle,
+  fontWeight,
+  disabled,
 }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
+      disabled={disabled}
       style={{
+        ...customStyle,
         backgroundColor: bgcColor,
         borderRadius: 50,
         alignItems: 'center',
@@ -24,8 +29,9 @@ const ActionBuuton = ({
       }}>
       <Text
         style={{
+          ...textStyle,
           fontSize: fontSize ? fontSize : 12,
-          fontFamily: fontFamily.poppinBold,
+          fontFamily: fontWeight ? fontWeight : fontFamily.poppinBold,
           color: fontColor,
         }}>
         {name}

@@ -98,4 +98,5 @@ export const endPoints = {
 
   applyPromoCode: 'applyPromo',
   getAllPromo: 'getAllPromo',
+  getPromoStatus: 'getPromoStatus',
 };

@@ -45,6 +45,7 @@ import {useEffect} from 'react';
 import ChefDetails from '../../containers/app/chefDetails';
 import PrivacyPolicy from '../../containers/app/privacyPolicy';
 import AllChefs from '../../containers/app/allChefs';
+import {handelGetCard} from '../../redux/slices/UserCards';
 
 const Stack = createStackNavigator();
 
@@ -84,6 +85,7 @@ export function CustomerStack() {
 
   useEffect(() => {
     if (user) dispatch(handelGetAddress());
+    if (user) dispatch(handelGetCard(user?._id));
   }, [dispatch, user]);
 
   // useEffect(() => {

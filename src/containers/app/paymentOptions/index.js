@@ -1,100 +1,134 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect} from '@react-navigation/native';
 import {
   CardField,
-  createPaymentMethod,
   StripeProvider,
+  createPaymentMethod,
+  usePlatformPay,
 } from '@stripe/stripe-react-native';
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Image,
+  Platform,
   SafeAreaView,
   ScrollView,
+  Switch,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
+
 import {fontFamily, icons} from '../../../assets';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
+
 import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
 import {setPaymentType} from '../../../redux/slices/PaymentType';
-import {
-  addPaymentCard,
-  deletePaymentCard,
-  getPaymentCardById,
-} from '../../../services/paymentCard';
+import {handleFetchCardsData} from '../../../redux/slices/UserCards';
+import {addPaymentCard, deletePaymentCard} from '../../../services/paymentCard';
 
 const PaymentOptions = ({navigation}) => {
   const dispatch = useDispatch();
-  const [selectedPaymentType, setSelectedPaymentType] = useState('');
+
+  /* ================= REDUX ================= */
+  const {cardsData} = useSelector(state => state.CardSlice);
   const wallet = useSelector(
     state => state.PaymentCardSlice.currentPaymentCard,
   );
-  const [isCardValid, setIsCardValid] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState(null);
-  const [paymentCards, setPaymentCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [cardDetails, setCardDetails] = useState(null);
-  const [cardFieldKey, setCardFieldKey] = useState(0);
   const {user} = useSelector(state => state.LoginSlice);
+
+  /* ================= STATES ================= */
+  const [selectedPaymentType, setSelectedPaymentType] = useState('');
+  const [saveCard, setSaveCard] = useState(false);
+  const [isCardValid, setIsCardValid] = useState(false);
+  const [cardDetails, setCardDetails] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [cardFieldKey, setCardFieldKey] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+  const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
+  const {isPlatformPaySupported} = usePlatformPay();
+
   const [modalData, setModalData] = useState({
+    type: '',
     Icon: '',
     name: '',
     detail: '',
     buttonName: 'Okay',
-    onPress: () => setModalVisible(false),
     disableClose: false,
+    onPress: () => setModalVisible(false),
+    onCancel: () => setModalVisible(false),
   });
 
-  const showModal = (type, message) => {
+  /* ================= MODAL ================= */
+  const showModal = useCallback((type, message) => {
     setModalData({
+      type,
       Icon: type === 'success' ? icons.check : icons.cross,
       name: type === 'success' ? 'Success' : 'Error',
       detail: message,
       buttonName: 'Okay',
-      onPress: () => setModalVisible(false),
       disableClose: false,
+      onPress: () => setModalVisible(false),
+      onCancel: () => setModalVisible(false),
     });
     setModalVisible(true);
-  };
+  }, []);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getUserPaymentCards();
-    }, []),
-  );
-
-  const getUserPaymentCards = async () => {
-    try {
-      setIsLoading(true);
-      const response = await getPaymentCardById(user?._id);
-      const cards = response?.data?.cards || [];
-      if (response?.status === 200 || response?.status === 201) {
-        setPaymentCards(cards);
+  /* ================= PLATFORM PAY SUPPORT ================= */
+  useEffect(() => {
+    (async () => {
+      try {
+        const supported = await isPlatformPaySupported();
+        if (supported) {
+          if (Platform.OS === 'ios') {
+            setIsApplePaySupported(true);
+          } else {
+            setIsGooglePaySupported(true);
+          }
+        }
+      } catch {
+        // ignore - fallback handled in handlers
       }
-    } catch (error) {
-      console.error('Error fetching payment cards:', error);
-      showModal('error', 'Failed to fetch payment cards');
-    } finally {
-      setIsLoading(false);
+    })();
+  }, [isPlatformPaySupported]);
+
+  /* ================= CARD CHANGE ================= */
+  const handleCardChange = useCallback(details => {
+    setIsCardValid(details?.complete);
+    setCardDetails(details);
+  }, []);
+
+  /* ================= STRIPE METHOD (SINGLE SOURCE) ================= */
+  const createStripeCard = async details => {
+    const {paymentMethod, error} = await createPaymentMethod({
+      paymentMethodType: 'Card',
+      card: details,
+    });
+
+    if (error) {
+      throw new Error(error.message);
     }
+
+    return paymentMethod;
   };
 
+  /* ================= SELECT SAVED CARD ================= */
   const handleSelectPayment = async (method, cardItem = null) => {
-    setSelectedMethod(method);
-
     if (method === 'card' && cardItem) {
       dispatch(setCurrentPaymentCard(cardItem));
       dispatch(setPaymentType('Card'));
-      await AsyncStorage.setItem('paymentCard', JSON.stringify(cardItem));
-      await AsyncStorage.setItem('paymentType', JSON.stringify('Card'));
+
+      await AsyncStorage.multiSet([
+        ['paymentCard', JSON.stringify(cardItem)],
+        ['paymentType', JSON.stringify('Card')],
+      ]);
+
       setModalData({
+        type: 'success',
         Icon: icons.check,
         name: 'Success',
         detail: 'Card selected successfully',
@@ -105,79 +139,12 @@ const PaymentOptions = ({navigation}) => {
           navigation.goBack();
         },
       });
+
       setModalVisible(true);
-      return;
-    }
-
-    if (method === 'google') {
-      dispatch(setPaymentType('GooglePay'));
-      await AsyncStorage.setItem('paymentType', JSON.stringify('GooglePay'));
-      navigation.goBack();
-      return;
-    }
-
-    if (method === 'apple') {
-      dispatch(setPaymentType('ApplePay'));
-      await AsyncStorage.setItem('paymentType', JSON.stringify('ApplePay'));
-      navigation.goBack();
-      return;
     }
   };
 
-  const handleCardChange = details => {
-    setIsCardValid(details.complete);
-    setCardDetails(details);
-  };
-
-  const handleSaveCard = () => {
-    if (!isCardValid || !cardDetails) {
-      showModal('error', 'Please enter complete card details');
-      return;
-    }
-
-    const detailsToSave = cardDetails;
-    setCardFieldKey(prev => prev + 1); // reset CardField
-    setCardDetails(null);
-    setIsCardValid(false);
-    createTokenForStripe(detailsToSave);
-  };
-
-  const createTokenForStripe = async details => {
-    try {
-      setIsLoading(true);
-
-      const {paymentMethod, error} = await createPaymentMethod({
-        paymentMethodType: 'Card',
-        card: details,
-      });
-
-      if (error) {
-        showModal('error', error.message);
-        return;
-      }
-
-      let payload = {
-        paymentId: paymentMethod.id,
-        email: user?.email,
-        userId: user?._id,
-      };
-
-      const response = await addPaymentCard(payload);
-
-      if (response.status === 200 || response.status === 201) {
-        getUserPaymentCards();
-        showModal('success', 'Card added successfully');
-      } else {
-        showModal('error', response.data.message);
-      }
-    } catch (error) {
-      console.log('Error creating payment method:', error);
-      showModal('error', 'Something went wrong while adding card');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  /* ================= DELETE CARD ================= */
   const handleDeleteCard = cardItem => {
     setModalData({
       type: 'confirmation',
@@ -187,22 +154,19 @@ const PaymentOptions = ({navigation}) => {
       onPress: async () => {
         try {
           setIsLoading(true);
-          let params = {
+
+          const response = await deletePaymentCard({
             paymentId: cardItem?.paymentMethodId,
             userId: user?._id,
-          };
-          const response = await deletePaymentCard(params);
+          });
 
-          console.log(response, 'responseresponseresponse');
-
-          if (response.status === 200 || response.status === 201) {
-            getUserPaymentCards();
-            showModal('success', response.data.message);
+          if (response?.status === 200 || response?.status === 201) {
+            dispatch(handleFetchCardsData(user?._id));
+            showModal('success', response?.data?.message);
           } else {
-            showModal('error', response.data.message);
+            showModal('error', response?.data?.message);
           }
-        } catch (err) {
-          console.error('Delete card error:', err);
+        } catch {
           showModal('error', 'Something went wrong while deleting card');
         } finally {
           setIsLoading(false);
@@ -210,130 +174,227 @@ const PaymentOptions = ({navigation}) => {
       },
       onCancel: () => setModalVisible(false),
     });
+
     setModalVisible(true);
   };
 
-  const PaymentMethodItem = ({icon, label, selected, onPress}) => (
-    <TouchableOpacity
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: width(3),
-        paddingHorizontal: width(4),
-        justifyContent: 'space-between',
-        backgroundColor: selected ? '#f0f0f0' : colors.white,
-        borderRadius: 10,
-        marginVertical: 4,
-      }}
-      onPress={onPress}>
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        <Image
-          source={icon}
-          style={{height: width(7), width: width(7)}}
-          resizeMode="contain"
-        />
-        <Text
-          style={{
-            fontSize: 14,
-            color: colors.black,
-            fontFamily: fontFamily.poppinSemiBold,
-            marginLeft: width(3),
-          }}>
-          {label}
-        </Text>
-      </View>
-      {selected && (
-        <View
-          style={{
-            height: width(4),
-            width: width(4),
-            borderRadius: 100,
-            backgroundColor: colors.redish,
-          }}
-        />
-      )}
-    </TouchableOpacity>
-  );
+  /* ================= CONTINUE ================= */
+  const handleContinue = async () => {
+    if (selectedPaymentType === 'apple' || selectedPaymentType === 'google') {
+      const isApple = selectedPaymentType === 'apple';
+      const isSupported = isApple ? isApplePaySupported : isGooglePaySupported;
 
+      if (!isSupported) {
+        showModal(
+          'error',
+          isApple
+            ? 'Apple Pay is not available on this device'
+            : 'Google Pay is not available on this device',
+        );
+        return;
+      }
+
+      const platformPayload = {
+        paymentMethodId: isApple ? 'APPLE_PAY' : 'GOOGLE_PAY',
+        brand: isApple ? 'Apple Pay' : 'Google Pay',
+        last4: '',
+        expMonth: '',
+        expYear: '',
+      };
+
+      dispatch(setCurrentPaymentCard(platformPayload));
+      dispatch(setPaymentType(isApple ? 'APPLE_PAY' : 'GOOGLE_PAY'));
+
+      await AsyncStorage.multiSet([
+        ['paymentCard', JSON.stringify(platformPayload)],
+        ['paymentType', JSON.stringify(isApple ? 'APPLE_PAY' : 'GOOGLE_PAY')],
+      ]);
+
+      setModalData({
+        type: 'success',
+        Icon: icons.check,
+        name: 'Success',
+        detail: `${isApple ? 'Apple Pay' : 'Google Pay'} selected successfully`,
+        buttonName: 'Okay',
+        disableClose: true,
+        onPress: () => {
+          setModalVisible(false);
+          navigation.goBack();
+        },
+      });
+
+      setModalVisible(true);
+      return;
+    }
+
+    if (!isCardValid || !cardDetails) {
+      showModal('error', 'Please enter complete card details');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const paymentMethod = await createStripeCard(cardDetails);
+
+      if (saveCard) {
+        const response = await addPaymentCard({
+          paymentId: paymentMethod.id,
+          email: user?.email,
+          userId: user?._id,
+        });
+
+        if (response?.status !== 200 && response?.status !== 201) {
+          showModal('error', response?.data?.message);
+          return;
+        }
+
+        dispatch(handleFetchCardsData(user?._id));
+      }
+
+      dispatch(
+        setCurrentPaymentCard({
+          paymentMethodId: paymentMethod.id,
+          last4: paymentMethod.Card.last4,
+          expMonth: paymentMethod.Card.expMonth,
+          expYear: paymentMethod.Card.expYear,
+          brand: paymentMethod.Card.brand,
+        }),
+      );
+
+      dispatch(setPaymentType('Card'));
+      await AsyncStorage.setItem('paymentType', JSON.stringify('Card'));
+
+      setCardFieldKey(prev => prev + 1);
+      setCardDetails(null);
+      setIsCardValid(false);
+
+      navigation.navigate('CartScreen');
+    } catch (error) {
+      showModal('error', error.message || 'Something went wrong');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const canSubmit =
+    selectedPaymentType === 'card'
+      ? isCardValid
+      : selectedPaymentType === 'apple'
+      ? isApplePaySupported
+      : selectedPaymentType === 'google'
+      ? isGooglePaySupported
+      : false;
+
+  const PaymentOptionItem = ({value, label, icon, selectedValue, onSelect}) => {
+    const isSelected = selectedValue === value;
+
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: width(4),
+          marginTop: width(4),
+        }}>
+        <TouchableOpacity
+          onPress={() => onSelect(value)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+          }}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View
+              style={{
+                height: width(10),
+                width: width(10),
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: colors.border,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Image
+                source={icon}
+                style={{height: width(6), width: width(6)}}
+                resizeMode="contain"
+              />
+            </View>
+
+            <Text
+              style={{
+                fontSize: 14,
+                color: colors.black,
+                fontFamily: fontFamily.poppinSemiBold,
+                marginLeft: width(4),
+              }}>
+              {label}
+            </Text>
+          </View>
+
+          <View
+            style={{
+              height: width(5),
+              width: width(5),
+              borderRadius: 100,
+              borderWidth: 1,
+              borderColor: colors.redish,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            {isSelected && (
+              <View
+                style={{
+                  height: width(3),
+                  width: width(3),
+                  borderRadius: 100,
+                  backgroundColor: colors.redish,
+                }}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  /* ================= UI (UNTOUCHED) ================= */
   return (
     <>
       <OverLayLoader isloading={isLoading} />
-      <AppHeader text="Payment Options" goBack />
+      <AppHeader text="Payment Method" goBack />
+
       <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
         <ScrollView style={{flex: 1}}>
-          {/* Select Credit/Debit Card */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: width(4),
-              marginTop: width(4),
-            }}>
-            <TouchableOpacity
-              onPress={() => setSelectedPaymentType('card')}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                width: '100%',
-              }}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <View
-                  style={{
-                    height: width(10),
-                    width: width(10),
-                    borderRadius: 10,
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Image
-                    source={icons.cardIcon}
-                    style={{height: width(6), width: width(6)}}
-                    resizeMode="contain"
-                  />
-                </View>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    color: colors.black,
-                    fontFamily: fontFamily.poppinSemiBold,
-                    marginLeft: width(4),
-                  }}>
-                  Credit Card / Debit Card
-                </Text>
-              </View>
-              <View
-                style={{
-                  height: width(5),
-                  width: width(5),
-                  borderRadius: 100,
-                  borderWidth: 1,
-                  borderColor: colors.redish,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                {selectedPaymentType === 'card' && (
-                  <View
-                    style={{
-                      height: width(3),
-                      width: width(3),
-                      borderRadius: 100,
-                      backgroundColor: colors.redish,
-                    }}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
-          </View>
+          <PaymentOptionItem
+            value="apple"
+            label="Apple Pay"
+            icon={icons.apple}
+            selectedValue={selectedPaymentType}
+            onSelect={setSelectedPaymentType}
+          />
+          <PaymentOptionItem
+            value="google"
+            label="Google Pay"
+            icon={icons.Google}
+            selectedValue={selectedPaymentType}
+            onSelect={setSelectedPaymentType}
+          />
+          <PaymentOptionItem
+            value="card"
+            label="Credit Card"
+            icon={icons.cardIcon}
+            selectedValue={selectedPaymentType}
+            onSelect={setSelectedPaymentType}
+          />
 
-          {/* Stripe Card Input */}
           {selectedPaymentType === 'card' && (
             <View style={{paddingHorizontal: width(4), marginTop: width(2)}}>
               <Text style={{fontFamily: fontFamily.poppinMedium, fontSize: 12}}>
                 Add Card Details
               </Text>
+
               <StripeProvider
                 publishableKey={STRIPE_PUBLISH_TEST}
                 merchantIdentifier="merchant.com.yourapp">
@@ -358,26 +419,30 @@ const PaymentOptions = ({navigation}) => {
                   onCardChange={handleCardChange}
                 />
               </StripeProvider>
-              <TouchableOpacity
-                disabled={!isCardValid || isLoading}
-                onPress={handleSaveCard}
+
+              <View
                 style={{
-                  marginTop: width(4),
-                  backgroundColor:
-                    !isCardValid || isLoading ? colors.gray : colors.redish,
-                  paddingVertical: width(3),
-                  borderRadius: 12,
+                  flexDirection: 'row',
                   alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: width(4),
                 }}>
                 <Text
                   style={{
-                    color: colors.white,
-                    fontFamily: fontFamily.poppinSemiBold,
+                    fontFamily: fontFamily.poppinMedium,
                     fontSize: 14,
+                    color: colors.black,
                   }}>
-                  {isLoading ? 'Saving...' : 'Save Card'}
+                  Save card for future
                 </Text>
-              </TouchableOpacity>
+
+                <Switch
+                  value={saveCard}
+                  onValueChange={setSaveCard}
+                  trackColor={{false: '#ccc', true: colors.orangeColor}}
+                  thumbColor={colors.white}
+                />
+              </View>
             </View>
           )}
 
@@ -386,14 +451,17 @@ const PaymentOptions = ({navigation}) => {
             <Text
               style={{
                 fontFamily: fontFamily.poppinMedium,
-                fontSize: 12,
+                fontSize: 14,
                 paddingBottom: width(2),
               }}>
               Previously Saved Cards
             </Text>
-            {paymentCards.length > 0 ? (
-              paymentCards.map((item, index) => {
-                const isSelected = wallet?._id === item?._id;
+
+            {cardsData?.length > 0 ? (
+              cardsData.map((item, index) => {
+                const isSelected =
+                  wallet?.paymentMethodId === item?.paymentMethodId;
+
                 return (
                   <View
                     key={index}
@@ -418,17 +486,16 @@ const PaymentOptions = ({navigation}) => {
                       <View style={{alignItems: 'center', gap: width(5)}}>
                         <Image
                           source={icons.cardIcon}
-                          style={{
-                            width: 50,
-                            height: 30,
-                            resizeMode: 'contain',
-                          }}
+                          style={{width: 50, height: 30}}
+                          resizeMode="contain"
                         />
                         <Image
                           source={icons.chipIcon}
-                          style={{width: 50, height: 30, resizeMode: 'contain'}}
+                          style={{width: 50, height: 30}}
+                          resizeMode="contain"
                         />
                       </View>
+
                       <View
                         style={{
                           alignItems: 'center',
@@ -456,6 +523,7 @@ const PaymentOptions = ({navigation}) => {
                             />
                           )}
                         </TouchableOpacity>
+
                         <TouchableOpacity
                           onPress={() => handleDeleteCard(item)}
                           style={{
@@ -475,6 +543,7 @@ const PaymentOptions = ({navigation}) => {
                         </TouchableOpacity>
                       </View>
                     </View>
+
                     <Text
                       style={{
                         color: colors.black,
@@ -484,6 +553,7 @@ const PaymentOptions = ({navigation}) => {
                       }}>
                       •••• •••• •••• {item?.last4?.toString().slice(-4)}
                     </Text>
+
                     <View
                       style={{
                         flexDirection: 'row',
@@ -497,6 +567,7 @@ const PaymentOptions = ({navigation}) => {
                           {`${item?.expMonth} / ${item?.expYear}` || '00/00'}
                         </Text>
                       </View>
+
                       <View>
                         <Text style={{color: colors.white, fontSize: 12}}>
                           CVV
@@ -505,6 +576,7 @@ const PaymentOptions = ({navigation}) => {
                           ***
                         </Text>
                       </View>
+
                       <View>
                         <Text style={{color: colors.white, fontSize: 12}}>
                           Brand Name
@@ -540,25 +612,8 @@ const PaymentOptions = ({navigation}) => {
               </View>
             )}
           </View>
-
-          {/* Google Pay */}
-          {/* <PaymentMethodItem
-          icon={icons.google}
-          label="Google Pay"
-          selected={selectedMethod === 'google'}
-          onPress={() => handleSelectPayment('google')}
-        /> */}
-
-          {/* Apple Pay (iOS Only) */}
-          {/* {Platform.OS === 'ios' && (
-          <PaymentMethodItem
-            icon={icons.apple}
-            label="Apple Pay"
-            selected={selectedMethod === 'apple'}
-            onPress={() => handleSelectPayment('apple')}
-          />
-        )} */}
         </ScrollView>
+
         <CustomModal
           visible={modalVisible}
           Icon={modalData.Icon}
@@ -567,15 +622,39 @@ const PaymentOptions = ({navigation}) => {
           buttonName={modalData.buttonName}
           onPress={modalData.onPress}
           close={() => {
-            if (modalData?.disableClose) {
-              return;
-            }
+            if (modalData?.disableClose) return;
             setModalVisible(false);
           }}
-          type={modalData.type} // ← ye missing tha
-          onConfirm={modalData.onPress} // ← ye bhi pass karein
-          onCancel={modalData.onCancel} // ← aur ye
+          type={modalData.type}
+          onConfirm={modalData.onPress}
+          onCancel={modalData.onCancel}
         />
+
+        <View
+          style={{
+            padding: width(4),
+            borderTopWidth: 1,
+            borderColor: colors.border,
+          }}>
+          <TouchableOpacity
+            disabled={!canSubmit}
+            onPress={handleContinue}
+            style={{
+              backgroundColor: !canSubmit ? colors.gray : colors.black,
+              paddingVertical: width(4),
+              borderRadius: 30,
+              alignItems: 'center',
+            }}>
+            <Text
+              style={{
+                color: colors.white,
+                fontSize: 16,
+                fontFamily: fontFamily.poppinSemiBold,
+              }}>
+              Make Payment
+            </Text>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
     </>
   );

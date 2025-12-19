@@ -238,7 +238,7 @@ const CodeVerification = ({navigation, route}) => {
         name={modalData.name}
         detail={modalData.detail}
         buttonName={modalData.buttonName}
-        onPress={modalData.onPress}
+        onConfirm={modalData.onPress}
         close={() => setModalVisible(false)}
       />
 

@@ -3,41 +3,46 @@ import {
   Alert,
   FlatList,
   Image,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
-  RefreshControl,
-  ToastAndroid,
-  Clipboard,
 } from 'react-native';
 import {width} from 'react-native-dimension';
+import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons} from '../../../assets';
-import AppHeader from '../../../components/headerComponent';
-import {colors, Colors} from '../../../constants';
 import ActionBuuton from '../../../components/actionButton';
-import {getAllPromo} from '../../../services/order';
+import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
+import {colors} from '../../../constants';
+import {setCopiedCodeData} from '../../../redux/slices/ClaimedPromo';
+import {getPromoStatus} from '../../../services/order';
 
 const AllVouchers = () => {
-  const [allPromoCodes, setAllPromoCodes] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const {user} = useSelector(state => state.LoginSlice);
+
+  const [promos, setPromos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [claimedPromoIds, setClaimedPromoIds] = useState([]);
 
   useEffect(() => {
-    fetchAllPromos();
-  }, []);
+    if (user?._id) {
+      fetchPromos();
+    }
+  }, [user]);
 
-  const fetchAllPromos = async () => {
+  const fetchPromos = async () => {
     try {
-      if (!refreshing) setIsLoading(true);
-      const response = await getAllPromo();
-      if (response.status === 200 || response.status === 201) {
-        setAllPromoCodes(response?.data?.data || []);
+      const response = await getPromoStatus(user._id);
+
+      if (response?.status === 200) {
+        setPromos(response?.data?.data || []);
       } else {
         Alert.alert('Error', response?.data?.message || 'Something went wrong');
       }
     } catch (error) {
-      console.log('Error fetching promos:', error);
       Alert.alert('Error', 'Unable to fetch vouchers');
     } finally {
       setIsLoading(false);
@@ -47,57 +52,92 @@ const AllVouchers = () => {
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchAllPromos();
+    fetchPromos();
+  };
+
+  const handleClaimCode = item => {
+    console.log(item, 'itemitemitemitemitem');
+
+    setClaimedPromoIds(prev => [...prev, item._id]);
+    dispatch(setCopiedCodeData(item));
   };
 
   const renderItem = useCallback(
-    ({item}) => (
-      <View style={styles.cardContainer}>
-        <View style={styles.leftSection}>
-          <View style={styles.iconWrapper}>
-            <Image
-              source={icons.Ticket}
-              style={styles.icon}
-              resizeMode="contain"
-              tintColor={colors.red}
-            />
+    ({item}) => {
+      console.log(item, 'itemitemitemitemitemitemitemasdasd');
+
+      const isClaimed =
+        claimedPromoIds.includes(item._id) || item.used === true;
+
+      return (
+        <View style={styles.cardContainer}>
+          <View style={styles.leftSection}>
+            <View style={styles.iconWrapper}>
+              <Image
+                source={icons.Ticket}
+                style={styles.icon}
+                resizeMode="contain"
+                tintColor={colors.red}
+              />
+            </View>
+
+            <View style={styles.textWrapper}>
+              <Text style={styles.title}>{item.promoCode}</Text>
+              <Text style={styles.description}>
+                {item.description || 'No description'}
+              </Text>
+            </View>
           </View>
-          <View style={styles.textWrapper}>
-            <Text style={styles.title}>{item?.promoCode || 'N/A'}</Text>
-            <Text style={styles.description}>{item?.description || ''}</Text>
-          </View>
-        </View>
-        <View style={styles.buttonWrapper}>
+
           <ActionBuuton
-            bgcColor={item?.isClaimed ? colors.gray : colors.redish}
-            fontColor={colors.white}
-            name={'Copy'}
-            onPress={async () => {
-              await Clipboard.setString(item?.promoCode);
-              ToastAndroid.show(
-                'Voucher code copied to clipboard',
-                ToastAndroid.SHORT,
-              );
+            bgcColor={isClaimed ? colors.white : colors.redish}
+            fontColor={isClaimed ? colors.black : colors.white}
+            name={isClaimed ? 'Claimed' : 'Copied to checkout'}
+            disabled={isClaimed}
+            onPress={() => handleClaimCode(item)}
+            fontWeight={fontFamily.poppinRegular}
+            customStyle={{
+              paddingHorizontal: width(5),
+              borderColor: colors.redish,
             }}
           />
         </View>
-      </View>
-    ),
-    [],
+      );
+    },
+    [claimedPromoIds],
   );
+
+  const renderEmptyComponent = () => {
+    if (isLoading) return null;
+
+    return (
+      <View style={styles.centerView}>
+        <Text style={styles.emptyText}>No promo found</Text>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <AppHeader goBack={true} text="Vouchers" />
-      {isLoading && <OverLayLoader />}
+      <AppHeader goBack text="Vouchers" />
+
+      {isLoading && (
+        <View style={styles.centerView}>
+          <OverLayLoader />
+          <Text style={styles.loadingText}>Fetching vouchers...</Text>
+        </View>
+      )}
+
       <FlatList
-        data={allPromoCodes}
+        data={promos}
         renderItem={renderItem}
-        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: width(5)}}
+        keyExtractor={item => item._id}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListEmptyComponent={renderEmptyComponent}
+        contentContainerStyle={
+          promos.length === 0 && !isLoading ? {flex: 1} : null
         }
       />
     </View>
@@ -107,7 +147,8 @@ const AllVouchers = () => {
 export default AllVouchers;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: Colors.white},
+  container: {flex: 1, backgroundColor: colors.white},
+
   cardContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -118,7 +159,9 @@ const styles = StyleSheet.create({
     marginTop: width(2),
     paddingVertical: width(3),
   },
+
   leftSection: {flexDirection: 'row', alignItems: 'center'},
+
   iconWrapper: {
     height: width(12),
     width: width(12),
@@ -128,9 +171,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     elevation: 3,
   },
+
   icon: {height: width(6), width: width(6)},
   textWrapper: {marginLeft: width(2)},
   title: {fontFamily: fontFamily.poppinSemiBold, fontSize: 14},
   description: {fontFamily: fontFamily.poppinRegular, fontSize: 12},
-  buttonWrapper: {width: width(25)},
+
+  centerView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  emptyText: {
+    fontFamily: fontFamily.poppinMedium,
+    fontSize: 14,
+    color: colors.gray,
+  },
+
+  loadingText: {
+    marginTop: 10,
+    fontFamily: fontFamily.poppinRegular,
+    fontSize: 13,
+    color: colors.gray,
+  },
 });
