@@ -91,6 +91,7 @@ const CodeVerification = ({navigation, route}) => {
     try {
       setIsLoading(true);
       const response = await registerCustomer(payload);
+      console.log(response, 'asdasdasdasdasdasd');
 
       if (response.status === 200 || response.status === 201) {
         setValue('');

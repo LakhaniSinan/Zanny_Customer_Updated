@@ -1,6 +1,8 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -56,23 +58,15 @@ const SignUpScreen = ({navigation}) => {
     const {firstName, lastName, email, password, confirmPass, phone} = form;
 
     if (!firstName.trim()) return showError('Please enter your First Name.');
-
     if (!lastName.trim()) return showError('Please enter your Last Name.');
-
     if (!email.trim()) return showError('Please enter your Email.');
-
     if (!email.includes('@'))
       return showError('Please enter a valid Email address.');
-
     if (!password.trim()) return showError('Please enter your Password.');
-
     if (password.length < 6)
       return showError('Password must be at least 6 characters.');
-
     if (password !== confirmPass) return showError('Passwords do not match.');
-
     if (!phone.trim()) return showError('Please enter your Phone Number.');
-
     if (phone.length < 10) return showError('Invalid phone number.');
 
     return true;
@@ -80,114 +74,129 @@ const SignUpScreen = ({navigation}) => {
 
   const handleSignUp = async () => {
     if (!validateFields()) return;
+
     try {
       setIsLoading(true);
-      const response = await sendCode({email: form.email});
-      if (response.status == 200 || response.status == 201) {
+      const response = await sendCode({email: form.email, phone: form.phone});
+
+      if (response?.status === 200 || response?.status === 201) {
         setModalData({
           Icon: icons.check,
           title: 'Check your email',
-          detail:
-            'We’ve sent an OTP to your email! If you don’t see it in your inbox, check spam/promotions.',
+          detail: response?.data?.message,
           buttonName: 'Okay',
           onPress: () => {
-            console.log('asdasdadasd');
-
             setModalVisible(false);
             navigation.navigate('CodeVerification', form);
           },
         });
         setModalVisible(true);
+      } else {
+        setModalVisible(true);
+        setModalData({
+          Icon: icons.cross,
+          title: 'Error',
+          detail: response?.data?.message,
+          buttonName: 'Okay',
+          onPress: () => setModalVisible(false),
+        });
       }
     } catch (error) {
-      console.log(error, 'errorerrorerrorerrorerror123132');
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <ScrollView style={styles.main}>
-      <TouchableOpacity
-        style={styles.backBtn}
-        onPress={() => navigation.goBack()}>
-        <Image source={icons.ArrowLeft} style={styles.backIcon} />
-      </TouchableOpacity>
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}>
+      <ScrollView
+        style={styles.main}
+        contentContainerStyle={{paddingBottom: width(20)}}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => navigation.goBack()}>
+          <Image source={icons.ArrowLeft} style={styles.backIcon} />
+        </TouchableOpacity>
 
-      <View style={styles.headerWrapper}>
-        <Text style={styles.heading}>Create Account</Text>
-        <Text style={styles.subheading}>
-          Sign up to have access to our Services
-        </Text>
-      </View>
-
-      <View style={styles.formWrapper}>
-        <CustomInput
-          title="First Name"
-          placeholder="Type Your First Name"
-          value={form.firstName}
-          onChangeText={t => handleChange('firstName', t)}
-        />
-
-        <CustomInput
-          title="Last Name"
-          placeholder="Type Your Last Name"
-          value={form.lastName}
-          onChangeText={t => handleChange('lastName', t)}
-        />
-
-        <CustomInput
-          title="Email"
-          placeholder="Type your email"
-          value={form.email}
-          onChangeText={t => handleChange('email', t)}
-        />
-
-        <CustomInput
-          title="Password"
-          placeholder="Type your password"
-          Icon={icons.Hide}
-          secureTextEntry
-          value={form.password}
-          onChangeText={t => handleChange('password', t)}
-        />
-
-        <CustomInput
-          title="Confirm Password"
-          placeholder="Confirm your password"
-          Icon={icons.Hide}
-          secureTextEntry
-          value={form.confirmPass}
-          onChangeText={t => handleChange('confirmPass', t)}
-        />
-
-        <CustomInput
-          title="Phone Number"
-          placeholder="Phone Number"
-          keyboardType="numeric"
-          maxLength={11}
-          value={form.phone}
-          onChangeText={t => handleChange('phone', t)}
-        />
-
-        <View style={styles.btnWrapper}>
-          <PrimaryButton name="Create Account" onPress={handleSignUp} />
+        <View style={styles.headerWrapper}>
+          <Text style={styles.heading}>Create Account</Text>
+          <Text style={styles.subheading}>
+            Sign up to have access to our Services
+          </Text>
         </View>
-      </View>
 
-      <View style={{height: width(15)}} />
+        <View style={styles.formWrapper}>
+          <CustomInput
+            title="First Name"
+            placeholder="Type Your First Name"
+            value={form.firstName}
+            onChangeText={t => handleChange('firstName', t)}
+          />
 
-      <CustomModal
-        visible={modalVisible}
-        Icon={modalData.Icon}
-        name={modalData.title}
-        detail={modalData.detail}
-        buttonName={modalData.buttonName}
-        onConfirm={modalData.onPress}
-        close={() => setModalVisible(false)}
-      />
-      <OverLayLoader isloading={isLoading} />
-    </ScrollView>
+          <CustomInput
+            title="Last Name"
+            placeholder="Type Your Last Name"
+            value={form.lastName}
+            onChangeText={t => handleChange('lastName', t)}
+          />
+
+          <CustomInput
+            title="Email"
+            placeholder="Type your email"
+            value={form.email}
+            onChangeText={t => handleChange('email', t)}
+          />
+
+          <CustomInput
+            title="Password"
+            placeholder="Type your password"
+            Icon={icons.Hide}
+            secureTextEntry
+            value={form.password}
+            onChangeText={t => handleChange('password', t)}
+          />
+
+          <CustomInput
+            title="Confirm Password"
+            placeholder="Confirm your password"
+            Icon={icons.Hide}
+            secureTextEntry
+            value={form.confirmPass}
+            onChangeText={t => handleChange('confirmPass', t)}
+          />
+
+          <CustomInput
+            title="Phone Number"
+            placeholder="Phone Number"
+            keyboardType="numeric"
+            maxLength={11}
+            value={form.phone}
+            onChangeText={t => handleChange('phone', t)}
+          />
+
+          <View style={styles.btnWrapper}>
+            <PrimaryButton name="Create Account" onPress={handleSignUp} />
+          </View>
+        </View>
+        <CustomModal
+          visible={modalVisible}
+          Icon={modalData.Icon}
+          name={modalData.title}
+          detail={modalData.detail}
+          buttonName={modalData.buttonName}
+          onConfirm={modalData.onPress}
+          close={() => setModalVisible(false)}
+        />
+
+        <OverLayLoader isloading={isLoading} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -230,7 +239,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   btnWrapper: {
-    height: width(15),
     marginTop: width(4),
+    height: width(15),
   },
 });
