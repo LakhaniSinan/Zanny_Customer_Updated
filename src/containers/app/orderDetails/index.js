@@ -110,6 +110,8 @@ const OrderDetail = ({navigation, route}) => {
     ]);
   };
 
+  console.log(data, 'data.deliveryChargesdata.deliveryCharges');
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <AppHeader text="Order Details" goBack={true} />
@@ -253,6 +255,12 @@ const OrderDetail = ({navigation, route}) => {
             <Text style={styles.subheading}>Delivery fee</Text>
             <Text style={styles.pricetxt}>
               £ {data.deliveryCharges ? data.deliveryCharges : 0}
+            </Text>
+          </View>
+          <View style={styles.ordertxtview}>
+            <Text style={styles.subheading}>Srvice Charges</Text>
+            <Text style={styles.pricetxt}>
+              £ {data.serviceCharges ? data.serviceCharges : 0}
             </Text>
           </View>
           {/* <View style={styles.ordertxtview}>
