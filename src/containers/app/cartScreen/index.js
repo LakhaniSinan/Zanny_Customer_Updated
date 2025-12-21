@@ -56,7 +56,9 @@ const Row = React.memo(({label, value, bold}) => (
         fontWeight: bold ? '800' : '700',
         fontFamily: fontFamily.poppinBold,
       }}>
-      {label === 'Promo Discount' ? value : `£${Number(value || 0).toFixed(2)}`}
+      {label === 'Promo Discount' || label == 'Promo Code'
+        ? value
+        : `£${Number(value || 0).toFixed(2)}`}
     </Text>
   </View>
 ));
@@ -101,6 +103,8 @@ const CartScreen = () => {
   const [promoCode, setPromoCode] = useState('');
   const [isPromoApplied, setIsPromoApplied] = useState(false);
   const [promoData, setPromoData] = useState(null);
+  console.log(promoData, 'promoDatapromoDatapromoDatapromoDataasd');
+
   const [merchantDetails, setMerchantDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [serviceCharges, setServiceCharges] = useState(0);
@@ -753,12 +757,15 @@ const CartScreen = () => {
           </Text>
           <Row label="Sub Total" value={subTotal} />
           {isPromoApplied && promoData && (
-            <Row
-              label="Promo Discount"
-              value={`-${(subTotal - discountedSubTotal).toFixed(2)} (£${
-                promoData.discount
-              }% OFF)`}
-            />
+            <>
+              <Row label="Promo Code" value={`${promoData?.promoCode}`} />
+              <Row
+                label="Promo Discount"
+                value={`-${(subTotal - discountedSubTotal).toFixed(2)} (£${
+                  promoData.discount
+                }% OFF)`}
+              />
+            </>
           )}
           <Row label="Delivery" value={deliveryCharges} />
           <Row label="Service Charges" value={serviceCharges} />
