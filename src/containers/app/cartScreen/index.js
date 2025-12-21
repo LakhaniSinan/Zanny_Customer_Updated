@@ -333,10 +333,9 @@ const CartScreen = () => {
         title: 'Success',
         message,
         onConfirm: () => {
+          dispatch(setCopiedCodeData(null));
           dispatch(setCartData([]));
-          AsyncStorage.setItem('cartData', JSON.stringify([])).catch(e =>
-            console.log('AsyncStorage set cartData err', e),
-          );
+          AsyncStorage.setItem('cartData', JSON.stringify([]));
           navigation.reset({
             index: 0,
             routes: [
