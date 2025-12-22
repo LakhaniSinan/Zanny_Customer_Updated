@@ -82,9 +82,11 @@ const PaymentOptions = ({navigation}) => {
 
   /* ================= MODAL ================= */
   const showModal = useCallback((type, message) => {
+    console.log(type, 'typetypetypetypetype');
+
     setModalData({
       type,
-      Icon: type === 'success' ? icons.check : icons.cross,
+      Icon: type === 'success' ? icons.check : icons.cross || icons.cross,
       name: type === 'success' ? 'Success' : 'Error',
       detail: message,
       buttonName: 'Okay',

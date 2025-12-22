@@ -28,7 +28,9 @@ const CustomModal = ({
       onRequestClose={close}>
       <View style={styles.overlay}>
         <View style={styles.container}>
-          {Icon && <Image source={Icon} style={styles.icon} />}
+          {Icon && (
+            <Image source={Icon} style={styles.icon} resizeMode="contain" />
+          )}
 
           <Text style={[styles.title, {color: color || Colors.black}]}>
             {name}

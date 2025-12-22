@@ -55,7 +55,7 @@ const Favourite = () => {
         showModal('error', res?.data?.message || 'Failed to fetch favorites');
       }
     } catch (err) {
-      console.log('Fetch Favorites Error:', err);
+      console.log('Fetch favourite Error:', err);
       showModal('error', 'Something went wrong while fetching favorites');
     } finally {
       setLoading(false);
@@ -185,7 +185,7 @@ const Favourite = () => {
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
-      <AppHeader goBack={true} cartIcon={true} text="Favorites" />
+      <AppHeader goBack={true} cartIcon={true} text="Favourite" />
 
       <FlatList
         data={favoritesData}

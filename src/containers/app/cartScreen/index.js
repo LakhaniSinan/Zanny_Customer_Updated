@@ -158,7 +158,7 @@ const CartScreen = () => {
   }, [cartData, promoData, deliveryCharges, serviceCharges]);
 
   useEffect(() => {
-    if (copiedCode?.promoCode && cartData?.length > 0) {
+    if (copiedCode?.promoCode && cartData?.length > 0 && !promoData) {
       handleApplyPromo();
     }
     getAdminSettings()
@@ -426,6 +426,7 @@ const CartScreen = () => {
     async orderPayload => {
       if (!isApplePaySupported) {
         showModal({
+          icons: icons.cross,
           title: 'Apple Pay',
           message: 'Apple Pay is not available on this device.',
         });

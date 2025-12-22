@@ -26,7 +26,6 @@ const GooglePlacesInput = ({
   const googleAPIKey = 'AIzaSyAvPVhgFVY2qv4c6kvukvIP2krPJe9dZGA';
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
-  console.log(query, 'resultsresultsresultsresultsresults');
 
   useEffect(() => {
     if (selectedLocation?.userAddress) {
