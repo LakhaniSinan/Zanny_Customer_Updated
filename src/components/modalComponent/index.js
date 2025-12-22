@@ -54,8 +54,19 @@ const ChangeAddressModal = ({
   const handleChange = (key, val) => setForm(prev => ({...prev, [key]: val}));
 
   const handleUpdate = () => {
+    if (!selectedLocation?.userAddress) {
+      alert('Please select your location');
+      return;
+    }
+    if (form.street.trim() === '') {
+      alert('Please enter street number');
+      return;
+    }
+    if (form.city.trim() === '') {
+      alert('Please enter city');
+      return;
+    }
     onUpdate({...selectedLocation, ...form, type: mode, ...data});
-    handleClose();
   };
 
   const handleClose = () => {
@@ -82,8 +93,12 @@ const ChangeAddressModal = ({
             <Text style={styles.headerTitle}>
               {mode === 'edit' ? 'Edit Address' : 'Add Address'}
             </Text>
-            <TouchableOpacity onPress={handleClose}>
-              <Image source={icons.cross} style={styles.closeIcon} />
+            <TouchableOpacity onPress={handleClose} style={{padding: width(2)}}>
+              <Image
+                source={icons.cross}
+                style={styles.closeIcon}
+                resizeMode="contain"
+              />
             </TouchableOpacity>
           </View>
 

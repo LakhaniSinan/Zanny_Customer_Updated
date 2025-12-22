@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
   },
 
   oredernotxt: {
-    backgroundColor: 'gray',
     paddingHorizontal: width(2),
     paddingVertical: width(1)
   },

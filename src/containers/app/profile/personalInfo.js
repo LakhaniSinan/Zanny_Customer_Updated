@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   Text,
@@ -18,7 +20,7 @@ import CustomInput from '../../../components/customInput';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import CustomModal from '../../../components/customModal';
-import {Colors} from '../../../constants';
+import {colors, Colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {setUserData} from '../../../redux/slices/Login';
 import {
@@ -26,6 +28,7 @@ import {
   updateCustomerProfile,
 } from '../../../services/profile';
 import {icons} from '../../../assets';
+import ActionBuuton from '../../../components/actionButton';
 
 function PersonalInfo({navigation}) {
   const dispatch = useDispatch();
@@ -176,156 +179,129 @@ function PersonalInfo({navigation}) {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: Colors.white}}>
-      <OverLayLoader isloading={isVisible} />
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}>
+        <OverLayLoader isloading={isVisible} />
 
-      <AppHeader
-        goBack={true}
-        text="Personal Information"
-        notificationsIcon={true}
-      />
+        <AppHeader
+          goBack={true}
+          text="Personal Information"
+          notificationsIcon={true}
+        />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View
-          style={{
-            marginTop: width(8),
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <View style={{position: 'relative'}}>
-            <Image
-              source={{uri: inputValue.customerImage}}
-              style={{
-                width: width(25),
-                height: width(25),
-                borderRadius: 100,
-              }}
-            />
-
-            <TouchableOpacity
-              onPress={handleUploadImage}
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                backgroundColor: Colors.black,
-                padding: width(1.8),
-                borderRadius: 50,
-              }}>
-              <Text style={{color: Colors.white}}>✎</Text>
-            </TouchableOpacity>
-
-            {isLoadingImage && (
-              <View
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  bottom: 0,
-                  right: 0,
-                  left: 0,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: '#00000030',
-                  borderRadius: 100,
-                }}>
-                <ActivityIndicator size="large" color={Colors.black} />
-              </View>
-            )}
-          </View>
-
-          {/* <Text
-            style={{
-              marginTop: width(2),
-              color: Colors.grey,
-              fontSize: width(3.2),
-            }}>
-            Choose a Memoji or upload an image.
-          </Text>
-
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View
             style={{
-              marginTop: width(3),
-              flexDirection: 'row',
-              gap: width(3),
+              marginTop: width(8),
+              alignItems: 'center',
+              justifyContent: 'center',
             }}>
-            {[1, 2, 3, 4].map((i, index) => (
+            <View
+              style={{
+                position: 'relative',
+                borderRadius: 100,
+                backgroundColor: colors.border,
+              }}>
               <Image
-                key={index}
-                source={{
-                  uri: 'https://cdn-icons-png.flaticon.com/512/194/194938.png',
-                }}
+                source={{uri: inputValue.customerImage}}
+                resizeMode="cover"
                 style={{
-                  width: width(12),
-                  height: width(12),
+                  width: width(25),
+                  height: width(25),
                   borderRadius: 100,
                 }}
               />
-            ))}
 
-            <TouchableOpacity
-              onPress={handleUploadImage}
-              style={{
-                width: width(12),
-                height: width(12),
-                borderRadius: 100,
-                borderWidth: 1,
-                borderColor: Colors.grey,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Text style={{fontSize: width(7), color: Colors.grey}}>+</Text>
-            </TouchableOpacity>
-          </View> */}
-        </View>
+              <TouchableOpacity
+                onPress={handleUploadImage}
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  backgroundColor: Colors.black,
+                  padding: width(1.8),
+                  borderRadius: 50,
+                }}>
+                <Text style={{color: Colors.white}}>✎</Text>
+              </TouchableOpacity>
 
-        <View style={{paddingHorizontal: width(4), marginTop: width(5)}}>
-          <CustomInput
-            title="First Name"
-            placeholder="Enter first name"
-            value={inputValue.firstName}
-            onChangeText={v => handleChange('firstName', v)}
-          />
+              {isLoadingImage && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    left: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: '#00000030',
+                    borderRadius: 100,
+                  }}>
+                  <ActivityIndicator size="large" color={Colors.black} />
+                </View>
+              )}
+            </View>
+          </View>
 
-          <CustomInput
-            title="Last Name"
-            placeholder="Enter last name"
-            value={inputValue.lastName}
-            onChangeText={v => handleChange('lastName', v)}
-            containerStyle={{marginTop: width(3)}}
-          />
+          <View style={{paddingHorizontal: width(4), marginTop: width(5)}}>
+            <CustomInput
+              title="First Name"
+              placeholder="Enter first name"
+              value={inputValue.firstName}
+              onChangeText={v => handleChange('firstName', v)}
+            />
 
-          <CustomInput
-            title="Email"
-            value={inputValue.email}
-            editable={false}
-            containerStyle={{marginTop: width(3)}}
-          />
+            <CustomInput
+              title="Last Name"
+              placeholder="Enter last name"
+              value={inputValue.lastName}
+              onChangeText={v => handleChange('lastName', v)}
+              containerStyle={{marginTop: width(3)}}
+            />
 
-          <CustomInput
-            title="Phone Number"
-            placeholder="Enter phone"
-            value={inputValue.phoneNum}
-            onChangeText={v => handleChange('phoneNum', v)}
-            keyboardType="number-pad"
-            containerStyle={{marginTop: width(3)}}
-          />
-        </View>
+            <CustomInput
+              title="Email"
+              value={inputValue.email}
+              editable={false}
+              containerStyle={{marginTop: width(3)}}
+            />
 
-        <View style={{paddingHorizontal: width(4), marginTop: width(6)}}>
-          <Button heading="Update Info" onPress={handleUpdate} />
-        </View>
+            <CustomInput
+              title="Phone Number"
+              placeholder="Enter phone"
+              value={inputValue.phoneNum}
+              onChangeText={v => handleChange('phoneNum', v)}
+              keyboardType="number-pad"
+              containerStyle={{marginTop: width(3)}}
+            />
+          </View>
 
-        <View style={{height: width(10)}} />
-      </ScrollView>
+          <View style={{paddingHorizontal: width(4), marginTop: width(6)}}>
+            <ActionBuuton
+              name="Update Info"
+              height={50}
+              fontSize={14}
+              bgcColor={colors.black}
+              fontColor={colors.white}
+              onPress={handleUpdate}
+            />
+          </View>
+          <View style={{height: width(10)}} />
+        </ScrollView>
 
-      <CustomModal
-        visible={modalVisible}
-        Icon={modalData.Icon}
-        name={modalData.title}
-        detail={modalData.detail}
-        buttonName={modalData.buttonName}
-        onPress={modalData.onPress}
-        close={() => setModalVisible(false)}
-      />
+        <CustomModal
+          visible={modalVisible}
+          Icon={modalData.Icon}
+          name={modalData.title}
+          detail={modalData.detail}
+          buttonName={modalData.buttonName}
+          onPress={modalData.onPress}
+          close={() => setModalVisible(false)}
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

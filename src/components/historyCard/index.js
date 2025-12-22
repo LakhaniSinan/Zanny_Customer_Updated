@@ -15,7 +15,7 @@ const HistoryCard = ({item, handleAddToCart}) => {
         return {bg: 'rgba(255,165,0,0.2)', color: '#FFA500'};
       case 'accepted':
         return {bg: 'rgba(30,144,255,0.2)', color: '#1E90FF'};
-      case 'rejected':
+      case 'cancelled':
         return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
       case 'completed':
       case 'delivered':
@@ -142,7 +142,8 @@ const HistoryCard = ({item, handleAddToCart}) => {
         <Text
           style={{
             fontSize: 12,
-            color: colors.grey,
+            color: colors.black,
+            fontFamily: fontFamily.poppinSemiBold,
             marginBottom: 6,
           }}>
           Made by
@@ -179,11 +180,12 @@ const HistoryCard = ({item, handleAddToCart}) => {
               </Text>
 
               <Image
-                source={icons.verify}
+                source={icons.objects}
                 style={{
                   width: 14,
                   height: 14,
-                  marginLeft: 6,
+                  marginLeft: 3,
+                  marginBottom: 5,
                 }}
               />
             </View>

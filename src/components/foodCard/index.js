@@ -10,6 +10,8 @@ import BackButton from '../backIcon';
 const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
   const navigation = useNavigation();
   // Map your API response properly
+  console.log(item, 'itemitemitemitemitemite');
+
   const foodData = {
     foodImage: item.foodId?.image
       ? {uri: item.foodId.image}
@@ -121,7 +123,8 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
           </View>
 
           {/* Buttons */}
-          <View style={{flexDirection: 'row', marginTop: width(5), gap: width(2)}}>
+          <View
+            style={{flexDirection: 'row', marginTop: width(5), gap: width(2)}}>
             <View style={{width: width(28)}}>
               <ActionBuuton
                 bgcColor={colors.redish}
@@ -148,7 +151,13 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
         </View>
 
         {/* Heart & Share Icons */}
-        <View style={{marginLeft: 8, alignItems: 'center', gap: 5, marginBottom: 5}}>
+        <View
+          style={{
+            marginLeft: 8,
+            alignItems: 'center',
+            gap: 5,
+            marginBottom: 5,
+          }}>
           <BackButton
             icon={foodData.isFavourite ? icons.fillHeart : icons.heartBrown}
             border={1}
@@ -171,8 +180,12 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
         }}>
         <Image
           source={
-            item?.merchant?.merchantImage
-              ? {uri: item?.merchant?.merchantImage}
+            item?.merchant?.merchantImage || item?.restaurantId?.merchantImage
+              ? {
+                  uri:
+                    item?.merchant?.merchantImage ||
+                    item?.restaurantId?.merchantImage,
+                }
               : images.cheif
           }
           style={{height: width(10), width: width(10), borderRadius: width(5)}}
@@ -193,7 +206,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
               fontFamily: fontFamily.poppinBold,
               color: colors.black,
             }}>
-            {item?.merchant?.name}
+            {item?.merchant?.name || item?.restaurantId?.name}
           </Text>
         </View>
       </View>

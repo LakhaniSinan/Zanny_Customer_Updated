@@ -1,5 +1,12 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {width} from 'react-native-dimension';
 import {Colors, colors} from '../../constants';
@@ -45,7 +52,12 @@ const AppHeader = ({
         <View style={styles.rightIconWrapper}>
           <TouchableOpacity
             style={styles.backBtn}
-            onPress={() => navigation.goBack()}>
+            onPress={() =>
+              Alert.alert(
+                'Coming Soon',
+                'This feature is currently under development. Please check back later!',
+              )
+            }>
             <Image
               source={icons.bellIcon}
               resizeMode="contain"
