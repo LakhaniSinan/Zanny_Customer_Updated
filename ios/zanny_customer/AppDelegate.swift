@@ -68,13 +68,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         completionHandler()
     }
 
-    // Handle URL opens for Google Sign-In
+    // Handle URL opens for Google Sign-In and deep links
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        // Let Google Sign-In SDK try to handle the URL
+        // Let Google Sign-In SDK try to handle the URL first
         if GIDSignIn.sharedInstance.handle(url) {
             return true
         }
-
+        
+        // Handle deep links (custom URL schemes like zannysfood://)
+        // React Navigation's NavigationContainer will automatically handle these via the linking config
+        // We return true to indicate the URL was handled
+        return true
+    }
+    
+    // Handle Universal Links (applinks://)
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        // Check if this is a Universal Link
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb, let url = userActivity.webpageURL {
+            // React Navigation's NavigationContainer will automatically handle Universal Links
+            // via the linking configuration in src/appNavigation/index.js
+            // The NavigationContainer listens for these events automatically
+            return true
+        }
+        
         return false
     }
 }

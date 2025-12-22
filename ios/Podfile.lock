@@ -2733,7 +2733,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 6b39f4e43e4b3a0fb86de9531d090ff205a011d5
   RNGoogleSignin: 5250b56fb94c80cba216bac1f3f57bb7eb076be8
   RNImageCropPicker: 367a8e3788651dad88540d9fa8888fcb07ffd1d1
-  RNPermissions: 3e1d5a47dc2dd9ebfdb4463215863611bee94024
+  RNPermissions: e258b4c4ecfef8003b03476eb086271a4d6090d9
   RNScreens: 3402421da150f080d9e1293cfa5558548a735fb6
   RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
