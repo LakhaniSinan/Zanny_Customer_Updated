@@ -142,12 +142,17 @@ const ProductDetail = ({ route}) => {
   const handleAddToCart = async () => {
     if (!user)
       return showModal('error', 'Please login first to add items in your cart');
+    
+    if (!productDetails) {
+      return showModal('error', 'Product details not loaded yet');
+    }
+
     try {
       let tempArr = [...cartData];
-      const findIndex = tempArr.findIndex(i => i._id === productData._id);
+      const findIndex = tempArr.findIndex(i => i._id === productDetails._id);
       if (
         cartData?.length === 0 ||
-        cartData[0]?.merchantId === productData?.merchantId
+        cartData[0]?.merchantId === productDetails?.merchantId
       ) {
         if (findIndex !== -1) {
           // Copy the object before modifying
