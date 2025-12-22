@@ -24,10 +24,12 @@ import {helper} from '../../../helper';
 import {setCartData} from '../../../redux/slices/Cart';
 import {addToFavFun} from '../../../services/favourite';
 import {getProductDetailById} from '../../../services/product';
+import { useNavigation } from '@react-navigation/native';
 
-const ProductDetail = ({navigation, route}) => {
+const ProductDetail = ({ route}) => {
   const {productId, type, data} = route?.params || {};
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const navigationType = type || 'normal';
   const productData = data;
 
