@@ -544,6 +544,8 @@ const CartScreen = () => {
       promoData: promoData,
     };
 
+    console.log(payload, 'payloadpayloadpayloadpayloadpayloadlkasbndlksa');
+
     // Route to correct payment flow
     if (wallet?.paymentMethodId === 'GOOGLE_PAY') {
       await payWithGoogle(payload);

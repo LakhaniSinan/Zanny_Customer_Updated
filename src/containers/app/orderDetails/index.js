@@ -307,7 +307,7 @@ const OrderDetail = ({navigation, route}) => {
             </Text>
           </View>
           <View style={styles.ordertxtview}>
-            <Text style={styles.subheading}>Srvice Charges</Text>
+            <Text style={styles.subheading}>Service Charges</Text>
             <Text style={styles.pricetxt}>
               £ {data.serviceCharges ? data.serviceCharges : 0}
             </Text>
