@@ -28,20 +28,45 @@ const ChangeAddressModal = ({
     city: '',
   });
 
+  /**
+   * 🔹 Auto-fill street & city
+   * Only when ADD mode (so edit data is not overwritten)
+   */
   useEffect(() => {
-    if (data && mode === 'edit') {
+    if (
+      mode !== 'edit' &&
+      (selectedLocation?.street || selectedLocation?.city)
+    ) {
+      setForm(prev => ({
+        ...prev,
+        street: selectedLocation.street || '',
+        city: selectedLocation.city || '',
+      }));
+    }
+  }, [selectedLocation, mode]);
+
+  /**
+   * 🔹 Edit mode setup
+   */
+  useEffect(() => {
+    if (data && mode === 'edit' && visible) {
       setSelectedLocation({
         userAddress: data?.address,
         latLng: {
           lat: data?.latitude,
           lng: data?.longitude,
         },
-      });
-      setForm({
         street: data?.street,
         city: data?.city,
       });
-    } else {
+
+      setForm({
+        street: data?.street || '',
+        city: data?.city || '',
+      });
+    }
+
+    if (!visible) {
       resetForm();
     }
   }, [data, mode, visible]);
@@ -58,15 +83,25 @@ const ChangeAddressModal = ({
       alert('Please select your location');
       return;
     }
-    if (form.street.trim() === '') {
+    if (!form.street.trim()) {
       alert('Please enter street number');
       return;
     }
-    if (form.city.trim() === '') {
+    if (!form.city.trim()) {
       alert('Please enter city');
       return;
     }
-    onUpdate({...selectedLocation, ...form, type: mode, ...data});
+
+    onUpdate({
+      ...selectedLocation,
+      street: form.street,
+      city: form.city,
+      type: mode,
+      ...data,
+    });
+
+    resetForm();
+    onClose();
   };
 
   const handleClose = () => {
@@ -82,10 +117,10 @@ const ChangeAddressModal = ({
       backdropOpacity={0.5}
       onBackdropPress={handleClose}
       style={styles.modal}
-      avoidKeyboard={true}>
+      avoidKeyboard>
       <View style={styles.container}>
         <KeyboardAwareScrollView
-          enableOnAndroid={true}
+          enableOnAndroid
           extraScrollHeight={Platform.OS === 'ios' ? 20 : 0}
           keyboardShouldPersistTaps="handled">
           {/* Header */}
@@ -102,7 +137,7 @@ const ChangeAddressModal = ({
             </TouchableOpacity>
           </View>
 
-          {/* Current Address */}
+          {/* Address */}
           <Text style={styles.sectionTitle}>Current Address</Text>
           <View style={{height: width(2)}} />
 
@@ -114,21 +149,23 @@ const ChangeAddressModal = ({
           />
 
           <View style={{height: width(4)}} />
-          <CustomInput
-            title="Street Number"
-            value={form.street}
-            onChangeText={txt => handleChange('street', txt)}
-            placeholder="Enter Street Number"
-          />
-          <View style={{height: width(4)}} />
+
           <CustomInput
             title="City"
             value={form.city}
             onChangeText={txt => handleChange('city', txt)}
             placeholder="Enter City"
           />
+          <View style={{height: width(4)}} />
 
-          {/* Update Button */}
+          <CustomInput
+            title="Street Number"
+            value={form.street}
+            onChangeText={txt => handleChange('street', txt)}
+            placeholder="Enter Street Number"
+          />
+
+          {/* Button */}
           <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
             <Text style={styles.updateButtonText}>
               {mode === 'edit' ? 'Update' : 'Add'}
@@ -143,7 +180,10 @@ const ChangeAddressModal = ({
 export default ChangeAddressModal;
 
 const styles = StyleSheet.create({
-  modal: {margin: 0, justifyContent: 'flex-end'},
+  modal: {
+    margin: 0,
+    justifyContent: 'flex-end',
+  },
   container: {
     backgroundColor: '#fff',
     padding: width(5),
@@ -156,14 +196,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  headerTitle: {fontSize: 18, fontWeight: 'bold'},
-  closeIcon: {width: width(6), height: width(6)},
-  sectionTitle: {marginTop: 20, fontWeight: '600'},
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeIcon: {
+    width: width(6),
+    height: width(6),
+  },
+  sectionTitle: {
+    marginTop: 20,
+    fontWeight: '600',
+  },
   updateButton: {
     marginTop: 30,
     backgroundColor: Colors.black,
     paddingVertical: 14,
     borderRadius: 12,
   },
-  updateButtonText: {color: 'white', textAlign: 'center', fontSize: 16},
+  updateButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+  },
 });
