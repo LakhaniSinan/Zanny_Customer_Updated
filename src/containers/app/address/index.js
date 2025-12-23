@@ -141,6 +141,8 @@ const Address = ({navigation, route}) => {
 
       const res = await checkAddressCahngeIsPossible(params);
 
+      console.log(res, 'resresresresresres');
+
       const result = res?.data?.result;
 
       if (result === 'deliveryAvailable' || result === undefined) {
@@ -166,12 +168,13 @@ const Address = ({navigation, route}) => {
         return;
       }
 
-      if (cartData?.length > 0) {
+      if (result === 'notAvailable' && cartData?.length > 0) {
         openModal({
           type: 'confirmation',
           Icon: icons.alertIcon,
           name: 'Warning',
-          detail: 'Cart will be cleared if you continue',
+          detail:
+            'The distance between the two locations is too much so basket will be cleared',
           buttonName: 'Continue',
           onConfirm: async () => {
             setModalVisible(false);
