@@ -93,7 +93,7 @@ const AllVouchers = () => {
           <ActionBuuton
             bgcColor={isClaimed ? colors.white : colors.redish}
             fontColor={isClaimed ? colors.black : colors.white}
-            name={isClaimed ? 'Claimed' : 'Copied to checkout'}
+            name={isClaimed ? 'Claimed' : 'Claim to checkout'}
             disabled={isClaimed}
             onPress={() => handleClaimCode(item)}
             fontWeight={fontFamily.poppinRegular}
