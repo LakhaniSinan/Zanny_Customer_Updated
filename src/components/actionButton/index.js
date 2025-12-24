@@ -13,6 +13,8 @@ const ActionBuuton = ({
   textStyle,
   fontWeight,
   disabled,
+  styleProps,
+  borderRadius,
 }) => {
   return (
     <TouchableOpacity
@@ -20,8 +22,9 @@ const ActionBuuton = ({
       disabled={disabled}
       style={{
         ...customStyle,
+        ...styleProps,
         backgroundColor: bgcColor,
-        borderRadius: 50,
+        borderRadius: borderRadius ? borderRadius : 50,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,

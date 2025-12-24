@@ -292,6 +292,7 @@ const PreOrderScreen = ({navigation}) => {
             height={46}
             bgcColor={Colors.white}
             fontColor={Colors.black}
+            onPress={() => navigation.navigate('ReOccurinOrder')}
           />
         </View>
       </View>
