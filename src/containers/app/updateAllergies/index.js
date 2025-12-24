@@ -1,35 +1,25 @@
-import React, {useState, useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
-  SafeAreaView,
-  TouchableOpacity,
   Image,
-  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import Header from '../../../components/header/index';
 import {width} from 'react-native-dimension';
-import {ScrollView} from 'react-native-gesture-handler';
+import Header from '../../../components/header/index';
 // import Location from '../../auth/Location';
-import {colors} from '../../../constants/index';
-import Button from '../../../components/button/index';
-import {
-  getAllergiesCategories,
-  getAllAllergies,
-} from '../../../services/allergies';
-import {useEffect} from 'react';
-import CheckBox from '@react-native-community/checkbox';
-import CommonModal from '../../../components/modal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useDispatch, useSelector} from 'react-redux';
-import userAllergies, {
-  setUserAllergies,
-} from '../../../redux/slices/userAllergies';
-import handleSize from 'react-native-dimension/src/utils';
-import {updateCustomerProfile} from '../../../services/profile';
-import {setUserData} from '../../../redux/slices/Login';
+import CheckBox from '@react-native-community/checkbox';
+import {useEffect} from 'react';
+import {useDispatch} from 'react-redux';
+import Button from '../../../components/button/index';
 import OverLayLoader from '../../../components/loader';
+import {colors} from '../../../constants/index';
+import {setUserData} from '../../../redux/slices/Login';
+import {getAllAllergies} from '../../../services/allergies';
+import {updateCustomerProfile} from '../../../services/profile';
 
 const UpdateAllergies = ({navigation, route}) => {
   const disptach = useDispatch();

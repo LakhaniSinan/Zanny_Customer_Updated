@@ -6,6 +6,7 @@ import {
 import moment from 'moment/moment';
 import React, {useEffect, useRef, useState} from 'react';
 import {
+  FlatList,
   Image,
   Platform,
   SafeAreaView,
@@ -15,9 +16,8 @@ import {
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import {height, width} from 'react-native-dimension';
-import {FlatList} from 'react-native-gesture-handler';
-import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useSelector} from 'react-redux';
 import Button from '../../../components/button';

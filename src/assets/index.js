@@ -60,6 +60,7 @@ export const icons = {
   Crown: require('../assets/icons/Crown.png'),
   Bottle: require('../assets/icons/Bottle.png'),
   ArrowLeft: require('../assets/icons/ArrowLeft.png'),
+  arrowDown: require('../assets/icons/arrowDown.png'),
   Info: require('../assets/icons/Info.png'),
   positive: require('../assets/icons/positive.png'),
   negative: require('../assets/icons/negative.png'),
