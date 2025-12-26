@@ -117,6 +117,7 @@ const ReOccurinOrder = ({navigation}) => {
       renderItem={({item: prod}) => (
         <PreOrderCard
           item={prod}
+          type={'reOccuring'}
           handleIncreaseQuantity={() =>
             updateProduct(dateIndex, prod._id, {
               selectedQty: prod.selectedQty + 1,
@@ -143,8 +144,6 @@ const ReOccurinOrder = ({navigation}) => {
       <AppHeader text="Re Occurring" goBack />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* -------- DAILY / WEEKLY -------- */}
-
         <View style={{padding: width(3), alignItems: 'center'}}>
           <View style={{flexDirection: 'row'}}>
             <View style={{width: width(35)}}>
@@ -237,7 +236,6 @@ const ReOccurinOrder = ({navigation}) => {
           )}
         </View>
 
-        {/* -------- SET ORDERS -------- */}
         <Text
           style={{
             marginHorizontal: width(3),
@@ -251,7 +249,6 @@ const ReOccurinOrder = ({navigation}) => {
           Set Orders
         </Text>
 
-        {/* EMPTY MESSAGE */}
         {selectedDates.length === 0 && (
           <Text
             style={{
@@ -342,20 +339,41 @@ const ReOccurinOrder = ({navigation}) => {
           fontColor={Colors.white}
           height={50}
           onPress={() => {
-            if (!selectedDates.length)
+            if (!selectedDates.length) {
               return Alert.alert('Please select at least one date');
+            }
 
-            for (const d of selectedDates) {
-              if (!d.time)
+            // 🔹 Step 1: sirf selected products rakhna
+            const filteredDates = selectedDates
+              .map(dateItem => {
+                const selectedProducts = dateItem.products.filter(
+                  p => p.isSelected === true,
+                );
+
+                return {
+                  ...dateItem,
+                  products: selectedProducts,
+                };
+              })
+              // 🔹 Step 2: wo dates hata do jisme koi product selected nahi
+              .filter(dateItem => dateItem.products.length > 0);
+
+            // 🔹 Step 3: time validation (sirf valid dates ke liye)
+            for (const d of filteredDates) {
+              if (!d.time) {
                 return Alert.alert(
                   'Missing Time',
                   `Please select time for ${moment(d.date).format(
                     'DD/MM/YYYY',
                   )}`,
                 );
+              }
             }
 
-            navigation.navigate('CheckoutScreen', {selectedDates});
+            // 🔹 Step 4: Next screen par clean data bhejo
+            navigation.navigate('ReOccuringCheckout', {
+              selectedDates: filteredDates,
+            });
           }}
         />
       </View>
