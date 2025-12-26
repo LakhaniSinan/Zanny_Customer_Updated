@@ -28,6 +28,8 @@ import ProductDetail from '../../containers/app/productDetail';
 import Profile from '../../containers/app/profile';
 import ChangePassword from '../../containers/app/profile/chnagePassword';
 import PersonalInfo from '../../containers/app/profile/personalInfo';
+import ReOccuringCheckout from '../../containers/app/reOccuringCheckOut';
+import ReOccurinOrder from '../../containers/app/reOccurinOrder';
 import restaurants from '../../containers/app/restaurants';
 import Cart from '../../containers/app/restaurants/cart';
 import Checkout from '../../containers/app/restaurants/checkout';
@@ -48,7 +50,6 @@ import SignUpScreen from '../../containers/auth/SignUp';
 import {handelGetAddress} from '../../redux/slices/Address';
 import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
-import ReOccurinOrder from '../../containers/app/reOccurinOrder';
 
 const Stack = createStackNavigator();
 
@@ -113,6 +114,14 @@ export function CustomerStack() {
         }}
         name="ReOccurinOrder"
         component={ReOccurinOrder}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="ReOccuringCheckout"
+        component={ReOccuringCheckout}
       />
       <Stack.Screen
         options={{

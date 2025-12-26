@@ -1,12 +1,15 @@
 import React from 'react';
-import {Image, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, Image, Text, TouchableOpacity, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {fontFamily, icons, images} from '../../assets';
 import {Colors, colors} from '../../constants';
+import PrimaryButton from '../primaryButton';
 
 const PreOrderCard = ({
   item,
   type,
+  ischeckout,
+  onCustomizePress,
   handleSelectToCheckout,
   handleIncreaseQuantity,
   handleDecreaseQuantity,
@@ -42,26 +45,28 @@ const PreOrderCard = ({
             {item.name}
           </Text>
 
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: 4,
-              gap: 4,
-            }}>
-            <Image
-              source={icons.yellowStar}
-              style={{height: width(3), width: width(3)}}
-            />
-            <Text
+          {type !== 'reOccuring' && (
+            <View
               style={{
-                fontSize: 12,
-                fontFamily: fontFamily.poppinRegular,
-                marginTop: width(1),
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 4,
+                gap: 4,
               }}>
-              {'4.8 (120+)  2.8 km away'}
-            </Text>
-          </View>
+              <Image
+                source={icons.yellowStar}
+                style={{height: width(3), width: width(3)}}
+              />
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: fontFamily.poppinRegular,
+                  marginTop: width(1),
+                }}>
+                {'4.8 (120+)  2.8 km away'}
+              </Text>
+            </View>
+          )}
 
           {/* Price & Time */}
           <View
@@ -165,9 +170,31 @@ const PreOrderCard = ({
               </Text>
             </TouchableOpacity>
           </View>
+          {type === 'reOccuring' && (
+            <View
+              style={{
+                height: width(10),
+                width: width(30),
+                marginTop: width(2),
+              }}>
+              <PrimaryButton
+                name={'Customize'}
+                bgcColor={colors.redish}
+                color={colors.white}
+                onPress={
+                  onCustomizePress ||
+                  (() =>
+                    Alert.alert(
+                      'Coming Soon',
+                      'This feature is currently under development. Please check back later!',
+                    ))
+                }
+              />
+            </View>
+          )}
         </View>
 
-        {type !== 'checkout' && (
+        {(type !== 'checkout' || ischeckout) && (
           <TouchableOpacity
             onPress={() => handleSelectToCheckout(item)}
             style={{
