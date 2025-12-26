@@ -106,10 +106,6 @@ const ReOccuringCheckout = ({route}) => {
   const [promoData, setPromoData] = useState(null);
   const [merchantDetails, setMerchantDetails] = useState(null);
   const [selectedDates, setSelectedDates] = useState(selected);
-  console.log(selectedDates, 'selectedDatesselectedDatesselectedDates');
-
-  const [activeDateIndex, setActiveDateIndex] = useState(null);
-  const [openTimePicker, setOpenTimePicker] = useState(false);
 
   const selectedItems = useMemo(
     () => preOrderData?.filter(item => item?.isSelected),
@@ -176,7 +172,7 @@ const ReOccuringCheckout = ({route}) => {
   useEffect(() => {
     setLoading(true);
     getAdminSettings()
-      .catch(e => console.log('getAdminSettings error', e))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -195,11 +191,6 @@ const ReOccuringCheckout = ({route}) => {
 
   useEffect(() => {
     if (preOrderData?.length) {
-      console.log(
-        preOrderData[0]?.merchantId,
-        'preOrderData[0]?.merchantIdcartData[0]?.merchantId',
-      );
-
       fetchMerchantDetails(preOrderData[0]?.merchantId);
     } else {
       setMerchantDetails(null);
@@ -214,7 +205,6 @@ const ReOccuringCheckout = ({route}) => {
       const res = await getMerchantProfile(restId);
       if (res?.data?.status === 'ok') setMerchantDetails(res.data.data);
     } catch (err) {
-      console.log('getMerchantProfile err', err);
     } finally {
       setLoading(false);
     }
@@ -316,7 +306,6 @@ const ReOccuringCheckout = ({route}) => {
         });
       }
     } catch (err) {
-      console.log('applyPromoCode err', err);
       showModal({
         icons: icons.cross,
         title: 'Error',
@@ -402,7 +391,6 @@ const ReOccuringCheckout = ({route}) => {
       orderCategory: 'preOrder',
     };
 
-    console.log(payload, 'alkabsdajsbjdakjsdbkajbdakjbsdkjabsd');
     setLoading(true);
     try {
       const res = await placeUserOrder(payload);
@@ -415,7 +403,6 @@ const ReOccuringCheckout = ({route}) => {
         });
       }
     } catch (err) {
-      console.log('placeUserOrder err', err);
       showModal({
         title: 'Error',
         message: err?.response?.data?.message || 'Failed to place order',
@@ -507,19 +494,6 @@ const ReOccuringCheckout = ({route}) => {
     });
   }, []);
 
-  /* ---------------- TIME CONFIRM ---------------- */
-  const handleTimeConfirm = time => {
-    setSelectedDates(prev => {
-      const updated = [...prev];
-      updated[activeDateIndex] = {
-        ...updated[activeDateIndex],
-        time,
-      };
-      return updated;
-    });
-    setOpenTimePicker(false);
-  };
-
   return (
     <View style={{flex: 1, backgroundColor: colors.white}}>
       <AppHeader goBack notificationsIcon text="Check out" />
@@ -569,18 +543,18 @@ const ReOccuringCheckout = ({route}) => {
                         type={'reOccuring'}
                         ischeckout={true}
                         handleIncreaseQuantity={() =>
-                          updateProduct(dateIndex, prod._id, {
+                          updateProduct(index, prod._id, {
                             selectedQty: prod.selectedQty + 1,
                           })
                         }
                         handleDecreaseQuantity={() =>
                           prod.selectedQty > 1 &&
-                          updateProduct(dateIndex, prod._id, {
+                          updateProduct(index, prod._id, {
                             selectedQty: prod.selectedQty - 1,
                           })
                         }
                         handleSelectToCheckout={() =>
-                          updateProduct(dateIndex, prod._id, {
+                          updateProduct(index, prod._id, {
                             isSelected: !prod.isSelected,
                           })
                         }
