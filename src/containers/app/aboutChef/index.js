@@ -1,5 +1,5 @@
 import {useNavigation, useRoute} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -10,12 +10,15 @@ import {
   View,
 } from 'react-native';
 import {height, width} from 'react-native-dimension';
+import {useSelector} from 'react-redux';
 import {fontFamily, icons} from '../../../assets';
 import ActionBuuton from '../../../components/actionButton';
+import BackButton from '../../../components/backIcon';
 import ChefsCard from '../../../components/chefsCard';
 import AppHeader from '../../../components/headerComponent';
 import PrimaryButton from '../../../components/primaryButton';
 import {colors, Colors} from '../../../constants';
+import {getMerchantProAndDetails} from '../../../services/merchant';
 
 const CustomRating = ({rating = 0, starSize = 12, maxStars = 5}) => {
   const fullStars = Math.floor(rating);
@@ -73,15 +76,34 @@ const CustomRating = ({rating = 0, starSize = 12, maxStars = 5}) => {
 };
 
 const AboutChef = () => {
-  const navigation = useNavigation();
   const route = useRoute();
-  console.log(route, 'routerouterouterouteroute');
-
+  const navigation = useNavigation();
+  const {user} = useSelector(state => state.LoginSlice);
+  const [mealsFromMerchant, setMealsFromMerchant] = useState([]);
   const [activeTab, setActiveTab] = useState('About');
-
-  // Get chef data from route params or use default data
   const chefData = route?.params;
-  // Calculate rating from reviews or use default
+  console.log(
+    mealsFromMerchant,
+    'chefDatachefDatachefDatachefDatachefDatachefData',
+  );
+  useEffect(() => {
+    fetchMerchantDetails();
+  }, []);
+
+  const fetchMerchantDetails = async () => {
+    // setIsLoading(true);
+    try {
+      const response = await getMerchantProAndDetails(chefData?._id, user?._id);
+
+      if (response.status === 200 || response.status === 201) {
+        setMealsFromMerchant(response?.data?.products);
+      }
+    } catch (error) {
+      console.error('Fetch merchant details error:', error);
+    } finally {
+      // setIsLoading(false);
+    }
+  };
   const calculateRating = () => {
     if (chefData?.reviews && chefData?.reviews.length > 0) {
       const totalRating = chefData?.reviews.reduce(
@@ -226,7 +248,166 @@ const AboutChef = () => {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.tabContent}>
-          <Text style={styles.comingSoonText}>Portfolio coming soon</Text>
+          <Text
+            style={{
+              fontFamily: fontFamily.poppinSemiBold,
+              fontSize: 16,
+              color: colors.redish,
+              marginTop: width(2),
+            }}>
+            Meals from this chef
+          </Text>
+          {mealsFromMerchant.map(item => {
+            return (
+              <View
+                style={{
+                  marginVertical: width(2),
+                  padding: width(3),
+                  backgroundColor: colors.white,
+                  borderRadius: width(2),
+                  borderBottomWidth: 1,
+                  borderBottomColor: Colors.grayyy,
+                }}>
+                {/* Top Row: Image + Details */}
+                <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+                  <Image
+                    source={{uri: item?.image}}
+                    style={{
+                      height: width(30),
+                      width: width(30),
+                      borderRadius: 8,
+                    }}
+                    resizeMode="cover"
+                  />
+                  <View style={{flex: 1, marginLeft: width(3)}}>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontFamily: fontFamily.poppinBold,
+                        color: colors.redish,
+                      }}>
+                      {item?.name}
+                    </Text>
+
+                    {/* Rating */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 4,
+                        gap: 4,
+                      }}>
+                      <Image
+                        source={icons.yellowStar}
+                        style={{height: width(3), width: width(3)}}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          fontFamily: fontFamily.poppinRegular,
+                        }}>
+                        4.8 (120+)
+                      </Text>
+                    </View>
+
+                    {/* Price & Time */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 6,
+                        gap: 10,
+                      }}>
+                      <Text
+                        style={{
+                          fontFamily: fontFamily.poppinBold,
+                          color: colors.red,
+                        }}>
+                        {item?.price}
+                      </Text>
+                      {item?.discount > 0 && (
+                        <Text
+                          style={{
+                            fontFamily: fontFamily.poppinBold,
+                            fontSize: 12,
+                            textDecorationLine: 'line-through',
+                            color: colors.grey,
+                          }}>
+                          {item?.discount}
+                        </Text>
+                      )}
+                      <Image
+                        source={icons.clock}
+                        style={{height: width(3), width: width(3)}}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          fontFamily: fontFamily.poppinRegular,
+                          color: colors.grey,
+                        }}>
+                        20 mins
+                      </Text>
+                    </View>
+
+                    {/* Buttons */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        gap: width(2),
+                      }}>
+                      <View style={{width: width(20)}}>
+                        <ActionBuuton
+                          bgcColor={colors.redish}
+                          fontColor={colors.white}
+                          fontSize={8}
+                          height={width(8)}
+                          name="View Details"
+                          onPress={() =>
+                            navigation.navigate('ProductDetail', {
+                              data: item,
+                              productId: item?.foodId?._id || item._id,
+                              type: 'normal',
+                            })
+                          }
+                        />
+                      </View>
+                      <View style={{width: width(20)}}>
+                        <ActionBuuton
+                          bgcColor={colors.white}
+                          fontSize={8}
+                          fontColor={colors.black}
+                          height={width(8)}
+                          name="Add to cart"
+                          // onPress={() => handleAddToCart(item)}
+                        />
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Heart & Share Icons */}
+                  <View
+                    style={{
+                      marginLeft: 8,
+                      alignItems: 'center',
+                      gap: 5,
+                      marginBottom: 5,
+                    }}>
+                    <BackButton
+                      icon={item.isFav ? icons.fillHeart : icons.heartBrown}
+                      border={1}
+                      // onPress={() => onFavPress(item)}
+                    />
+                    <BackButton
+                      icon={icons.share}
+                      border={1}
+                      // onPress={() => handleShareProduct(item)}
+                    />
+                  </View>
+                </View>
+              </View>
+            );
+          })}
         </ScrollView>
       );
     } else {
