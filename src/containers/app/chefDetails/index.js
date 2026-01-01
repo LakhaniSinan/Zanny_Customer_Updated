@@ -20,8 +20,9 @@ import {addToFavFun} from '../../../services/favourite';
 import {getMerchantProAndDetails} from '../../../services/merchant';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ChefDetails = ({route, navigation}) => {
+const ChefDetails = ({route}) => {
   const {merchantId} = route.params;
+
   const {user} = useSelector(state => state.LoginSlice);
   const dispatch = useDispatch(null);
   const {cartData} = useSelector(state => state.CartSlice);

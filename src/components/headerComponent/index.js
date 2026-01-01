@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {width} from 'react-native-dimension';
 import {Colors, colors} from '../../constants';
@@ -20,7 +13,8 @@ const AppHeader = ({
   cartIcon,
   addressPlus,
   onPressAddress,
-  onCartIconPress,
+  showfilter,
+  onFilterPress,
   logout,
   drawer,
   address,
@@ -50,14 +44,7 @@ const AppHeader = ({
       )}
       {notificationsIcon && (
         <View style={styles.rightIconWrapper}>
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() =>
-              Alert.alert(
-                'Coming Soon',
-                'This feature is currently under development. Please check back later!',
-              )
-            }>
+          <TouchableOpacity style={styles.backBtn} onPress={() => {}}>
             <Image
               source={icons.bellIcon}
               resizeMode="contain"
@@ -81,6 +68,19 @@ const AppHeader = ({
                 <Text style={styles.badgeText}>{cartData.length}</Text>
               </View>
             )}
+          </TouchableOpacity>
+        </View>
+      )}
+      {showfilter && (
+        <View style={styles.wrapperfilter}>
+          <TouchableOpacity
+            style={styles.wrapperfilterIcon}
+            onPress={onFilterPress}>
+            <Image
+              source={icons.filterIcon}
+              resizeMode="contain"
+              style={styles.backIcon}
+            />
           </TouchableOpacity>
         </View>
       )}
@@ -157,6 +157,27 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     borderWidth: 1,
     borderColor: Colors.gray,
+  },
+  wrapperfilter: {
+    position: 'absolute',
+    right: 200,
+    justifyContent: 'center',
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: Colors.gray,
+  },
+
+  wrapperfilterIcon: {
+    height: width(10),
+    width: width(10),
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    left: 100,
+    zIndex: 10,
+    borderWidth: 1,
+    borderColor: Colors.clay,
+    borderRadius: 100,
   },
 
   title: {

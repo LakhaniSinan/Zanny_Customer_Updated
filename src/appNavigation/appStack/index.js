@@ -4,24 +4,30 @@ import {
   TransitionSpecs,
   createStackNavigator,
 } from '@react-navigation/stack';
+import {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import PaymentScreen from '../../components/stripePayment/PaymentScreen';
+import AboutChef from '../../containers/app/aboutChef';
 import Address from '../../containers/app/address';
 import AddEditAddress from '../../containers/app/address/addEditAddress';
 import AllCategories from '../../containers/app/allCategories';
+import AllChefs from '../../containers/app/allChefs';
 import EditAllergies from '../../containers/app/allergies/editAllergies';
 import AllFoodScreen from '../../containers/app/allFoodScreen';
 import CartScreen from '../../containers/app/cartScreen';
+import ChefDetails from '../../containers/app/chefDetails';
 import OrderDetail from '../../containers/app/orderDetails';
 import Orders from '../../containers/app/orders';
 import PaymentCard from '../../containers/app/paymentCard';
 import AddEditPaymentCard from '../../containers/app/paymentCard/addEditPaymentCard';
 import PaymentOptions from '../../containers/app/paymentOptions';
+import PrivacyPolicy from '../../containers/app/privacyPolicy';
 import PrivateOrder from '../../containers/app/privateOrder';
 import ProductDetail from '../../containers/app/productDetail';
 import Profile from '../../containers/app/profile';
 import ChangePassword from '../../containers/app/profile/chnagePassword';
 import PersonalInfo from '../../containers/app/profile/personalInfo';
+import restaurants from '../../containers/app/restaurants';
 import Cart from '../../containers/app/restaurants/cart';
 import Checkout from '../../containers/app/restaurants/checkout';
 import Products from '../../containers/app/restaurants/products';
@@ -29,23 +35,17 @@ import Reviews from '../../containers/app/restaurants/reviews';
 import SearchScreen from '../../containers/app/searchScreen';
 import Support from '../../containers/app/support';
 import AddSupportMsg from '../../containers/app/support/addSupportMsg';
+import TermsAndConditions from '../../containers/app/termsAndConditions';
 import UpdateAllergies from '../../containers/app/updateAllergies';
 import UserAllergies from '../../containers/app/userAllergies';
 import AllVouchers from '../../containers/app/vouchers';
-import BottomNavigation from './bottomTab';
-import Login from '../../containers/auth/Login';
-import TermsAndConditions from '../../containers/app/termsAndConditions';
-import SignUpScreen from '../../containers/auth/SignUp';
 import CodeVerification from '../../containers/auth/Codeverification';
 import ForgotPassword from '../../containers/auth/forgotPassword';
+import Login from '../../containers/auth/Login';
 import ResetPassword from '../../containers/auth/resetPassword';
-import restaurants from '../../containers/app/restaurants';
+import SignUpScreen from '../../containers/auth/SignUp';
 import {handelGetAddress} from '../../redux/slices/Address';
-import {useEffect} from 'react';
-import ChefDetails from '../../containers/app/chefDetails';
-import PrivacyPolicy from '../../containers/app/privacyPolicy';
-import AllChefs from '../../containers/app/allChefs';
-import {handelGetCard} from '../../redux/slices/UserCards';
+import BottomNavigation from './bottomTab';
 
 const Stack = createStackNavigator();
 
@@ -85,38 +85,8 @@ export function CustomerStack() {
 
   useEffect(() => {
     if (user) dispatch(handelGetAddress());
-    if (user) dispatch(handelGetCard(user?._id));
   }, [dispatch, user]);
 
-  // useEffect(() => {
-  //   getLinkingData();
-  // }, []);
-
-  // const getLinkingData = () => {
-  //   // Linking.addEventListener('url', handleOpenUrl);
-  //   Linking.getInitialURL().then(url => {
-  //     if (url != null) {
-  //       console.log(url, 'urlurlurl');
-  //       getParams(url);
-  //     }
-  //   });
-  //   const getParams = url => {
-  //     if (Platform.OS == 'android') {
-  //       let array = url.split('?');
-
-  //       let array2 = array[1].split('/');
-  //       console.log(array2, 'array2array2array2');
-
-  //       if (array2[0] == 'ProductDetail') {
-  //         navigation.navigate(array2[0], {
-  //           productUrl: array2[1],
-  //           referedBy: array2[2],
-  //           initial: false,
-  //         });
-  //       }
-  //     }
-  //   };
-  // };
   return (
     <Stack.Navigator
       screenOptions={{
@@ -137,9 +107,19 @@ export function CustomerStack() {
           headerShown: false,
           tabBarVisible: false,
         }}
+        name="AboutChef"
+        component={AboutChef}
+      />
+
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
         name="AllChefs"
         component={AllChefs}
       />
+
       <Stack.Screen
         name="UserAllergies"
         component={UserAllergies}

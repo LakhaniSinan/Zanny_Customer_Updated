@@ -37,6 +37,7 @@ export const images = {
 };
 
 export const icons = {
+  filterIcon: require('../assets/icons/filterIcon.png'),
   foodIcon: require('../assets/icons/foodIcon.png'),
   ShoppingCart: require('../assets/icons/ShoppingCart.png'),
   Ticket: require('../assets/icons/Ticket.png'),
@@ -57,6 +58,7 @@ export const icons = {
   Crown: require('../assets/icons/Crown.png'),
   Bottle: require('../assets/icons/Bottle.png'),
   ArrowLeft: require('../assets/icons/ArrowLeft.png'),
+
   Info: require('../assets/icons/Info.png'),
   positive: require('../assets/icons/positive.png'),
   negative: require('../assets/icons/negative.png'),

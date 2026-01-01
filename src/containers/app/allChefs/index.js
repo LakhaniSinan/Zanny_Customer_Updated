@@ -1,20 +1,13 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-  ActivityIndicator,
-} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {FlatList, RefreshControl, StyleSheet, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {fontFamily} from '../../../assets';
+import AllChefsCard from '../../../components/allChefsCard';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
-import HireCheifCard from '../../../components/hireChefCard';
 import {colors, Colors} from '../../../constants';
 import {getAllMerchants} from '../../../services/merchant';
-import CustomInput from '../../../components/customInput';
+import FilterModal from '../../../components/filterModal';
 
 const AllChefs = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,8 +22,8 @@ const AllChefs = () => {
   });
 
   const [data, setData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
 
   const showModal = (type, message) => {
     setModalData({
@@ -71,65 +64,42 @@ const AllChefs = () => {
     fetchMerchants(false);
   };
 
-  const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return data;
-    const query = searchQuery.toLowerCase();
-    return data.filter(item => item?.name?.toLowerCase().includes(query));
-  }, [data, searchQuery]);
+  const handleApplyFilter = filterData => {
+    console.log('Applied filters:', filterData);
+  };
 
   return (
     <View style={styles.container}>
-      <AppHeader goBack={true} text="All Chefs" />
+      <AppHeader
+        goBack={true}
+        text="Hire Chef"
+        cartIcon={true}
+        showfilter={true}
+        onFilterPress={() => setFilterModalVisible(true)}
+      />
 
-      {/* Search */}
-      <View style={styles.searchContainer}>
-        <Text style={styles.searchLabel}>Search By Chef Name</Text>
-        <CustomInput
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder="Search chefs"
-          placeholderTextColor={Colors.graydark}
-          style={styles.searchInput}
-        />
-      </View>
-
-      {/* Loader */}
-      {isLoading && (
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color={Colors.orange} />
-        </View>
-      )}
-
-      {/* Empty State */}
-      {!isLoading && filteredData.length === 0 && (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>
-            {searchQuery
-              ? 'No chefs match your search.'
-              : 'No chefs available at the moment.'}
+      <FlatList
+        data={data}
+        renderItem={({item}) => <AllChefsCard item={item} />}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={(item, index) => item?._id || index.toString()}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+        ListEmptyComponent={
+          <Text
+            style={{
+              fontFamily: fontFamily.poppinBold,
+              color: colors.gray,
+            }}>
+            No Merchant found
           </Text>
-        </View>
-      )}
-
-      {/* LIST */}
-      {!isLoading && (
-        <FlatList
-          data={filteredData}
-          renderItem={({item}) => <HireCheifCard item={item} />}
-          numColumns={2}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item, index) => item?._id || index.toString()}
-          columnWrapperStyle={styles.rowWrapper}
-          contentContainerStyle={styles.contentContainer}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-          }
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={10}
-          removeClippedSubviews
-        />
-      )}
+        }
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        removeClippedSubviews
+      />
 
       <CustomModal
         visible={modalVisible}
@@ -140,6 +110,12 @@ const AllChefs = () => {
         onConfirm={modalData.onConfirm}
         onCancel={modalData.onCancel}
         close={() => setModalVisible(false)}
+      />
+
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        onApplyFilter={handleApplyFilter}
       />
     </View>
   );
@@ -182,6 +158,9 @@ const styles = StyleSheet.create({
     gap: width(5),
     paddingVertical: width(5),
     paddingBottom: 100,
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loaderContainer: {
     paddingTop: 20,
