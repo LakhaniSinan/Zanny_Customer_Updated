@@ -51,14 +51,6 @@
 				<string>zannysfood</string>
 			</array>
 		</dict>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>Google Sign-In</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.929084652852-294nak4mtq2cvtguqeq84o8ci9h38stq</string>
-			</array>
-		</dict>
 	</array>
 	<key>UIAppFonts</key>
 	<array>

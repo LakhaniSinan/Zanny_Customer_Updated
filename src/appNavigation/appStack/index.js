@@ -1,14 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import {
   createStackNavigator,
   HeaderStyleInterpolators,
   TransitionSpecs,
 } from '@react-navigation/stack';
-import {useEffect} from 'react';
-import {Platform} from 'react-native';
-import {RESULTS} from 'react-native-permissions';
-import {useDispatch, useSelector} from 'react-redux';
+import { useEffect } from 'react';
+import { RESULTS } from 'react-native-permissions';
+import { useDispatch, useSelector } from 'react-redux';
 import PaymentScreen from '../../components/stripePayment/PaymentScreen';
 import Address from '../../containers/app/address';
 import AddEditAddress from '../../containers/app/address/addEditAddress';
@@ -18,12 +17,16 @@ import AllChefs from '../../containers/app/allChefs';
 import EditAllergies from '../../containers/app/allergies/editAllergies';
 import AllFoodScreen from '../../containers/app/allFoodScreen';
 import CartScreen from '../../containers/app/cartScreen';
+import Chat from '../../containers/app/chat';
 import CheckoutScreen from '../../containers/app/checkoutScreen';
 import ChefDetails from '../../containers/app/chefDetails';
+import Favourite from '../../containers/app/favourite';
 import HelpCenter from '../../containers/app/helpCenter';
+import HireChefScreen from '../../containers/app/hireChefScreen';
 import Notifications from '../../containers/app/notification';
 import OrderDetail from '../../containers/app/orderDetails';
 import Orders from '../../containers/app/orders';
+import OrderSummry from '../../containers/app/orderSummry';
 import PaymentCard from '../../containers/app/paymentCard';
 import AddEditPaymentCard from '../../containers/app/paymentCard/addEditPaymentCard';
 import PaymentOptions from '../../containers/app/paymentOptions';
@@ -34,6 +37,7 @@ import ProductDetail from '../../containers/app/productDetail';
 import Profile from '../../containers/app/profile';
 import ChangePassword from '../../containers/app/profile/chnagePassword';
 import PersonalInfo from '../../containers/app/profile/personalInfo';
+import SpecialOrderRequest from '../../containers/app/profile/SpecialOrderRequest';
 import ReOccuringCheckout from '../../containers/app/reOccuringCheckOut';
 import ReOccurinOrder from '../../containers/app/reOccurinOrder';
 import restaurants from '../../containers/app/restaurants';
@@ -42,6 +46,9 @@ import Checkout from '../../containers/app/restaurants/checkout';
 import Products from '../../containers/app/restaurants/products';
 import Reviews from '../../containers/app/restaurants/reviews';
 import SearchScreen from '../../containers/app/searchScreen';
+import SelectMeals from '../../containers/app/selectMeals';
+import SubscribeChefScreen from '../../containers/app/subscribeChef';
+import SubscribeChefDay from '../../containers/app/subscribeChef/dayDetail';
 import Support from '../../containers/app/support';
 import AddSupportMsg from '../../containers/app/support/addSupportMsg';
 import TermsAndConditions from '../../containers/app/termsAndConditions';
@@ -53,15 +60,13 @@ import ForgotPassword from '../../containers/auth/forgotPassword';
 import Login from '../../containers/auth/Login';
 import ResetPassword from '../../containers/auth/resetPassword';
 import SignUpScreen from '../../containers/auth/SignUp';
-import {helper} from '../../helper';
-import {handelGetAddress} from '../../redux/slices/Address';
-import {handleFetchHomeData} from '../../redux/slices/HomeData';
-import {setCurrentLocation} from '../../redux/slices/Location';
-import {handleFetchCardsData} from '../../redux/slices/UserCards';
+import { helper } from '../../helper';
+import { handelGetAddress } from '../../redux/slices/Address';
+import { handleFetchHomeData } from '../../redux/slices/HomeData';
+import { setCurrentLocation } from '../../redux/slices/Location';
+import { handleFetchCardsData } from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
-import SpecialOrderRequest from '../../containers/app/profile/SpecialOrderRequest';
-import Favourite from '../../containers/app/favourite';
-import Chat from '../../containers/app/chat';
+import AboutChef from '../../containers/app/aboutChef';
 
 const Stack = createStackNavigator();
 
@@ -72,7 +77,7 @@ export const MyTransition = {
     close: TransitionSpecs.TransitionIOSSpec,
   },
   headerStyleInterpolator: HeaderStyleInterpolators.forFade,
-  cardStyleInterpolator: ({current, next, layouts}) => {
+  cardStyleInterpolator: ({ current, next, layouts }) => {
     return {
       cardStyle: {
         transform: [
@@ -102,9 +107,9 @@ const DEFAULT_UK_LOCATION = {
 
 export function CustomerStack() {
   const dispatch = useDispatch(null);
-  const {user} = useSelector(state => state.LoginSlice);
+  const { user } = useSelector(state => state.LoginSlice);
   const navigation = useNavigation();
-  const {currentLocation} = useSelector(state => state.LocationSlice);
+  const { currentLocation } = useSelector(state => state.LocationSlice);
 
   useEffect(() => {
     handleGetCurrentLocation();
@@ -191,6 +196,14 @@ export function CustomerStack() {
           headerShown: false,
           tabBarVisible: false,
         }}
+        name="AboutChef"
+        component={AboutChef}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
         name="ReOccurinOrder"
         component={ReOccurinOrder}
       />
@@ -218,6 +231,7 @@ export function CustomerStack() {
         name="AllChefs"
         component={AllChefs}
       />
+
       <Stack.Screen
         options={{
           headerShown: false,
@@ -265,6 +279,27 @@ export function CustomerStack() {
         }}
       />
       <Stack.Screen
+        name="HireChefScreen"
+        component={HireChefScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="SubscribeChefScreen"
+        component={SubscribeChefScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="SubscribeChefDay"
+        component={SubscribeChefDay}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="PrivacyPolicy"
         component={PrivacyPolicy}
         options={{
@@ -298,6 +333,20 @@ export function CustomerStack() {
       <Stack.Screen
         name="Products"
         component={Products}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="SelectMeals"
+        component={SelectMeals}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="OrderSummry"
+        component={OrderSummry}
         options={{
           headerShown: false,
         }}
@@ -414,7 +463,7 @@ export function CustomerStack() {
           headerShown: false,
         }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="SpecialOrderRequest"
         component={SpecialOrderRequest}
         options={{
@@ -423,7 +472,7 @@ export function CustomerStack() {
       />
 
 
-  <Stack.Screen
+      <Stack.Screen
         name="Favourite"
         component={Favourite}
         options={{

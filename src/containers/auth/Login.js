@@ -12,6 +12,7 @@ import {
 import React, {useEffect, useState} from 'react';
 import {Image, Platform, Text, TouchableOpacity, View} from 'react-native';
 import {width} from 'react-native-dimension';
+import {requestNotifications} from 'react-native-permissions';
 import {useDispatch} from 'react-redux';
 import {icons} from '../../assets';
 import CustomInput from '../../components/customInput';
@@ -78,12 +79,9 @@ const Login = ({navigation}) => {
   }, []);
   const requestUserPermission = async () => {
     try {
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      const {status} = await requestNotifications(['alert', 'sound', 'badge']);
 
-      if (enabled) {
+      if (status === 'granted') {
         console.log('NOTIFICATION PERMISSION GRANTED');
         await initFCM();
       } else {
@@ -137,32 +135,22 @@ const Login = ({navigation}) => {
   const handleGoogleLogin = async () => {
     try {
       setIsVisible(true);
-
-      if (Platform.OS === 'android') {
-        await GoogleSignin.hasPlayServices({
-          showPlayServicesUpdateDialog: true,
-        });
-      }
-
+      await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      const googleUser = userInfo?.data?.user;
-      console.log(userInfo, 'Google sign-in response');
-
       const payload = {
-        customerImage: googleUser?.photo,
-        email: googleUser?.email,
+        customerImage: userInfo?.user?.photo,
+        email: userInfo?.user?.email,
         fcm: inputValues.fcm,
         isActive: 'Active',
-        name: googleUser?.name,
+        name: userInfo?.user?.name,
         password: null,
       };
-      console.log(payload, 'Google login payload');
 
       const response = await socialLogin(payload);
       if (response.status === 200 || response.status === 201) {
         const user = {
           ...response.data.data.userDetails,
-          customerImage: googleUser?.photo,
+          customerImage: userInfo?.user?.photo,
         };
         await AsyncStorage.setItem('user_token', response.data.data.token);
         await AsyncStorage.setItem('user', JSON.stringify(user));
@@ -191,30 +179,18 @@ const Login = ({navigation}) => {
 
   const handleAppleLogin = async () => {
     try {
-      setIsVisible(true);
-
-      // Check if Apple Auth is available on this device
-      if (!appleAuth.isSupported) {
-        showModal('error', 'Apple Sign-In is not supported on this device');
-        setIsVisible(false);
-        return;
-      }
-
-      // Try using imported constants, fallback to numeric values if undefined
-      const LOGIN_OPERATION = AppleAuthRequestOperation?.LOGIN ?? 0;
-      const EMAIL_SCOPE = AppleAuthRequestScope?.EMAIL ?? 0;
-      const FULL_NAME_SCOPE = AppleAuthRequestScope?.FULL_NAME ?? 1;
-      const AUTHORIZED_STATE = AppleAuthCredentialState?.AUTHORIZED ?? 1;
-
       const appleResponse = await appleAuth.performRequest({
-        requestedOperation: LOGIN_OPERATION,
-        requestedScopes: [EMAIL_SCOPE, FULL_NAME_SCOPE],
+        requestedOperation: AppleAuthRequestOperation.LOGIN,
+        requestedScopes: [
+          AppleAuthRequestScope.EMAIL,
+          AppleAuthRequestScope.FULL_NAME,
+        ],
       });
 
       const credentialState = await appleAuth.getCredentialStateForUser(
         appleResponse.user,
       );
-      if (credentialState === AUTHORIZED_STATE) {
+      if (credentialState === AppleAuthCredentialState.AUTHORIZED) {
         const {email, fullName, identityToken} = appleResponse;
         const payload = {
           name: fullName,
@@ -241,26 +217,8 @@ const Login = ({navigation}) => {
           showModal('error', response?.data?.message || 'Apple login failed');
       } else showModal('error', 'Apple authorization failed');
     } catch (err) {
-      console.log(err, 'errerrerrerrerrerrerrerrqewd');
-
-      if (err.code === 'ERR_REQUEST_CANCELED' || err.code === 1001) {
-        // User cancelled, don't show error
-        console.log('Apple Sign-In cancelled by user');
-      } else if (err.code === 1000 || err.message?.includes('error 1000')) {
-        // Error 1000: Configuration issue
-        showModal(
-          'error',
-          'Apple Sign-In is not properly configured. Please ensure:\n\n1. "Sign in with Apple" capability is enabled in Xcode\n2. App is configured in Apple Developer portal\n3. Testing on a real device (not simulator)',
-        );
-      } else {
-        showModal(
-          'error',
-          err.message || 'Apple Sign-In error. Please try again.',
-        );
-        console.log('Apple Sign-In error', err);
-      }
-    } finally {
-      setIsVisible(false);
+      showModal('error', 'Apple Sign-In error');
+      console.log('Apple Sign-In error', err);
     }
   };
 
@@ -394,75 +352,6 @@ const Login = ({navigation}) => {
         <Text style={{marginHorizontal: 10}}>Or</Text>
         <View style={{flex: 1, height: 1, backgroundColor: Colors.softgray}} />
       </View>
-
-      {/* Google Login Button */}
-      <View
-        style={{
-          height: width(15),
-          width: '100%',
-          marginTop: width(2),
-          paddingHorizontal: width(3),
-        }}>
-        <TouchableOpacity
-          onPress={handleGoogleLogin}
-          style={{
-            height: '100%',
-            width: '100%',
-            backgroundColor: Colors.white,
-            borderRadius: 10,
-            borderWidth: 1,
-            borderColor: Colors.border,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 10,
-          }}>
-          <Image
-            source={icons.Google}
-            resizeMode="contain"
-            style={{height: width(6), width: width(6)}}
-          />
-          <Text style={{fontSize: 16, fontWeight: '500', color: Colors.black}}>
-            Continue with Google
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Apple Login Button - iOS Only */}
-      {/* {Platform.OS === 'ios' && (
-        <View
-          style={{
-            height: width(15),
-            width: '100%',
-            marginTop: width(2),
-            paddingHorizontal: width(3),
-          }}>
-          <TouchableOpacity
-            onPress={handleAppleLogin}
-            style={{
-              height: '100%',
-              width: '100%',
-              backgroundColor: Colors.black,
-              borderRadius: 10,
-              borderWidth: 1,
-              borderColor: Colors.black,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 10,
-            }}>
-            <Image
-              source={icons.apple}
-              resizeMode="contain"
-              style={{height: width(6), width: width(6)}}
-            />
-            <Text
-              style={{fontSize: 16, fontWeight: '500', color: Colors.white}}>
-              Continue with Apple
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )} */}
 
       {/* Register Link */}
       <View

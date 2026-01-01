@@ -39,13 +39,14 @@ export const images = {
 };
 
 export const icons = {
-  reserve : require('../assets/icons/reserve.png'),
-  chat : require('../assets/icons/chat.png'),
-  days : require('../assets/icons/days.png'),
-  heartss : require('../assets/icons/heartss.png'),
+  reserve: require('../assets/icons/reserve.png'),
+  chat: require('../assets/icons/chat.png'),
+  days: require('../assets/icons/days.png'),
+  heartss: require('../assets/icons/heartss.png'),
   tickIcon: require('../assets/icons/tickIcon.png'),
   timeIcon: require('../assets/icons/timeIcon.png'),
   calendarIcon: require('../assets/icons/calendarIcon.png'),
+  filterIcon: require('../assets/icons/filterIcon.png'),
   foodIcon: require('../assets/icons/foodIcon.png'),
   ShoppingCart: require('../assets/icons/ShoppingCart.png'),
   Ticket: require('../assets/icons/Ticket.png'),
