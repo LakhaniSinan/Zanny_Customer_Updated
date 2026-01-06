@@ -1,6 +1,10 @@
 // CheckoutScreen.js (updated with CustomModal)
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {CommonActions, useFocusEffect, useNavigation} from '@react-navigation/native';
+import {
+  CommonActions,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import moment from 'moment';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
@@ -384,7 +388,6 @@ const CheckoutScreen = ({route}) => {
       orderType: orderType,
       paymentType: wallet,
       promoData: promoData,
-
       noteForChef: note,
       deliveryData: moment(data?.selectedDate).format('DD-MM-YYYY'),
       deliveryTime: moment(data?.time).format('hh:mm A'),
@@ -392,6 +395,7 @@ const CheckoutScreen = ({route}) => {
     };
 
     console.log(payload, 'alkabsdajsbjdakjsdbkajbdakjbsdkjabsd');
+    return;
     setLoading(true);
     try {
       const res = await placeUserOrder(payload);
@@ -609,7 +613,11 @@ const CheckoutScreen = ({route}) => {
               marginBottom: width(2),
               fontFamily: fontFamily.poppin,
             }}>
-            {wallet?.last4
+            {wallet?.paymentMethodId === 'GOOGLE_PAY'
+              ? 'Google Pay'
+              : wallet?.paymentMethodId === 'APPLE_PAY'
+              ? 'Apple Pay'
+              : wallet?.last4
               ? `**** ${wallet?.last4}`
               : 'Select a payment method'}
           </Text>

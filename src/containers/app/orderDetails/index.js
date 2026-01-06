@@ -116,22 +116,6 @@ const OrderDetail = ({navigation, route}) => {
       {text: 'Yes', onPress: () => handleCancelOrder()},
     ]);
   };
-  const getStatusStyle = status => {
-    switch (status?.toLowerCase()) {
-      case 'pending':
-        return {bg: 'rgba(255,165,0,0.2)', color: '#FFA500'};
-      case 'accepted':
-        return {bg: 'rgba(30,144,255,0.2)', color: '#1E90FF'};
-      case 'rejected':
-        return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
-      case 'completed':
-        return {bg: 'rgba(50,205,50,0.2)', color: '#32CD32'};
-      default:
-        return {bg: 'rgba(144,238,144,0.3)', color: '#32CD32'};
-    }
-  };
-
-  const statusStyle = getStatusStyle(data?.status);
 
   const getStatusStyle = status => {
     switch (status?.toLowerCase()) {
