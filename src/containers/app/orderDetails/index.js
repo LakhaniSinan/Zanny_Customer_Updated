@@ -7,6 +7,7 @@ import AppHeader from '../../../components/headerComponent';
 import {updateOrderStatus} from '../../../services/order';
 import {colors} from './../../../constants/index';
 import styles from './style';
+import {fontFamily} from '../../../assets';
 
 const OrderDetail = ({navigation, route}) => {
   const data = route.params;
@@ -73,7 +74,7 @@ const OrderDetail = ({navigation, route}) => {
     });
 
     setSubTotal(total);
-  }, [data]);
+  }, [data?.order]);
 
   const handleAccept = () => {
     if (prepareTime == '') {
@@ -87,7 +88,7 @@ const OrderDetail = ({navigation, route}) => {
   const handleCancelOrder = () => {
     let payload = {
       Id: data?._id,
-      status: 'Rejected',
+      status: 'Cancelled',
       userId: user?._id,
     };
 
@@ -132,6 +133,23 @@ const OrderDetail = ({navigation, route}) => {
 
   const statusStyle = getStatusStyle(data?.status);
 
+  const getStatusStyle = status => {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return {bg: 'rgba(255,165,0,0.2)', color: '#FFA500'};
+      case 'accepted':
+        return {bg: 'rgba(30,144,255,0.2)', color: '#1E90FF'};
+      case 'cancelled':
+        return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
+      case 'completed':
+      case 'delivered':
+        return {bg: 'rgba(50,205,50,0.2)', color: '#32CD32'};
+      default:
+        return {bg: 'rgba(144,238,144,0.3)', color: '#32CD32'};
+    }
+  };
+  const statusStyle = getStatusStyle(data?.status);
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <AppHeader text="Order Details" goBack={true} />
@@ -146,12 +164,32 @@ const OrderDetail = ({navigation, route}) => {
         <Text style={styles.orderheading}>Order Details</Text>
         <View style={styles.borderstyle}>
           <View style={styles.ordertxtview}>
-            <Text style={styles.subheading}>Order number</Text>
-            <View style={styles.oredernotxt}>
-              <Text style={styles.oredernotxt}>{data.orderId}</Text>
+            <Text style={styles.subheading}>Order Status</Text>
+            <View
+              style={{
+                backgroundColor: statusStyle.bg,
+                paddingHorizontal: width(4),
+                paddingVertical: 1,
+                borderRadius: 999,
+                borderWidth: 1,
+                borderColor: statusStyle.color,
+              }}>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: fontFamily.poppinBold,
+                  color: statusStyle.color,
+                }}>
+                {data?.status}
+              </Text>
             </View>
           </View>
+
           <View style={styles.ordertxtview}>
+            <Text style={styles.subheading}>Order number</Text>
+            <View style={styles.oredernotxt}>
+              <Text style={styles.oredernotxt}>#{data.orderId}</Text>
+            </View>
             <Text style={styles.subheading}>Order Status</Text>
             <Text
               style={[
@@ -166,6 +204,7 @@ const OrderDetail = ({navigation, route}) => {
               {data.status}
             </Text>
           </View>
+
           {data.pickupTimmings && data.orderType == 'pickup' && (
             <View style={styles.ordertxtview}>
               <Text style={{color: colors.black}}>Expected Time :</Text>
@@ -191,7 +230,7 @@ const OrderDetail = ({navigation, route}) => {
             </View>
           ) : null}
           <View style={styles.ordertxtview}>
-            <Text style={styles.subheading}>Order from</Text>
+            <Text style={styles.subheading}>Chef's Name</Text>
             <Text style={styles.orderfromtxt}>
               {data.merchantDetails?.name}
             </Text>
@@ -264,6 +303,15 @@ const OrderDetail = ({navigation, route}) => {
             );
           })}
         </View>
+        <View style={styles.ordertxtview}>
+          <Text
+            style={[styles.subheading, {fontFamily: fontFamily.poppinBold}]}>
+            Sub Total
+          </Text>
+          <Text style={styles.pricetxt}>
+            £ {subTotal ? subTotal.toFixed(2) : '0.00'}
+          </Text>
+        </View>
         {data?.promoData?.promoCode && (
           <>
             <View style={styles.ordertxtview}>
@@ -293,9 +341,14 @@ const OrderDetail = ({navigation, route}) => {
           </View>
           <View style={styles.ordertxtview}>
             <Text style={styles.subheading}>Service Charges</Text>
-            <Text style={styles.pricetxt}>£ {data?.serviceCharges}</Text>
+            <Text style={styles.pricetxt}>
+              £ {data.serviceCharges ? data.serviceCharges : 0}
+            </Text>
           </View>
-
+          {/* <View style={styles.ordertxtview}>
+            <Text style={styles.subheading}>Discount</Text>
+            <Text style={styles.pricetxt}>£ {data.discount}</Text>
+          </View> */}
           {data.status == 'Accepted' || data.status == 'Completed' ? (
             <View
               style={{

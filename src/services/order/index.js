@@ -32,3 +32,6 @@ export const applyPromoCode = params => {
 export const getAllPromo = () => {
   return Api(endPoints.getAllPromo, null, requestType.GET);
 };
+export const getPromoStatus = userId => {
+  return Api(`${endPoints.getPromoStatus}/${userId}`, null, requestType.GET);
+};

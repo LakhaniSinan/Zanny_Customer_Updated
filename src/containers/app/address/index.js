@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CommonActions} from '@react-navigation/native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   RefreshControl,
   SafeAreaView,
@@ -41,7 +41,6 @@ const Address = ({navigation, route}) => {
   const user = useSelector(state => state.LoginSlice.user);
   const type = route?.params?.type || null;
 
-  const [current, setCurrent] = useState(null);
   const [showAddressPopup, setShowAddressPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [modalMode, setModalMode] = useState('add');
@@ -49,38 +48,32 @@ const Address = ({navigation, route}) => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalConfig, setModalConfig] = useState({
-    type: null,
-    Icon: null,
-    name: '',
-    detail: '',
-    buttonName: 'OK',
-    onConfirm: null,
-    onCancel: null,
-  });
+  const [modalConfig, setModalConfig] = useState({});
 
+  /* ---------------- MODAL HELPER ---------------- */
   const openModal = config => {
-    setModalConfig({
-      type: null,
-      Icon: null,
-      name: '',
-      detail: '',
-      buttonName: 'OK',
-      onConfirm: null,
-      onCancel: null,
-      ...config,
-    });
+    setModalConfig(config);
     setModalVisible(true);
   };
+
+  /* ---------------- INITIAL LOAD ---------------- */
   useEffect(() => {
     if (user) dispatch(handelGetAddress());
   }, [dispatch, user]);
 
+  /* ---------------- PULL TO REFRESH ---------------- */
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     dispatch(handelGetAddress()).finally(() => setRefreshing(false));
   }, [dispatch]);
 
+  /* ---------------- ADDRESS STORAGE ---------------- */
+  const saveAddress = async item => {
+    await AsyncStorage.setItem('userCurrentAddress', JSON.stringify(item));
+    dispatch(setCurrentLocation(item));
+  };
+
+  /* ---------------- DELETE ---------------- */
   const confirmDelete = id => {
     openModal({
       type: 'confirmation',
@@ -98,46 +91,26 @@ const Address = ({navigation, route}) => {
 
   const handleDelete = async id => {
     try {
+      setIsLoading(true);
       const res = await deleteAddress(id);
+
       openModal({
         Icon: icons.check,
         name: 'Success',
         detail: res?.data?.message,
+        onConfirm: () => {
+          setModalVisible(false);
+          dispatch(handelGetAddress());
+        },
       });
-      dispatch(handelGetAddress());
     } catch (e) {
       console.log(e);
+    } finally {
+      setIsLoading(false);
     }
   };
-  const handleSelectAddress = val => {
-    AsyncStorage.setItem('userCurrentAddress', JSON.stringify(val));
-    dispatch(setCurrentLocation(val));
-    navigation.navigate('Checkout');
-  };
 
-  const handlePrivateOrder = item => {
-    handleSelectAddress(item);
-    navigation.navigate('PrivateOrder');
-  };
-
-  const handleUpdateOrderType = () => {
-    dispatch(setOrderType('pickup'));
-    dispatch(setPaymentType(''));
-    navigation.navigate('Cart');
-  };
-
-  const handleChangeAddress = item => {
-    handleSelectAddress(item);
-    dispatch(setCartData([]));
-    AsyncStorage.setItem('cartData', JSON.stringify([]));
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{name: 'BottomStack'}],
-      }),
-    );
-  };
-
+  /* ---------------- ADDRESS CHANGE FLOW ---------------- */
   const handleAddressChange = async item => {
     if (type === 'privateOrder') {
       openModal({
@@ -146,9 +119,10 @@ const Address = ({navigation, route}) => {
         name: 'Confirm',
         detail: 'This address will be used for this order',
         buttonName: 'OK',
-        onConfirm: () => {
+        onConfirm: async () => {
           setModalVisible(false);
-          handlePrivateOrder(item);
+          await saveAddress(item);
+          navigation.navigate('PrivateOrder');
         },
         onCancel: () => setModalVisible(false),
       });
@@ -157,17 +131,26 @@ const Address = ({navigation, route}) => {
 
     try {
       setIsLoading(true);
-      const res = await checkAddressCahngeIsPossible({
+
+      let params = {
         restaurantId: cartData[0]?.merchantId,
         latitude: item.latitude,
         longitude: item.longitude,
-      });
+      };
+      console.log(params, 'paramsparamsparamsparamsparams');
+
+      const res = await checkAddressCahngeIsPossible(params);
+
+      console.log(res, 'resresresresresres');
 
       const result = res?.data?.result;
 
-      if (result === 'deliveryAvailable') {
-        handleSelectAddress(item);
-      } else if (result === 'pickupAvailable') {
+      if (result === 'deliveryAvailable' || result === undefined) {
+        await saveAddress(item);
+        return;
+      }
+
+      if (result === 'pickupAvailable') {
         openModal({
           type: 'confirmation',
           Icon: icons.alertIcon,
@@ -176,47 +159,52 @@ const Address = ({navigation, route}) => {
           buttonName: 'Pick Up',
           onConfirm: () => {
             setModalVisible(false);
-            handleUpdateOrderType();
+            dispatch(setOrderType('pickup'));
+            dispatch(setPaymentType(''));
+            navigation.navigate('Cart');
           },
           onCancel: () => setModalVisible(false),
         });
-      } else {
-        if (cartData?.length > 0) {
-          openModal({
-            type: 'confirmation',
-            Icon: icons.alertIcon,
-            name: 'Warning',
-            detail: 'Cart will be cleared if you continue',
-            buttonName: 'Continue',
-            onConfirm: () => {
-              setModalVisible(false);
-              handleChangeAddress(item);
-            },
-            onCancel: () => setModalVisible(false),
-          });
-        } else {
-          handleChangeAddress(item);
-        }
+        return;
+      }
+
+      if (result === 'notAvailable' && cartData?.length > 0) {
+        openModal({
+          type: 'confirmation',
+          Icon: icons.alertIcon,
+          name: 'Warning',
+          detail:
+            'The distance between the two locations is too much so basket will be cleared',
+          buttonName: 'Continue',
+          onConfirm: async () => {
+            setModalVisible(false);
+            await saveAddress(item);
+            dispatch(setCartData([]));
+            await AsyncStorage.setItem('cartData', JSON.stringify([]));
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{name: 'BottomStack'}],
+              }),
+            );
+          },
+          onCancel: () => setModalVisible(false),
+        });
       }
     } catch (e) {
-      console.log(e);
+      console.log(e, 'akajksbdakjsbdjaksbdjaksbd');
     } finally {
       setIsLoading(false);
     }
   };
 
+  /* ---------------- ADD / UPDATE ---------------- */
   const handleAddOrUpdate = async formData => {
-    if (!formData?.userAddress || !formData?.street || !formData?.city) {
-      openModal({
-        Icon: icons.cross,
-        name: 'Validation Error',
-        detail: 'All fields are required',
-      });
-      return;
-    }
+    setShowAddressPopup(false);
 
     try {
       setIsLoading(true);
+
       const payload = {
         address: formData.userAddress,
         street: formData.street,
@@ -235,9 +223,11 @@ const Address = ({navigation, route}) => {
         Icon: icons.check,
         name: 'Success',
         detail: res?.data?.message,
-        onClose: () => setModalVisible(false),
+        onConfirm: () => {
+          setModalVisible(false);
+          dispatch(handelGetAddress());
+        },
       });
-      dispatch(handelGetAddress());
     } catch (e) {
       console.log(e);
     } finally {
@@ -245,7 +235,24 @@ const Address = ({navigation, route}) => {
     }
   };
 
-  /** ---------------- UI ---------------- */
+  /* ---------------- MEMOIZED LIST ---------------- */
+  const addressList = useMemo(() => {
+    return address?.map(item => (
+      <AddressCard
+        key={item._id}
+        item={item}
+        onPressdelete={() => confirmDelete(item._id)}
+        onPressEdit={() => {
+          setModalMode('edit');
+          setEditData(item);
+          setShowAddressPopup(true);
+        }}
+        handleAddressChange={handleAddressChange}
+      />
+    ));
+  }, [address]);
+
+  /* ---------------- UI ---------------- */
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
       <OverLayLoader isloading={isLoading} />
@@ -254,7 +261,11 @@ const Address = ({navigation, route}) => {
         goBack
         addressPlus
         text="Address"
-        onPressAddress={() => setShowAddressPopup(true)}
+        onPressAddress={() => {
+          setModalMode('add');
+          setEditData(null);
+          setShowAddressPopup(true);
+        }}
       />
 
       <ScrollView
@@ -262,19 +273,7 @@ const Address = ({navigation, route}) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
         {address?.length > 0 ? (
-          address.map(item => (
-            <AddressCard
-              key={item._id}
-              item={item}
-              onPressdelete={() => confirmDelete(item._id)}
-              onPressEdit={() => {
-                setModalMode('edit');
-                setEditData(item);
-                setShowAddressPopup(true);
-              }}
-              handleAddressChange={handleAddressChange}
-            />
-          ))
+          addressList
         ) : (
           <Text style={styles.empty}>No Saved Address Found</Text>
         )}
@@ -282,7 +281,11 @@ const Address = ({navigation, route}) => {
 
       <ChangeAddressModal
         visible={showAddressPopup}
-        onClose={() => setShowAddressPopup(false)}
+        onClose={() => {
+          setShowAddressPopup(false);
+          setEditData(null);
+          setModalMode('add');
+        }}
         mode={modalMode}
         data={editData}
         onUpdate={handleAddOrUpdate}
@@ -290,13 +293,7 @@ const Address = ({navigation, route}) => {
 
       <CustomModal
         visible={modalVisible}
-        type={modalConfig.type}
-        Icon={modalConfig.Icon}
-        name={modalConfig.name}
-        detail={modalConfig.detail}
-        buttonName={modalConfig.buttonName}
-        onConfirm={modalConfig.onConfirm}
-        onCancel={modalConfig.onCancel}
+        {...modalConfig}
         close={() => setModalVisible(false)}
       />
     </SafeAreaView>

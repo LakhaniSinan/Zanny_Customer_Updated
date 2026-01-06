@@ -91,6 +91,7 @@ const CodeVerification = ({navigation, route}) => {
     try {
       setIsLoading(true);
       const response = await registerCustomer(payload);
+      console.log(response, 'asdasdasdasdasdasd');
 
       if (response.status === 200 || response.status === 201) {
         setValue('');
@@ -238,7 +239,7 @@ const CodeVerification = ({navigation, route}) => {
         name={modalData.name}
         detail={modalData.detail}
         buttonName={modalData.buttonName}
-        onPress={modalData.onPress}
+        onConfirm={modalData.onPress}
         close={() => setModalVisible(false)}
       />
 

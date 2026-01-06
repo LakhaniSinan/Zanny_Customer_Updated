@@ -16,17 +16,37 @@ import {fontFamily, icons, images} from '../../assets';
 import {colors} from '../../constants';
 import {helper} from '../../helper';
 
-const GooglePlacesInput = ({
-  placeholder,
-  selectedLocation,
-  setSelectedLocation,
-  showLeftIcon,
-  lable,
-}) => {
+const GooglePlacesInput = ({selectedLocation, setSelectedLocation}) => {
   const googleAPIKey = 'AIzaSyAvPVhgFVY2qv4c6kvukvIP2krPJe9dZGA';
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
-  console.log(query, 'resultsresultsresultsresultsresults');
+
+  const extractStreetCity = components => {
+    let streetNumber = '';
+    let route = '';
+    let city = '';
+
+    components?.forEach(c => {
+      if (c.types.includes('street_number')) {
+        streetNumber = c.long_name;
+      }
+      if (c.types.includes('route')) {
+        route = c.long_name;
+      }
+      if (c.types.includes('locality')) {
+        city = c.long_name;
+      }
+      // fallback (some countries)
+      if (!city && c.types.includes('administrative_area_level_2')) {
+        city = c.long_name;
+      }
+    });
+
+    return {
+      street: `${streetNumber} ${route}`.trim(),
+      city,
+    };
+  };
 
   useEffect(() => {
     if (selectedLocation?.userAddress) {
@@ -77,10 +97,13 @@ const GooglePlacesInput = ({
 
       const {lat, lng} = details.geometry.location;
 
+      const {street, city} = extractStreetCity(details.address_components);
+
       setSelectedLocation({
-        ...selectedLocation,
         userAddress: item.description,
         latLng: {lat, lng},
+        street,
+        city,
       });
 
       setQuery(item.description);
@@ -119,22 +142,24 @@ const GooglePlacesInput = ({
       const latitude = location?.coords.latitude;
       const longitude = location?.coords.longitude;
 
-      const address = await helper.getLocationAddress(
-        latitude,
-        longitude,
-        googleAPIKey,
+      const res = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${googleAPIKey}`,
       );
+      const json = await res.json();
+      const details = json?.results?.[0];
 
-      if (address && address !== 'Geocoding request failed.') {
+      if (details) {
+        const {street, city} = extractStreetCity(details.address_components);
+
         setSelectedLocation({
-          ...selectedLocation,
-          userAddress: address,
+          userAddress: details.formatted_address,
           latLng: {lat: latitude, lng: longitude},
+          street,
+          city,
         });
-        callApi && callApi({lat: latitude, lng: longitude});
-        setQuery(address);
+
+        setQuery(details.formatted_address);
         setResults([]);
-        console.log('Current location:', address);
       }
     } catch (error) {
       console.log('getLocation error', error);

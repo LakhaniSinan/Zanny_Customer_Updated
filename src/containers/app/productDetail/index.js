@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
+  Alert,
   FlatList,
   Image,
   ScrollView,
@@ -24,10 +25,12 @@ import {setCartData} from '../../../redux/slices/Cart';
 import {setPreOrderData} from '../../../redux/slices/PreOrder';
 import {addToFavFun} from '../../../services/favourite';
 import {getProductDetailById} from '../../../services/product';
+import { useNavigation } from '@react-navigation/native';
 
-const ProductDetail = ({navigation, route}) => {
+const ProductDetail = ({ route}) => {
   const {productId, type, data} = route?.params || {};
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const navigationType = type || 'normal';
   const productData = data;
 
@@ -138,12 +141,17 @@ const ProductDetail = ({navigation, route}) => {
   const handleAddToCart = async () => {
     if (!user)
       return showModal('error', 'Please login first to add items in your cart');
+    
+    if (!productDetails) {
+      return showModal('error', 'Product details not loaded yet');
+    }
+
     try {
       let tempArr = [...cartData];
-      const findIndex = tempArr.findIndex(i => i._id === productData._id);
+      const findIndex = tempArr.findIndex(i => i._id === productDetails._id);
       if (
-        cartData.length === 0 ||
-        cartData[0].merchantId === productData.merchantId
+        cartData?.length === 0 ||
+        cartData[0]?.merchantId === productDetails?.merchantId
       ) {
         if (findIndex !== -1) {
           // Copy the object before modifying
@@ -258,7 +266,6 @@ const ProductDetail = ({navigation, route}) => {
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
       <ScrollView>
-        {/* IMAGE */}
         <View
           style={{
             backgroundColor: colors.orangeDark,
@@ -435,7 +442,7 @@ const HeaderIcons = ({cartData, navigation}) => (
         resizeMode="contain"
         tintColor={colors.black}
       />
-      {cartData.length > 0 && (
+      {cartData?.length > 0 && (
         <View
           style={{
             position: 'absolute',
@@ -454,7 +461,7 @@ const HeaderIcons = ({cartData, navigation}) => (
               fontSize: 10,
               fontFamily: fontFamily.poppinRegular,
             }}>
-            {cartData.length}
+            {cartData?.length}
           </Text>
         </View>
       )}
@@ -551,7 +558,15 @@ const Tabs = ({activeTab, setActiveTab}) => (
     {['Nutrition', 'Customize'].map(tab => (
       <TouchableOpacity
         key={tab}
-        onPress={() => setActiveTab(tab)}
+        onPress={
+          tab == 'Customize'
+            ? () =>
+                Alert.alert(
+                  'Coming Soon',
+                  'This feature is currently under development. Please check back later!',
+                )
+            : () => setActiveTab(tab)
+        }
         style={[
           styles.tabButton,
           {
@@ -591,6 +606,12 @@ const ChefInfo = ({merchant}) => (
         name={'Hire'}
         bgcColor={Colors.black}
         fontColor={Colors.white}
+        onPress={() =>
+          Alert.alert(
+            'Coming Soon',
+            'This feature is currently under development. Please check back later!',
+          )
+        }
       />
     </View>
   </View>

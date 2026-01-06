@@ -5,7 +5,7 @@ import {icons} from '../../assets';
 import {Colors} from '../../constants';
 import PrimaryButton from '../primaryButton';
 
-const HireCheifCard = ({item}) => {
+const HireCheifCard = ({item, handleHireChef}) => {
   return (
     <View
       style={{

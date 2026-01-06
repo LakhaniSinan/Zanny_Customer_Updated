@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
   FlatList,
+  Image,
   SafeAreaView,
   Text,
   TouchableOpacity,
@@ -16,7 +17,7 @@ import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import CustomPicker from '../../../components/customPicker';
 import {colors} from '../../../constants';
-import {fontFamily} from '../../../assets';
+import {fontFamily, icons} from '../../../assets';
 import {getSupportMessagesById} from '../../../services/profile';
 
 const Support = () => {
@@ -160,7 +161,11 @@ const Support = () => {
             elevation: 6,
           }}
           onPress={() => navigation.navigate('AddSupportMsg')}>
-          <AntDesign name="plus" size={22} color="#fff" />
+          <Image
+            source={icons.add}
+            style={{height: 24, width: 24, tintColor: colors.white}}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
       </SafeAreaView>
     </>

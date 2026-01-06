@@ -1,10 +1,17 @@
 import React, {useState, forwardRef, useImperativeHandle} from 'react';
-import {FlatList, Text, TouchableOpacity, View, StyleSheet} from 'react-native';
+import {
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  Image,
+} from 'react-native';
 import {width, height} from 'react-native-dimension';
 import Modal from 'react-native-modal';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {colors} from '../../constants';
-import {fontFamily} from '../../assets';
+import {fontFamily, icons} from '../../assets';
 
 const CustomPicker = forwardRef(
   (
@@ -53,10 +60,14 @@ const CustomPicker = forwardRef(
           </Text>
 
           {!hideEndIcon && (
-            <MaterialIcons
-              name={isVisible ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
-              size={24}
-              color={colors.black}
+            <Image
+              source={icons.CaretRight}
+              resizeMode="contain"
+              style={{
+                height: 24,
+                width: 24,
+                transform: [{rotate: '90deg'}],
+              }}
             />
           )}
         </TouchableOpacity>
@@ -69,7 +80,15 @@ const CustomPicker = forwardRef(
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{labelll}</Text>
               <TouchableOpacity onPress={() => ref.current.hide()}>
-                <MaterialIcons name="close" size={24} />
+                <Image
+                  source={icons.cross}
+                  resizeMode="contain"
+                  style={{
+                    height: 24,
+                    width: 24,
+                    transform: [{rotate: '90deg'}],
+                  }}
+                />
               </TouchableOpacity>
             </View>
 

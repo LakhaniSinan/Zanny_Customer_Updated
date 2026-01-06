@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
 import {
+  Alert,
   Image,
   ScrollView,
   Switch,
@@ -9,22 +10,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { width } from 'react-native-dimension';
+import {width} from 'react-native-dimension';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
-import { fontFamily, icons, images } from '../../../assets';
+import {fontFamily, icons, images} from '../../../assets';
 import CustomModal from '../../../components/customModal';
-import { colors } from '../../../constants';
-import { setUserData } from '../../../redux/slices/Login';
+import {colors} from '../../../constants';
+import {setUserData} from '../../../redux/slices/Login';
+import {setCartData} from '../../../redux/slices/Cart';
+import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
+import {setCurrentLocation} from '../../../redux/slices/Location';
 
-const Row = ({
-  activeOpacity = 0.7,
-  iconSet,
-  label,
-  right,
-  onPress,
-}) => (
+const Row = ({activeOpacity = 0.7, iconSet, label, right, onPress}) => (
   <TouchableOpacity
     activeOpacity={activeOpacity}
     onPress={onPress}
@@ -34,8 +32,13 @@ const Row = ({
       justifyContent: 'space-between',
       paddingVertical: width(1.2),
     }}>
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-      <Image source={iconSet} style={{ height: width(5), width: width(5) }} resizeMode="contain" color={colors.redish} />
+    <View style={{flexDirection: 'row', alignItems: 'center', gap: 12}}>
+      <Image
+        source={iconSet}
+        style={{height: width(5), width: width(5)}}
+        resizeMode="contain"
+        color={colors.redish}
+      />
       <Text
         style={{
           fontSize: 16,
@@ -52,7 +55,7 @@ const Row = ({
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { user } = useSelector(state => state.LoginSlice);
+  const {user} = useSelector(state => state.LoginSlice);
 
   const [pushEnabled, setPushEnabled] = useState(true);
   const [promoEnabled, setPromoEnabled] = useState(false);
@@ -75,26 +78,27 @@ const ProfileScreen = () => {
     await AsyncStorage.removeItem('user');
     dispatch(setUserData(null));
     navigation.replace('Login');
+    dispatch(setUserData(null));
+    await AsyncStorage.removeItem('cartData');
+    dispatch(setCartData([]));
+    await AsyncStorage.removeItem('userCurrentAddress');
+    dispatch(setCurrentLocation(null));
+    dispatch(setCurrentPaymentCard(null));
   };
 
   // ✅ SHOW "COMING SOON" MODAL
   const showComingSoon = () => {
-    setModalData({
-      Icon: null,
-      title: '🚧 Feature Coming Soon',
-      detail:
-        'We’re working hard to bring this feature to you.\n\nPlease stay tuned — it will be available in an upcoming update!',
-      buttonName: 'Got it',
-      onPress: () => setModalVisible(false),
-    });
-    setModalVisible(true);
+    Alert.alert(
+      'Coming Soon',
+      'This feature is currently under development. Please check back later!',
+    );
   };
 
   const name = user?.name || 'Guest User';
   const email = user?.email || 'example@email.com';
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F6F6F6' }}>
+    <ScrollView style={{flex: 1, backgroundColor: '#F6F6F6'}}>
       {/* HEADER */}
       <View
         style={{
@@ -127,12 +131,15 @@ const ProfileScreen = () => {
             elevation: 6,
           }}
           onPress={showComingSoon}>
-          <Image source={icons.notificationsRed} style={{ height: width(8), width: width(8) }} />
+          <Image
+            source={icons.notificationsRed}
+            style={{height: width(8), width: width(8)}}
+          />
         </TouchableOpacity>
 
         <Image
           source={
-            user?.customerImage ? { uri: user.customerImage } : images.userAvatar
+            user?.customerImage ? {uri: user.customerImage} : images.userAvatar
           }
           style={{
             height: width(26),
@@ -217,7 +224,7 @@ const ProfileScreen = () => {
         />
 
         <View
-          style={{ height: 1, backgroundColor: '#E5E5E5', marginVertical: 20 }}
+          style={{height: 1, backgroundColor: '#E5E5E5', marginVertical: 20}}
         />
 
         <Text
@@ -237,7 +244,7 @@ const ProfileScreen = () => {
             <Switch
               value={pushEnabled}
               onValueChange={setPushEnabled}
-              trackColor={{ false: colors.softgray, true: colors.green }}
+              trackColor={{false: colors.softgray, true: colors.green}}
             />
           }
         />
@@ -250,13 +257,13 @@ const ProfileScreen = () => {
             <Switch
               value={promoEnabled}
               onValueChange={setPromoEnabled}
-              trackColor={{ false: colors.softgray, true: colors.green }}
+              trackColor={{false: colors.softgray, true: colors.green}}
             />
           }
         />
 
         <View
-          style={{ height: 1, backgroundColor: '#E5E5E5', marginVertical: 20 }}
+          style={{height: 1, backgroundColor: '#E5E5E5', marginVertical: 20}}
         />
         <Row
           iconSet={icons.personalfo}
@@ -264,11 +271,7 @@ const ProfileScreen = () => {
           onPress={() => navigation.navigate('Support')}
         />
 
-        <Row
-          iconSet={icons.logoutIcon}
-          label="Log Out"
-          onPress={logout}
-        />
+        <Row iconSet={icons.logoutIcon} label="Log Out" onPress={logout} />
       </View>
 
       {/* ✅ CUSTOM MODAL */}
@@ -282,7 +285,7 @@ const ProfileScreen = () => {
         close={() => setModalVisible(false)}
       />
 
-      <View style={{ height: width(4) }} />
+      <View style={{height: width(4)}} />
     </ScrollView>
   );
 };

@@ -1,11 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Platform,
+} from 'react-native';
 import {width} from 'react-native-dimension';
 import Modal from 'react-native-modal';
 import {icons} from '../../assets';
 import {Colors} from '../../constants';
 import CustomInput from '../customInput';
 import GooglePlacesInput from '../googlePlaceInput';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const ChangeAddressModal = ({
   visible,
@@ -20,23 +28,48 @@ const ChangeAddressModal = ({
     city: '',
   });
 
+  /**
+   * 🔹 Auto-fill street & city
+   * Only when ADD mode (so edit data is not overwritten)
+   */
   useEffect(() => {
-    if (data && mode == 'edit') {
+    if (
+      mode !== 'edit' &&
+      (selectedLocation?.street || selectedLocation?.city)
+    ) {
+      setForm(prev => ({
+        ...prev,
+        street: selectedLocation.street || '',
+        city: selectedLocation.city || '',
+      }));
+    }
+  }, [selectedLocation, mode]);
+
+  /**
+   * 🔹 Edit mode setup
+   */
+  useEffect(() => {
+    if (data && mode === 'edit' && visible) {
       setSelectedLocation({
         userAddress: data?.address,
         latLng: {
           lat: data?.latitude,
           lng: data?.longitude,
         },
-      });
-      setForm({
         street: data?.street,
         city: data?.city,
       });
-    } else {
+
+      setForm({
+        street: data?.street || '',
+        city: data?.city || '',
+      });
+    }
+
+    if (!visible) {
       resetForm();
     }
-  }, [data, mode == 'edit', visible]);
+  }, [data, mode, visible]);
 
   const resetForm = () => {
     setSelectedLocation(null);
@@ -46,8 +79,29 @@ const ChangeAddressModal = ({
   const handleChange = (key, val) => setForm(prev => ({...prev, [key]: val}));
 
   const handleUpdate = () => {
-    onUpdate({...selectedLocation, ...form, type: mode, ...data});
-    handleClose();
+    if (!selectedLocation?.userAddress) {
+      alert('Please select your location');
+      return;
+    }
+    if (!form.street.trim()) {
+      alert('Please enter street number');
+      return;
+    }
+    if (!form.city.trim()) {
+      alert('Please enter city');
+      return;
+    }
+
+    onUpdate({
+      ...selectedLocation,
+      street: form.street,
+      city: form.city,
+      type: mode,
+      ...data,
+    });
+
+    resetForm();
+    onClose();
   };
 
   const handleClose = () => {
@@ -62,50 +116,62 @@ const ChangeAddressModal = ({
       animationOut="slideOutDown"
       backdropOpacity={0.5}
       onBackdropPress={handleClose}
-      style={styles.modal}>
+      style={styles.modal}
+      avoidKeyboard>
       <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>
-            {mode === 'edit' ? 'Edit Address' : 'Add Address'}
-          </Text>
-          <TouchableOpacity onPress={handleClose}>
-            <Image source={icons.cross} style={styles.closeIcon} />
+        <KeyboardAwareScrollView
+          enableOnAndroid
+          extraScrollHeight={Platform.OS === 'ios' ? 20 : 0}
+          keyboardShouldPersistTaps="handled">
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>
+              {mode === 'edit' ? 'Edit Address' : 'Add Address'}
+            </Text>
+            <TouchableOpacity onPress={handleClose} style={{padding: width(2)}}>
+              <Image
+                source={icons.cross}
+                style={styles.closeIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Address */}
+          <Text style={styles.sectionTitle}>Current Address</Text>
+          <View style={{height: width(2)}} />
+
+          <GooglePlacesInput
+            showLeftIcon
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+            placeholder="Select your location"
+          />
+
+          <View style={{height: width(4)}} />
+
+          <CustomInput
+            title="City"
+            value={form.city}
+            onChangeText={txt => handleChange('city', txt)}
+            placeholder="Enter City"
+          />
+          <View style={{height: width(4)}} />
+
+          <CustomInput
+            title="Street Number"
+            value={form.street}
+            onChangeText={txt => handleChange('street', txt)}
+            placeholder="Enter Street Number"
+          />
+
+          {/* Button */}
+          <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
+            <Text style={styles.updateButtonText}>
+              {mode === 'edit' ? 'Update' : 'Add'}
+            </Text>
           </TouchableOpacity>
-        </View>
-
-        {/* Current Address */}
-        <Text style={styles.sectionTitle}>Current Address</Text>
-        <View style={{height: width(2)}} />
-
-        <GooglePlacesInput
-          showLeftIcon
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
-          placeholder="Select your location"
-        />
-
-        <View style={{height: width(4)}} />
-        <CustomInput
-          title="Street Number"
-          value={form.street}
-          onChangeText={txt => handleChange('street', txt)}
-          placeholder="Enter Street Number"
-        />
-        <View style={{height: width(4)}} />
-        <CustomInput
-          title="City"
-          value={form.city}
-          onChangeText={txt => handleChange('city', txt)}
-          placeholder="Enter City"
-        />
-
-        {/* Update Button */}
-        <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
-          <Text style={styles.updateButtonText}>
-            {mode === 'edit' ? 'Update' : 'Add'}
-          </Text>
-        </TouchableOpacity>
+        </KeyboardAwareScrollView>
       </View>
     </Modal>
   );
@@ -114,7 +180,10 @@ const ChangeAddressModal = ({
 export default ChangeAddressModal;
 
 const styles = StyleSheet.create({
-  modal: {margin: 0, justifyContent: 'flex-end'},
+  modal: {
+    margin: 0,
+    justifyContent: 'flex-end',
+  },
   container: {
     backgroundColor: '#fff',
     padding: width(5),
@@ -127,14 +196,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  headerTitle: {fontSize: 18, fontWeight: 'bold'},
-  closeIcon: {width: width(6), height: width(6)},
-  sectionTitle: {marginTop: 20, fontWeight: '600'},
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeIcon: {
+    width: width(6),
+    height: width(6),
+  },
+  sectionTitle: {
+    marginTop: 20,
+    fontWeight: '600',
+  },
   updateButton: {
     marginTop: 30,
     backgroundColor: Colors.black,
     paddingVertical: 14,
     borderRadius: 12,
   },
-  updateButtonText: {color: 'white', textAlign: 'center', fontSize: 16},
+  updateButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontSize: 16,
+  },
 });

@@ -15,6 +15,7 @@ export const endPoints = {
   resetPasswordCustomer: 'resetPasswordCustomer',
   sendResetCodeCustomer: 'sendResetCodeCustomer',
   socialLogin: 'socialLogin',
+  createStripId: 'create-stripe-customer',
 
   //merchant
   getAllMerchants: 'getAllMerchants',
@@ -98,4 +99,5 @@ export const endPoints = {
 
   applyPromoCode: 'applyPromo',
   getAllPromo: 'getAllPromo',
+  getPromoStatus: 'getPromoStatus',
 };
