@@ -103,6 +103,7 @@ const CartScreen = () => {
   const [promoCode, setPromoCode] = useState('');
   const [isPromoApplied, setIsPromoApplied] = useState(false);
   const [promoData, setPromoData] = useState(null);
+  console.log(promoData, 'promoDatapromoDatapromoDatapromoDataasd');
 
   const [merchantDetails, setMerchantDetails] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -206,7 +207,7 @@ const CartScreen = () => {
 
   const fetchMerchantDetails = useCallback(async restId => {
     if (!restId) return;
-    // setLoading(true);
+    setLoading(true);
     try {
       const res = await getMerchantProfile(restId);
       if (res?.data?.status === 'ok') setMerchantDetails(res.data.data);
@@ -541,10 +542,6 @@ const CartScreen = () => {
           ? 'card'
           : 'COD',
       promoData: promoData,
-      noteForChef: '',
-      deliveryData: '',
-      deliveryTime: '',
-      orderCategory: 'normal',
     };
 
     console.log(payload, 'payloadpayloadpayloadpayloadpayloadlkasbndlksa');

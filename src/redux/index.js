@@ -22,6 +22,7 @@ const reducer = combineReducers({
   LoginSlice,
   PreOrderDataSlice,
   CartSlice,
+  CopiedCodeSlice,
   QuestionsSlice,
   CopiedCodeSlice,
   MerchantSlice,
