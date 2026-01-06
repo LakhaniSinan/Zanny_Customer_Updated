@@ -1,3 +1,4 @@
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {Alert, Image, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
@@ -5,7 +6,6 @@ import {fontFamily, icons} from '../../assets';
 import {colors} from '../../constants';
 import ActionBuuton from '../actionButton';
 import PrimaryButton from '../primaryButton';
-import {useNavigation} from '@react-navigation/native';
 
 // Custom Rating Component
 const CustomRating = ({rating = 0, starSize = 12, maxStars = 5}) => {
@@ -78,6 +78,7 @@ const AllChefsCard = ({item}) => {
         paddingHorizontal: width(3),
         justifyContent: 'space-between',
         paddingBottom: width(4),
+        marginTop: width(5),
       }}>
       <View
         style={{

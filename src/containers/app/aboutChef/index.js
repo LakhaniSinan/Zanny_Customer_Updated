@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {height, width} from 'react-native-dimension';
 import {useSelector} from 'react-redux';
-import {fontFamily, icons} from '../../../assets';
+import {fontFamily, icons, images} from '../../../assets';
 import ActionBuuton from '../../../components/actionButton';
 import BackButton from '../../../components/backIcon';
 import ChefsCard from '../../../components/chefsCard';
@@ -19,6 +19,7 @@ import AppHeader from '../../../components/headerComponent';
 import PrimaryButton from '../../../components/primaryButton';
 import {colors, Colors} from '../../../constants';
 import {getMerchantProAndDetails} from '../../../services/merchant';
+import ReviewsCard from '../../../components/reviewsCard';
 
 const CustomRating = ({rating = 0, starSize = 12, maxStars = 5}) => {
   const fullStars = Math.floor(rating);
@@ -412,11 +413,12 @@ const AboutChef = () => {
       );
     } else {
       return (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.tabContent}>
-          <Text style={styles.comingSoonText}>Reviews coming soon</Text>
-        </ScrollView>
+        <FlatList
+          data={[1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
+          renderItem={({item, index}) => {
+            return <ReviewsCard item={item} index={index} />;
+          }}
+        />
       );
     }
   };
@@ -428,7 +430,6 @@ const AboutChef = () => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}>
-        {/* Banner Image with Profile Picture */}
         <View style={styles.bannerContainer}>
           <Image
             source={{
@@ -514,6 +515,7 @@ const AboutChef = () => {
             name="Hire"
             onPress={() => {
               // Handle hire action
+              navigation.navigate('HireChefScreen');
             }}
             fontSize={16}
           />
@@ -643,23 +645,24 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: 'row',
-    paddingHorizontal: width(5),
+    paddingHorizontal: width(2),
     marginTop: width(4),
   },
   tab: {
     flex: 1,
-    paddingVertical: width(3),
+    paddingVertical: width(2),
     alignItems: 'center',
     marginHorizontal: width(1),
     borderRadius: 100,
+    backgroundColor: colors.softgray,
   },
   activeTab: {
     backgroundColor: colors.redish,
   },
   tabText: {
     fontSize: 14,
-    fontFamily: fontFamily.poppinRegular,
-    color: Colors.gray,
+    fontFamily: fontFamily.poppinSemiBold,
+    color: Colors.black,
   },
   activeTabText: {
     fontFamily: fontFamily.poppinBold,
@@ -669,6 +672,7 @@ const styles = StyleSheet.create({
     padding: width(2),
   },
   section: {
+    marginTop: width(2),
     marginBottom: width(5),
   },
   sectionTitle: {
