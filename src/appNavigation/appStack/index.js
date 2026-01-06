@@ -46,6 +46,7 @@ import ResetPassword from '../../containers/auth/resetPassword';
 import SignUpScreen from '../../containers/auth/SignUp';
 import {handelGetAddress} from '../../redux/slices/Address';
 import BottomNavigation from './bottomTab';
+import HireChefScreen from '../../containers/app/hireChefScreen';
 
 const Stack = createStackNavigator();
 
@@ -130,6 +131,13 @@ export function CustomerStack() {
       <Stack.Screen
         name="ChefDetails"
         component={ChefDetails}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="HireChefScreen"
+        component={HireChefScreen}
         options={{
           headerShown: false,
         }}

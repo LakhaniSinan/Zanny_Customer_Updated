@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import {FlatList, RefreshControl, StyleSheet, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {fontFamily} from '../../../assets';
 import AllChefsCard from '../../../components/allChefsCard';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
+import CustomInput from '../../../components/customInput';
 import {colors, Colors} from '../../../constants';
 import {getAllMerchants} from '../../../services/merchant';
 import FilterModal from '../../../components/filterModal';
@@ -24,6 +25,7 @@ const AllChefs = () => {
   const [data, setData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const showModal = (type, message) => {
     setModalData({
@@ -64,6 +66,15 @@ const AllChefs = () => {
     fetchMerchants(false);
   };
 
+  const filteredData = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return data;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return data.filter(item => item?.name?.toLowerCase().includes(query));
+  }, [data, searchQuery]);
+
   const handleApplyFilter = filterData => {
     console.log('Applied filters:', filterData);
   };
@@ -78,8 +89,16 @@ const AllChefs = () => {
         onFilterPress={() => setFilterModalVisible(true)}
       />
 
+      <View style={styles.searchContainer}>
+        <CustomInput
+          placeholder="Search chef by name"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
       <FlatList
-        data={data}
+        data={filteredData}
         renderItem={({item}) => <AllChefsCard item={item} />}
         showsVerticalScrollIndicator={false}
         keyExtractor={(item, index) => item?._id || index.toString()}
@@ -130,7 +149,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: width(3),
-    paddingTop: width(3),
+    marginTop: width(4),
   },
   searchLabel: {
     fontFamily: fontFamily.poppinBold,
@@ -155,10 +174,7 @@ const styles = StyleSheet.create({
     gap: width(3),
   },
   contentContainer: {
-    gap: width(5),
-    paddingVertical: width(5),
     paddingBottom: 100,
-    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
