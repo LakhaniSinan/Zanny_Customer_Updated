@@ -8,15 +8,17 @@ const ActionBuuton = ({
   bgcColor,
   onPress,
   height,
-  width,
   fontSize,
+  styleProps,
+  borderRadius,
 }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
       style={{
+        ...styleProps,
         backgroundColor: bgcColor,
-        borderRadius: 50,
+        borderRadius: borderRadius ? borderRadius : 50,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,

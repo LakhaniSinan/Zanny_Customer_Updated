@@ -28,6 +28,8 @@ import ProductDetail from '../../containers/app/productDetail';
 import Profile from '../../containers/app/profile';
 import ChangePassword from '../../containers/app/profile/chnagePassword';
 import PersonalInfo from '../../containers/app/profile/personalInfo';
+import ReOccuringCheckout from '../../containers/app/reOccuringCheckOut';
+import ReOccurinOrder from '../../containers/app/reOccurinOrder';
 import restaurants from '../../containers/app/restaurants';
 import Cart from '../../containers/app/restaurants/cart';
 import Checkout from '../../containers/app/restaurants/checkout';
@@ -90,35 +92,6 @@ export function CustomerStack() {
     if (user) dispatch(handleFetchCardsData(user?._id));
   }, [dispatch, user]);
 
-  // useEffect(() => {
-  //   getLinkingData();
-  // }, []);
-
-  // const getLinkingData = () => {
-  //   // Linking.addEventListener('url', handleOpenUrl);
-  //   Linking.getInitialURL().then(url => {
-  //     if (url != null) {
-  //       console.log(url, 'urlurlurl');
-  //       getParams(url);
-  //     }
-  //   });
-  //   const getParams = url => {
-  //     if (Platform.OS == 'android') {
-  //       let array = url.split('?');
-
-  //       let array2 = array[1].split('/');
-  //       console.log(array2, 'array2array2array2');
-
-  //       if (array2[0] == 'ProductDetail') {
-  //         navigation.navigate(array2[0], {
-  //           productUrl: array2[1],
-  //           referedBy: array2[2],
-  //           initial: false,
-  //         });
-  //       }
-  //     }
-  //   };
-  // };
   return (
     <Stack.Navigator
       screenOptions={{
@@ -133,6 +106,22 @@ export function CustomerStack() {
         }}
         name="BottomStack"
         component={BottomNavigation}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="ReOccurinOrder"
+        component={ReOccurinOrder}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="ReOccuringCheckout"
+        component={ReOccuringCheckout}
       />
       <Stack.Screen
         options={{

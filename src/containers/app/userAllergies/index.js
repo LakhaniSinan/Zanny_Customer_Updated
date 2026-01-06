@@ -3,12 +3,12 @@ import {
   ActivityIndicator,
   Image,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
-import {ScrollView} from 'react-native-gesture-handler';
 import Header from './../../../components/header/index';
 // import Location from '../../auth/Location';
 import AsyncStorage from '@react-native-async-storage/async-storage';

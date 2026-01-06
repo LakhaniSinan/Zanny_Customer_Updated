@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Alert,
+  FlatList,
   Image,
   SafeAreaView,
   Text,
@@ -9,7 +10,6 @@ import {
   View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
-import {FlatList} from 'react-native-gesture-handler';
 import {AirbnbRating} from 'react-native-ratings';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import styles from './style';
