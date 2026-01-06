@@ -2016,7 +2016,7 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNGestureHandler (2.29.1):
+  - RNGestureHandler (2.30.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2040,7 +2040,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNGoogleSignin (16.0.0):
+  - RNGoogleSignin (16.1.1):
     - DoubleConversion
     - glog
     - GoogleSignIn (~> 9.0)
@@ -2730,8 +2730,8 @@ SPEC CHECKSUMS:
   RNCPicker: 28c076ae12a1056269ec0305fe35fac3086c477d
   RNFBApp: 0c4cadae3900893d4631ea9a9effd14f853cd8e0
   RNFBMessaging: 873220424f6f6aa5c787baf5c7099e1e2ba087c9
-  RNGestureHandler: 6b39f4e43e4b3a0fb86de9531d090ff205a011d5
-  RNGoogleSignin: 5250b56fb94c80cba216bac1f3f57bb7eb076be8
+  RNGestureHandler: 4d34255948b634d4f3827cc534a1a3d05e50095b
+  RNGoogleSignin: a8c3e472b67d0f065b9198e9cd148a0d7c14a50c
   RNImageCropPicker: 367a8e3788651dad88540d9fa8888fcb07ffd1d1
   RNPermissions: e258b4c4ecfef8003b03476eb086271a4d6090d9
   RNScreens: 3402421da150f080d9e1293cfa5558548a735fb6

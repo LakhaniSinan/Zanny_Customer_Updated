@@ -275,7 +275,9 @@ const PaymentOptions = ({navigation}) => {
         disableClose: true,
         onPress: () => {
           setModalVisible(false);
-          navigation.goBack();
+          setTimeout(() => {
+            navigation.goBack();
+          }, 500);
         },
       });
 

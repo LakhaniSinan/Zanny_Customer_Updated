@@ -731,7 +731,11 @@ const ReOccuringCheckout = ({route}) => {
                   marginBottom: width(2),
                   fontFamily: fontFamily.poppin,
                 }}>
-                {wallet?.last4
+                {wallet?.paymentMethodId === 'GOOGLE_PAY'
+                  ? 'Google Pay'
+                  : wallet?.paymentMethodId === 'APPLE_PAY'
+                  ? 'Apple Pay'
+                  : wallet?.last4
                   ? `**** ${wallet?.last4}`
                   : 'Select a payment method'}
               </Text>
