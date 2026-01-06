@@ -3,7 +3,7 @@ import {createSlice} from '@reduxjs/toolkit';
 export const OrderType = createSlice({
   name: 'OrderType',
   initialState: {
-    orderType: '',
+    orderType: 'delivery',
   },
   reducers: {
     setOrderType: (state, action) => {

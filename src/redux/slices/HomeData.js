@@ -37,6 +37,7 @@ export function handleFetchHomeData() {
     dispatch(fetchHome());
     try {
       const response = await getHomeData();
+      console.log(response, 'responseresponseresponseresponseresponseasdasd');
 
       if (response?.status === 200 || response?.status === 201) {
         dispatch(fetchHomeSuccess(response.data.data));

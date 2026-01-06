@@ -22,6 +22,7 @@ import SegmentedButtons from '../../../components/SegmentedButtons';
 import {colors, Colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {setCartData} from '../../../redux/slices/Cart';
+import {setPreOrderData} from '../../../redux/slices/PreOrder';
 import {addToFavFun} from '../../../services/favourite';
 import {getProductDetailById} from '../../../services/product';
 import { useNavigation } from '@react-navigation/native';
@@ -35,12 +36,10 @@ const ProductDetail = ({ route}) => {
 
   const {user} = useSelector(state => state.LoginSlice);
   const [productDetails, setProductDetails] = useState(null);
-  console.log(productDetails, 'productDataproductDataproductDataproductData');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Nutrition');
-  console.log(activeTab, 'activeTabactiveTabactiveTabactiveTabasdd');
-
   const {cartData} = useSelector(state => state.CartSlice);
+  const {preOrderData} = useSelector(state => state.PreOrderDataSlice);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     Icon: '',
@@ -195,16 +194,56 @@ const ProductDetail = ({ route}) => {
     setModalVisible(true);
   };
 
+  const handleAddForPreOrder = async () => {
+    if (!user) {
+      return showModal('error', 'Please login first to pre order');
+    }
+
+    try {
+      let tempArr = [...preOrderData];
+      const findIndex = tempArr.findIndex(item => item._id === productData._id);
+
+      // ✅ Merchant check
+      if (
+        tempArr.length > 0 &&
+        tempArr[0].merchantId !== productData.merchantId
+      ) {
+        return showModal(
+          'error',
+          'You can only add items from one restaurant at a time',
+        );
+      }
+
+      // ✅ CASE 1: Product already exists → ONLY navigate
+      if (findIndex !== -1) {
+        navigation.navigate('PreOrderScreen');
+        return;
+      }
+
+      // ✅ CASE 2: Product does NOT exist → add with qty = 1
+      const newItem = {
+        ...productDetails,
+        selectedQty: 1,
+        isSelected: true,
+      };
+
+      tempArr.push(newItem);
+
+      dispatch(setPreOrderData(tempArr));
+      await AsyncStorage.setItem('preOrder', JSON.stringify(tempArr));
+
+      navigation.navigate('PreOrderScreen');
+    } catch (err) {
+      console.log('Add to PreOrder Error:', err);
+      showModal('error', 'Something went wrong while adding to pre order');
+    }
+  };
+
   const BottomButtons = () => (
     <View style={styles.bottomBar}>
       <View style={{width: width(45)}}>
         <ActionButton
-          onPress={() =>
-            Alert.alert(
-              'Coming Soon',
-              'This feature is currently under development. Please check back later!',
-            )
-          }
+          onPress={handleAddForPreOrder}
           height={46}
           width={width(45)}
           name={'Pre-order'}
