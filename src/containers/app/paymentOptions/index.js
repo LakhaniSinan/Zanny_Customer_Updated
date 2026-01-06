@@ -275,11 +275,9 @@ const PaymentOptions = ({navigation}) => {
             userId: user?._id,
           });
 
-          console.log(response, 'responseresponseresponse');
-
-          if (response.status === 200 || response.status === 201) {
-            dispatch(handleFetchCardsData(user?._id));
-            showModal('success', response.data.message);
+          if (response?.status === 200 || response?.status === 201) {
+            dispatch(handelGetCard(user?._id));
+            showModal('success', response?.data?.message);
           } else {
             showModal('error', response?.data?.message);
           }
