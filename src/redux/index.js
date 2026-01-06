@@ -16,11 +16,13 @@ import PreOrderDataSlice from './slices/PreOrder';
 import AllergiesSlice from './slices/userAllergies';
 import HomeDataSlice from './slices/HomeData';
 import CardSlice from './slices/UserCards';
+import CopiedCodeSlice from './slices/ClaimedPromo';
 
 const reducer = combineReducers({
   LoginSlice,
   PreOrderDataSlice,
   CartSlice,
+  CopiedCodeSlice,
   QuestionsSlice,
   MerchantSlice,
   LocationSlice,
