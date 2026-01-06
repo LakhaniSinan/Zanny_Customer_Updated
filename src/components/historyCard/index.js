@@ -1,14 +1,12 @@
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {FlatList, Image, Text, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
-import {fontFamily} from '../../assets';
+import {fontFamily, icons} from '../../assets';
 import {colors} from '../../constants';
 import ActionButton from '../actionButton';
 
 const HistoryCard = ({item, handleAddToCart}) => {
-  console.log(item, 'itemitemitemitemitemitemitemmaskmdalsdmasd');
-
   const navigation = useNavigation();
 
   const getStatusStyle = status => {
@@ -17,9 +15,10 @@ const HistoryCard = ({item, handleAddToCart}) => {
         return {bg: 'rgba(255,165,0,0.2)', color: '#FFA500'};
       case 'accepted':
         return {bg: 'rgba(30,144,255,0.2)', color: '#1E90FF'};
-      case 'rejected':
+      case 'cancelled':
         return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
       case 'completed':
+      case 'delivered':
         return {bg: 'rgba(50,205,50,0.2)', color: '#32CD32'};
       default:
         return {bg: 'rgba(144,238,144,0.3)', color: '#32CD32'};
@@ -27,235 +26,172 @@ const HistoryCard = ({item, handleAddToCart}) => {
   };
 
   const statusStyle = getStatusStyle(item?.status);
+  const product = item?.order?.[0];
 
   return (
     <View
       style={{
-        marginTop: width(2),
-        borderBottomWidth: 1,
-        borderBottomColor: colors.grey,
-        paddingBottom: width(4),
-        marginHorizontal: width(4),
         backgroundColor: colors.white,
-        borderRadius: width(2),
-        padding: width(3),
+        marginHorizontal: width(4),
+        paddingVertical: width(2),
+        marginTop: width(4),
+        borderRadius: width(3),
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
       }}>
-      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-        <View>
+      <View style={{flexDirection: 'row'}}>
+        <Image
+          source={{uri: product?.image}}
+          style={{
+            width: width(35),
+            height: width(35),
+            borderRadius: width(3),
+          }}
+        />
+
+        <View style={{flex: 1, marginLeft: width(3)}}>
           <Text
+            numberOfLines={1}
             style={{
               fontSize: 16,
               fontFamily: fontFamily.poppinBold,
-              color: colors.black,
+              color: '#7a1f1f',
             }}>
-            Order #{item?.orderCode}
+            {product?.name}
           </Text>
-          {item?.orderCategory == 'preOrder' && (
+
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Text
               style={{
                 fontSize: 16,
                 fontFamily: fontFamily.poppinBold,
-                color: colors.black,
+                color: colors.primaryOrange,
               }}>
-              Delivery Date: {item?.deliveryData}
+              £{product?.price}
             </Text>
-          )}
-          {item?.orderCategory == 'preOrder' && (
+
+            {product?.oldPrice && (
+              <Text
+                style={{
+                  marginLeft: 8,
+                  fontSize: 13,
+                  color: colors.grey,
+                  textDecorationLine: 'line-through',
+                }}>
+                £{product?.oldPrice}
+              </Text>
+            )}
+          </View>
+
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Text
               style={{
-                fontSize: 16,
-                fontFamily: fontFamily.poppinBold,
-                color: colors.black,
+                fontSize: 13,
+                fontFamily: fontFamily.poppinSemiBold,
+                marginRight: 6,
               }}>
-              Delivery Time: {item?.deliveryTime}
+              Status
             </Text>
-          )}
-        </View>
-        <View
-          style={{
-            paddingHorizontal: width(2),
-            borderRadius: 100,
-            backgroundColor: statusStyle.bg,
-            borderWidth: 1,
-            borderColor: statusStyle.color,
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: width(8),
-          }}>
-          <Text
-            style={{
-              fontSize: 12,
-              color: statusStyle.color,
-              fontFamily: fontFamily.poppinBold,
-            }}>
-            {item?.status}
-          </Text>
-        </View>
-      </View>
 
-      <Text
-        style={{
-          marginTop: 3,
-          fontSize: 12,
-          color: colors.grey,
-          fontFamily: fontFamily.poppin,
-        }}>
-        {item?.date}
-      </Text>
-
-      <FlatList
-        data={item?.order}
-        scrollEnabled={false}
-        keyExtractor={(i, index) => index.toString()}
-        style={{marginTop: width(3)}}
-        renderItem={({item: product}) => {
-          console.log(product, 'productproductproductproductproductasd');
-
-          return (
             <View
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: width(3),
+                backgroundColor: statusStyle.bg,
+                paddingHorizontal: width(4),
+                paddingVertical: 1,
+                borderRadius: 999,
+                borderWidth: 1,
+                borderColor: statusStyle.color,
               }}>
-              <Image
-                source={{uri: product?.image}}
+              <Text
                 style={{
-                  height: width(18),
-                  width: width(18),
-                  borderRadius: width(2),
-                }}
-                resizeMode="cover"
-              />
-
-              <View style={{marginLeft: 10, flex: 1}}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: fontFamily.poppinBold,
-                    color: colors.black,
-                  }}>
-                  {product?.name}
-                </Text>
-
-                <Text
-                  style={{
-                    marginTop: 3,
-                    fontSize: 12,
-                    color: colors.grey,
-                    fontFamily: fontFamily.poppin,
-                  }}>
-                  Qty: {product?.quantity || product?.selectedQty}
-                </Text>
-
-                <Text
-                  style={{
-                    marginTop: 2,
-                    fontSize: 14,
-                    fontFamily: fontFamily.poppinBold,
-                    color: colors.black,
-                  }}>
-                  £{product?.price}
-                </Text>
-              </View>
+                  fontSize: 12,
+                  fontFamily: fontFamily.poppinBold,
+                  color: statusStyle.color,
+                }}>
+                {item?.status}
+              </Text>
             </View>
-          );
-        }}
-      />
-
-      <View
-        style={{
-          marginTop: width(2),
-          paddingVertical: width(2),
-          borderColor: colors.lightGrey,
-        }}>
-        {item?.promoData !== null && (
-          <View style={{}}>
-            <Text
-              style={{
-                alignSelf: 'flex-end',
-                fontSize: 14,
-                fontFamily: fontFamily.poppinBold,
-                color: colors.black,
-              }}>
-              Promo Code: {item?.promoData?.promoCode}
-            </Text>
-            <Text
-              style={{
-                alignSelf: 'flex-end',
-                fontSize: 14,
-                fontFamily: fontFamily.poppinBold,
-                color: colors.black,
-              }}>
-              Promo Discount : {item?.promoData?.discount} %OFF
-            </Text>
           </View>
-        )}
+          <View
+            style={{
+              width: width(45),
+              marginTop: width(3),
+            }}>
+            {item?.status === 'Completed' || item?.status === 'Delivered' ? (
+              <ActionButton
+                bgcColor="#3b0b0b"
+                fontColor={colors.white}
+                name="Order again"
+                fontSize={12}
+                onPress={() => handleAddToCart(item)}
+              />
+            ) : (
+              <ActionButton
+                bgcColor="#3b0b0b"
+                fontColor={colors.white}
+                name="View details"
+                fontSize={10}
+                onPress={() => navigation.navigate('OrderDetail', item)}
+              />
+            )}
+          </View>
+        </View>
+      </View>
+
+      <View style={{marginTop: width(4)}}>
         <Text
           style={{
-            alignSelf: 'flex-end',
-            fontSize: 14,
-            fontFamily: fontFamily.poppinBold,
+            fontSize: 12,
             color: colors.black,
+            fontFamily: fontFamily.poppinSemiBold,
+            marginBottom: 6,
           }}>
-          Total Paid: £{item?.totalBill}
+          Made by
         </Text>
-      </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: width(2),
-        }}>
-        <Image
-          source={{uri: item?.order[0]?.merchant?.merchantImage}}
-          style={{
-            height: width(10),
-            width: width(10),
-            borderRadius: width(5),
-          }}
-        />
-        <View style={{marginLeft: 8}}>
-          <Text
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Image
+            source={{uri: product?.merchant?.merchantImage}}
             style={{
-              fontSize: 10,
-              fontFamily: fontFamily.poppinBold,
-              color: colors.primaryOrange,
-            }}>
-            Chef
-          </Text>
-          <Text
-            style={{
-              fontSize: 12,
-              fontFamily: fontFamily.poppinBold,
-              color: colors.black,
-            }}>
-            {item?.order[0]?.merchant?.name}
-          </Text>
+              width: width(9),
+              height: width(9),
+              borderRadius: width(4.5),
+            }}
+          />
+
+          <View style={{marginLeft: 8}}>
+            <Text
+              style={{
+                fontSize: 11,
+                fontFamily: fontFamily.poppinBold,
+                color: colors.primaryOrange,
+              }}>
+              Chef
+            </Text>
+
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontFamily: fontFamily.poppinBold,
+                  color: colors.black,
+                }}>
+                {product?.merchant?.name}
+              </Text>
+
+              <Image
+                source={icons.objects}
+                style={{
+                  width: 14,
+                  height: 14,
+                  marginLeft: 3,
+                  marginBottom: 5,
+                }}
+              />
+            </View>
+          </View>
         </View>
       </View>
-
-      {item?.status == 'Completed' && (
-        <View style={{marginTop: width(3)}}>
-          <ActionButton
-            bgcColor={'#3b0b0b'}
-            fontColor={colors.white}
-            name={'Order Again'}
-            onPress={() => handleAddToCart(item)}
-          />
-        </View>
-      )}
-      {item?.status !== 'Completed' && (
-        <View style={{marginTop: width(3)}}>
-          <ActionButton
-            bgcColor={'#3b0b0b'}
-            fontColor={colors.white}
-            name={'View details'}
-            onPress={() => navigation.navigate('OrderDetail', item)}
-          />
-        </View>
-      )}
     </View>
   );
 };

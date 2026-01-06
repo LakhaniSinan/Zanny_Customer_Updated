@@ -11,11 +11,10 @@ const MaintenanceScreen = () => {
         style={styles.image}
       />
 
-      <Text style={styles.title}>We're Working on </Text>
+      <Text style={styles.title}> Coming Soon</Text>
 
       <Text style={styles.subtitle}>
-        This feature will enable soon. We’re working hard to improve the
-        experience. Please check back later.
+        This feature is currently under development. Please check back later!
       </Text>
     </View>
   );
