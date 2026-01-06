@@ -563,14 +563,17 @@ const ReOccuringCheckout = ({route}) => {
                   />
                   <View
                     style={{paddingHorizontal: width(4), marginTop: width(4)}}>
-                    <Text
-                      style={{
-                        fontFamily: fontFamily.poppinSemiBold,
-                        color: colors.black,
-                        fontSize: 16,
-                      }}>
-                      Delivery Type
-                    </Text>
+                    {(preOrderData[0].merchant?.isPickUp ||
+                      preOrderData[0].merchant?.isDelivery) && (
+                      <Text
+                        style={{
+                          fontFamily: fontFamily.poppinSemiBold,
+                          color: colors.black,
+                          fontSize: 16,
+                        }}>
+                        Delivery Type
+                      </Text>
+                    )}
                     <View
                       style={{
                         alignItems: 'center',
