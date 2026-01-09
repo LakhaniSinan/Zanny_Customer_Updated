@@ -24,18 +24,20 @@ import {fontFamily, icons} from '../../../assets';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
+import {colors, STRIPE_PUBLISH_LIVE} from '../../../constants';
 
+import {setUserData} from '../../../redux/slices/Login';
 import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
 import {setPaymentType} from '../../../redux/slices/PaymentType';
+import {
+  handelGetCard,
+  handleFetchCardsData,
+} from '../../../redux/slices/UserCards';
 import {
   addPaymentCard,
   createStripId,
   deletePaymentCard,
 } from '../../../services/paymentCard';
-import {handelGetCard} from '../../../redux/slices/UserCards';
-import {setUserData} from '../../../redux/slices/Login';
-import {handleFetchCardsData} from '../../../redux/slices/UserCards';
 
 const PaymentOptions = ({navigation}) => {
   const dispatch = useDispatch();
@@ -187,7 +189,9 @@ const PaymentOptions = ({navigation}) => {
         disableClose: true,
         onPress: () => {
           setModalVisible(false);
-          navigation.goBack();
+          setTimeout(() => {
+            navigation.goBack();
+          }, 500);
         },
       });
 
@@ -274,9 +278,10 @@ const PaymentOptions = ({navigation}) => {
             paymentId: cardItem?.paymentMethodId,
             userId: user?._id,
           });
+          console.log(response, 'responseresponseresponse');
 
           if (response?.status === 200 || response?.status === 201) {
-            dispatch(handelGetCard(user?._id));
+            dispatch(handleFetchCardsData(user?._id));
             showModal('success', response?.data?.message);
           } else {
             showModal('error', response?.data?.message);
@@ -340,7 +345,9 @@ const PaymentOptions = ({navigation}) => {
         disableClose: true,
         onPress: () => {
           setModalVisible(false);
-          navigation.goBack();
+          setTimeout(() => {
+            navigation.goBack();
+          }, 500);
         },
       });
 
@@ -370,7 +377,7 @@ const PaymentOptions = ({navigation}) => {
           return;
         }
 
-        dispatch(handelGetCard(user?._id));
+        dispatch(handleFetchCardsData(user?._id));
       }
 
       dispatch(
@@ -390,7 +397,9 @@ const PaymentOptions = ({navigation}) => {
       setCardDetails(null);
       setIsCardValid(false);
 
-      navigation.navigate('CartScreen');
+      setTimeout(() => {
+        navigation.navigate('CartScreen');
+      }, 500);
     } catch (error) {
       showModal('error', error.message || 'Something went wrong');
     } finally {
@@ -537,7 +546,7 @@ const PaymentOptions = ({navigation}) => {
               </Text>
 
               <StripeProvider
-                publishableKey={STRIPE_PUBLISH_TEST}
+                publishableKey={STRIPE_PUBLISH_LIVE}
                 merchantIdentifier="merchant.com.yourapp">
                 <CardField
                   key={cardFieldKey}

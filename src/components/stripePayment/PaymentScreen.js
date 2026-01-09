@@ -1,27 +1,27 @@
-import React, {useEffect, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Image,
-} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useDispatch, useSelector} from 'react-redux';
-import {setCurrentPaymentCard} from '../../redux/slices/paymentCard';
-import {setPaymentType} from '../../redux/slices/PaymentType';
 import {
+  CardField,
   StripeProvider,
   useStripe,
-  CardField,
 } from '@stripe/stripe-react-native';
-import {icons} from '../../assets';
+import React, {useEffect, useState} from 'react';
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {width} from 'react-native-dimension';
-import {colors, STRIPE_PUBLISH_TEST} from '../../constants';
-import AppHeader from '../headerComponent';
-import CustomModal from '../customModal';
+import {useDispatch, useSelector} from 'react-redux';
+import {icons} from '../../assets';
+import {colors, STRIPE_PUBLISH_LIVE} from '../../constants';
+import {setCurrentPaymentCard} from '../../redux/slices/paymentCard';
+import {setPaymentType} from '../../redux/slices/PaymentType';
 import {getPaymentCardById} from '../../services/paymentCard';
+import CustomModal from '../customModal';
+import AppHeader from '../headerComponent';
 
 const PaymentScreen = ({navigation, route}) => {
   const stripe = useStripe();
@@ -149,7 +149,7 @@ const PaymentScreen = ({navigation, route}) => {
 
   return (
     <StripeProvider
-      publishableKey={STRIPE_PUBLISH_TEST}
+      publishableKey={STRIPE_PUBLISH_LIVE}
       merchantIdentifier="merchant.com.yourapp" // required for Apple Pay
     >
       <AppHeader goBack text="Payment" />

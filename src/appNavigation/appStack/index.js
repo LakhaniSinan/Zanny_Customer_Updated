@@ -48,11 +48,6 @@ import Login from '../../containers/auth/Login';
 import ResetPassword from '../../containers/auth/resetPassword';
 import SignUpScreen from '../../containers/auth/SignUp';
 import {handelGetAddress} from '../../redux/slices/Address';
-import {useEffect} from 'react';
-import ChefDetails from '../../containers/app/chefDetails';
-import PrivacyPolicy from '../../containers/app/privacyPolicy';
-import AllChefs from '../../containers/app/allChefs';
-import {handelGetCard} from '../../redux/slices/UserCards';
 import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
 
@@ -94,7 +89,6 @@ export function CustomerStack() {
 
   useEffect(() => {
     if (user) dispatch(handelGetAddress());
-    if (user) dispatch(handelGetCard(user?._id));
     if (user) dispatch(handleFetchCardsData(user?._id));
   }, [dispatch, user]);
 

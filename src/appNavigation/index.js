@@ -1,8 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  NavigationContainer,
-  CommonActions,
-} from '@react-navigation/native';
+import {CommonActions, NavigationContainer} from '@react-navigation/native';
 import React, {useEffect, useRef, useState} from 'react';
 import {Linking} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -34,7 +31,7 @@ const Navigation = () => {
             ProductDetail: {
               path: 'app/ProductDetail/:productId',
               parse: {
-                productId: (productId) => productId,
+                productId: productId => productId,
               },
             },
           },
@@ -47,7 +44,7 @@ const Navigation = () => {
   useEffect(() => {
     if (!isHydrated || !isGetStarted || !navigationRef.current) return;
 
-    const handleDeepLink = (url) => {
+    const handleDeepLink = url => {
       if (!url || !navigationRef.current) return;
 
       console.log('Deep link received:', url);
@@ -56,7 +53,7 @@ const Navigation = () => {
       let productId = null;
       const fullUrlMatch = url.match(/app\/ProductDetail\/([^/?]+)/);
       const pathMatch = url.match(/ProductDetail\/([^/?]+)/);
-      
+
       if (fullUrlMatch) {
         productId = fullUrlMatch[1];
       } else if (pathMatch) {
@@ -107,7 +104,7 @@ const Navigation = () => {
     checkInitialURL();
 
     // Handle deep links when app is already running
-    const subscription = Linking.addEventListener('url', (event) => {
+    const subscription = Linking.addEventListener('url', event => {
       console.log('URL event:', event.url);
       handleDeepLink(event.url);
     });

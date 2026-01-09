@@ -10,7 +10,7 @@ import BackButton from '../backIcon';
 const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
   const navigation = useNavigation();
   // Map your API response properly
-  console.log(item, 'itemitemitemitemitemite');
+  console.log(item?.restaurantId?.deliveryTime, 'itemitemitemitemitemite');
 
   const foodData = {
     foodImage: item.foodId?.image
@@ -35,7 +35,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
     time:
       item.foodId?.deliveryTime !== undefined
         ? `${item.foodId.deliveryTime} mins`
-        : item.time || '20 mins',
+        : `${item?.restaurantId?.deliveryTime} mins` || '20 mins',
     cheifName: item.restaurantId?.name || item.cheifName || 'Leanne Wayne',
     isFavourite: item.isFav === true, // always boolean
   };

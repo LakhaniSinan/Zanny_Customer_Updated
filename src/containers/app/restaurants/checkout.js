@@ -27,7 +27,7 @@ import OverLayLoader from '../../../components/loader';
 import {setCartData} from '../../../redux/slices/Cart';
 import {setMerchantDetail} from '../../../redux/slices/Merchant';
 import {setOrderType} from '../../../redux/slices/OrderType';
-import {STRIPE_PUBLISH_TEST, colors} from './../../../constants/index';
+import {STRIPE_PUBLISH_LIVE, colors} from './../../../constants/index';
 import {getAdminSettings} from './../../../services/adminSettings/index';
 import {
   createStripeClientSecret,
@@ -374,7 +374,7 @@ const Checkout = ({navigation}) => {
 
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <StripeProvider
-          publishableKey={STRIPE_PUBLISH_TEST}
+          publishableKey={STRIPE_PUBLISH_LIVE}
           merchantIdentifier="merchant.com.zannycustomer">
           <Header text="Checkout" goBack={true} />
           <ScrollView
