@@ -130,7 +130,7 @@ const ProfileScreen = () => {
             alignItems: 'center',
             elevation: 6,
           }}
-          onPress={showComingSoon}>
+          onPress={() => navigation.navigate('Notifications')}>
           <Image
             source={icons.notificationsRed}
             style={{height: width(8), width: width(8)}}
@@ -268,7 +268,7 @@ const ProfileScreen = () => {
         <Row
           iconSet={icons.personalfo}
           label="Help Center"
-          onPress={() => navigation.navigate('Support')}
+          onPress={() => navigation.navigate('HelpCenter')}
         />
 
         <Row iconSet={icons.logoutIcon} label="Log Out" onPress={logout} />

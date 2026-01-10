@@ -52,12 +52,7 @@ const AppHeader = ({
         <View style={styles.rightIconWrapper}>
           <TouchableOpacity
             style={styles.backBtn}
-            onPress={() =>
-              Alert.alert(
-                'Coming Soon',
-                'This feature is currently under development. Please check back later!',
-              )
-            }>
+            onPress={() => navigation.navigate('Notifications')}>
             <Image
               source={icons.bellIcon}
               resizeMode="contain"

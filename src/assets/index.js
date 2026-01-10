@@ -104,5 +104,10 @@ export const icons = {
   privacyIcon: require('../assets/icons/privacyIcon.png'),
   settingsIcon: require('../assets/icons/settingsIcon.png'),
   specialIcon: require('../assets/icons/specialIcon.png'),
-  subscriptionIcon: require('../assets/icons/subscriptionIcon.png'),
+  copyIcon: require('../assets/icons/copyIcon.png'),
+  mobileIcon: require('../assets/icons/mobileIcon.png'),
+  messagIcon: require('../assets/icons/messagIcon.png'),
+  instra: require('../assets/icons/instra.png'),
+  Xicon: require('../assets/icons/Xicon.png'),
+  facebookIcon: require('../assets/icons/facebook.png'),
 };

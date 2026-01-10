@@ -50,6 +50,8 @@ import SignUpScreen from '../../containers/auth/SignUp';
 import {handelGetAddress} from '../../redux/slices/Address';
 import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
+import HelpCenter from '../../containers/app/helpCenter';
+import Notifications from '../../containers/app/notification';
 
 const Stack = createStackNavigator();
 
@@ -130,6 +132,22 @@ export function CustomerStack() {
         }}
         name="AllChefs"
         component={AllChefs}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="HelpCenter"
+        component={HelpCenter}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="Notifications"
+        component={Notifications}
       />
       <Stack.Screen
         options={{
