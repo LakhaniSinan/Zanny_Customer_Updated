@@ -139,6 +139,8 @@ const Navigation = () => {
   }, []);
 
   const handleGetAdminSettings = async () => {
+    console.log('asdsadasdasd');
+
     try {
       const response = await getAdminSettings();
 

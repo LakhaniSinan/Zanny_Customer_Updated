@@ -6,7 +6,7 @@ import Modal from 'react-native-modal';
 import {fontFamily, images} from '../../assets';
 import {colors} from '../../constants';
 import PrimaryButton from '../primaryButton';
-import RNExitApp from 'react-native-exit-app';
+import {exitApp} from '@logicwind/react-native-exit-app';
 
 let propsData = {};
 
@@ -94,7 +94,9 @@ const UpdatePopUp = React.forwardRef((props, ref) => {
               name={'Cancel'}
               onPress={() => {
                 ModalVisibility(false);
-                RNExitApp.exitApp();
+                setTimeout(() => {
+                  exitApp();
+                }, 1000);
               }}
             />
           </View>
