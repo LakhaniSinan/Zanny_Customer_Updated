@@ -195,6 +195,7 @@ PODS:
     - React-RCTText (= 0.79.6)
     - React-RCTVibration (= 0.79.6)
   - React-callinvoker (0.79.6)
+  - React-Codegen (0.1.0)
   - React-Core (0.79.6):
     - glog
     - hermes-engine
@@ -1506,6 +1507,31 @@ PODS:
     - Yoga
   - react-native-geolocation-service (5.3.1):
     - React
+  - react-native-image-resizer (3.0.11):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-maps (1.20.1):
     - React-Core
   - react-native-render-html (6.3.4):
@@ -2359,6 +2385,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-geolocation-service (from `../node_modules/react-native-geolocation-service`)
+  - "react-native-image-resizer (from `../node_modules/@bam.tech/react-native-image-resizer`)"
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-render-html (from `../node_modules/react-native-render-html`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2431,6 +2458,7 @@ SPEC REPOS:
     - GTMSessionFetcher
     - nanopb
     - PromisesObjC
+    - React-Codegen
     - SocketRocket
     - Stripe
     - StripeApplePay
@@ -2526,6 +2554,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-date-picker"
   react-native-geolocation-service:
     :path: "../node_modules/react-native-geolocation-service"
+  react-native-image-resizer:
+    :path: "../node_modules/@bam.tech/react-native-image-resizer"
   react-native-maps:
     :path: "../node_modules/react-native-maps"
   react-native-render-html:
@@ -2661,6 +2691,7 @@ SPEC CHECKSUMS:
   RCTTypeSafety: 7c0b654b92ef732fffc2a3992a02d10dc8f94bfd
   React: bc28da5a227fa5e7b43e7ed68061f34740d4c880
   React-callinvoker: b78b18b44bc2c6634f7e594ad4fd206e624d41e3
+  React-Codegen: 4b8b4817cea7a54b83851d4c1f91f79aa73de30a
   React-Core: 790dbe4191ce86ac1f45fb883f20d3b1d3cd9c17
   React-CoreModules: ee0b89806b53e36ccd02e5bf2f5743a902d7bf4b
   React-cxxreact: 58b3e3e5242d59e0f4d1f8995a08c63a046db793
@@ -2688,6 +2719,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: ff05e894231c44c21135d1d23a82b87656d98eeb
   react-native-date-picker: e687e018f66da4734b3db3ddf3d323e930425d56
   react-native-geolocation-service: 32b2c2a3b91e70ce2a8d0c684801aaeb0a07e0ec
+  react-native-image-resizer: 84e4bdf749a1e37ab6a96d848ef7075b15a41791
   react-native-maps: 9febd31278b35cd21e4fad2cf6fa708993be5dab
   react-native-render-html: 5afc4751f1a98621b3009432ef84c47019dcb2bd
   react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
