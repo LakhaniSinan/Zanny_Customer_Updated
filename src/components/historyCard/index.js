@@ -17,6 +17,8 @@ const HistoryCard = ({item, handleAddToCart}) => {
         return {bg: 'rgba(30,144,255,0.2)', color: '#1E90FF'};
       case 'cancelled':
         return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
+      case 'rejected':
+        return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
       case 'completed':
       case 'delivered':
         return {bg: 'rgba(50,205,50,0.2)', color: '#32CD32'};

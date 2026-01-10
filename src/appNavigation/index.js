@@ -1,17 +1,21 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CommonActions, NavigationContainer} from '@react-navigation/native';
 import React, {useEffect, useRef, useState} from 'react';
-import {Linking} from 'react-native';
+import {Linking, Platform} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import WelcomeScreen from '../containers/auth/WelComeScreen';
 import {setUserData} from '../redux/slices/Login';
 import {CustomerStack} from './appStack';
+import DeviceInfo from 'react-native-device-info';
+import UpdatePopUp from '../components/updatePopUp';
+import {getAdminSettings} from '../services/adminSettings';
 
 const Navigation = () => {
   const dispatch = useDispatch();
   const {isGetStarted} = useSelector(state => state.GetStarted);
   const [isHydrated, setIsHydrated] = useState(false);
   const navigationRef = useRef(null);
+  const updateVar = useRef(null);
 
   const linking = {
     prefixes: [
@@ -130,9 +134,59 @@ const Navigation = () => {
     hydrateUser();
   }, []);
 
+  useEffect(() => {
+    handleGetAdminSettings();
+  }, []);
+
+  const handleGetAdminSettings = async () => {
+    try {
+      const response = await getAdminSettings();
+
+      let data = response?.data?.data;
+      if (response.status === 200 || response.status === 201) {
+        checkAppVersion(data);
+      } else {
+        console.error('Failed to fetch data: Invalid status', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching tips:', error);
+    }
+  };
+
+  const checkAppVersion = apiRess => {
+    console.log(apiRess, 'apiRessapiRessapiRessapiRess');
+
+    if (apiRess) {
+      let result = DeviceInfo.getBuildNumber();
+      console.log(result, apiRess, 'THINGSSS');
+      if (Platform.OS == 'android') {
+        if (
+          Number(result) !== Number(apiRess.androidCustomerVersion) &&
+          apiRess.isAndroidCustomerPopUpShow
+        ) {
+          updateVar.current.isVisible();
+        } else {
+          updateVar.current.backdropPress();
+        }
+      } else {
+        if (
+          Number(result) !== Number(apiRess.iosCustomerVersion) &&
+          apiRess.isIosCustomerPopUpShow
+        ) {
+          setTimeout(() => {
+            updateVar.current.isVisible();
+          }, 2000);
+        } else {
+          updateVar.current.backdropPress();
+        }
+      }
+    }
+  };
+
   return (
     <NavigationContainer ref={navigationRef} linking={linking}>
       {isGetStarted ? <CustomerStack /> : <WelcomeScreen />}
+      <UpdatePopUp ref={updateVar} />
     </NavigationContainer>
   );
 };
