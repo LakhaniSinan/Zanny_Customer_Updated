@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons, images} from '../../../assets';
 import ActionBuuton from '../../../components/actionButton';
 import CustomModal from '../../../components/customModal';
@@ -17,10 +17,12 @@ import AppHeader from '../../../components/headerComponent';
 import {updateOrderStatus} from '../../../services/order';
 import {colors} from './../../../constants/index';
 import styles from './style';
+import {setCartData} from '../../../redux/slices/Cart';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OrderDetail = ({navigation, route}) => {
   const data = route.params;
-  console.log(data, 'routerouterouteroute');
+  const {cartData} = useSelector(state => state.CartSlice);
 
   const user = useSelector(state => state.LoginSlice.user);
   const [subTotal, setSubTotal] = useState(0);
@@ -28,10 +30,7 @@ const OrderDetail = ({navigation, route}) => {
   const [remainingTimes, setRemainingTimes] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState({});
-
-  const modalQueueRef = useRef([]);
-  const processingModalRef = useRef(false);
-  const openModalTimerRef = useRef(null);
+  const dispatch = useDispatch();
 
   const updateRemainingTime = (orderId, pickupMinutes, orderDate) => {
     // Convert order date string to Date object
@@ -60,27 +59,6 @@ const OrderDetail = ({navigation, route}) => {
     return interval; // Return interval ID for cleanup
   };
 
-  /* ---------------- MODAL HELPER ---------------- */
-  const processModalQueue = () => {
-    if (processingModalRef.current) return;
-    const nextConfig = modalQueueRef.current.shift();
-    if (!nextConfig) return;
-
-    processingModalRef.current = true;
-    setModalConfig(nextConfig);
-    setModalVisible(true);
-
-    openModalTimerRef.current = setTimeout(() => {
-      processingModalRef.current = false;
-      processModalQueue();
-    }, 500);
-  };
-
-  const openModal = config => {
-    modalQueueRef.current.push(config);
-    processModalQueue();
-  };
-
   useEffect(() => {
     const intervals = {};
 
@@ -95,12 +73,6 @@ const OrderDetail = ({navigation, route}) => {
 
     return () => {
       Object.values(intervals).forEach(intervalId => clearInterval(intervalId));
-      if (openModalTimerRef.current) {
-        clearTimeout(openModalTimerRef.current);
-        openModalTimerRef.current = null;
-      }
-      modalQueueRef.current = [];
-      processingModalRef.current = false;
     };
   }, [data]);
 
@@ -238,9 +210,80 @@ const OrderDetail = ({navigation, route}) => {
     return '';
   };
 
-  const handleOrderAgain = () => {
-    // Navigate to restaurant or add items to cart
-    navigation.goBack();
+  const showModal = (Icon, type, detail, onConfirm = () => {}) => {
+    if (modalVisible) return; // 🔥 IMPORTANT FIX
+
+    setModalConfig({
+      type,
+      Icon,
+      name: type === 'error' ? 'Error' : 'Success',
+      detail,
+      buttonName: 'OK',
+      onConfirm: () => {
+        setModalVisible(false);
+        onConfirm();
+      },
+      onCancel: () => setModalVisible(false),
+    });
+
+    setModalVisible(true);
+  };
+
+  const handleAddToCart = async selectedOrder => {
+    try {
+      if (modalVisible) return; // 🔥 DOUBLE SAFETY
+
+      const orderItems = selectedOrder?.order || [];
+
+      if (!user?._id) {
+        showModal(
+          icons.cross,
+          'error',
+          'Please login first to add items to cart',
+        );
+        return;
+      }
+
+      if (!orderItems.length) {
+        showModal(icons.cross, 'error', 'No items found in this order');
+        return;
+      }
+
+      const orderMerchantId = orderItems[0]?.merchantId;
+      if (!orderMerchantId) {
+        showModal(icons.cross, 'error', 'Invalid merchant information');
+        return;
+      }
+
+      if (!cartData?.length) {
+        dispatch(setCartData(orderItems));
+        await AsyncStorage.setItem('cartData', JSON.stringify(orderItems));
+
+        showModal(icons.check, 'success', 'Order added to cart', () =>
+          navigation.navigate('CartScreen'),
+        );
+        return;
+      }
+
+      const cartMerchantId = cartData[0]?.merchantId;
+      if (cartMerchantId !== orderMerchantId) {
+        showModal(
+          icons.cross,
+          'error',
+          'You can only order again from the same restaurant',
+        );
+        return;
+      }
+
+      showModal(
+        icons.check,
+        'success',
+        'This order has already been added to your cart. Please go to the cart and place your order.',
+        () => navigation.navigate('CartScreen'),
+      );
+    } catch (error) {
+      showModal(icons.cross, 'error', 'Something went wrong');
+    }
   };
 
   return (
@@ -453,7 +496,7 @@ const OrderDetail = ({navigation, route}) => {
           />
         ) : (
           <ActionBuuton
-            onPress={handleOrderAgain}
+            onPress={() => handleAddToCart(data)}
             name={'Order Again'}
             bgcColor={colors.black}
             fontColor={colors.white}
