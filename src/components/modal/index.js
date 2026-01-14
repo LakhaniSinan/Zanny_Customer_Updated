@@ -26,8 +26,8 @@ const CommonModal = React.forwardRef((props, ref) => {
         width: '100%',
         position: 'absolute',
         ...(props.type !== 'questions' && {backgroundColor: '#f0f4f7'}),
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
+        borderTopLeftRadius: width(20),
+        borderTopRightRadius: width(20),
       }}
       isVisible={isVisible}
       animationIn="slideInUp"

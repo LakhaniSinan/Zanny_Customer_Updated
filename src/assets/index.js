@@ -68,6 +68,8 @@ export const icons = {
   Bottle: require('../assets/icons/Bottle.png'),
   ArrowLeft: require('../assets/icons/ArrowLeft.png'),
   arrowDown: require('../assets/icons/arrowDown.png'),
+  closeBtnIcon: require('../assets/icons/closeBtnIcon.png'),
+
   Info: require('../assets/icons/Info.png'),
   positive: require('../assets/icons/positive.png'),
   negative: require('../assets/icons/negative.png'),
@@ -97,6 +99,7 @@ export const icons = {
   hi: require('../assets/icons/hi.png'),
   apple: require('../assets/icons/apple.png'),
   Checkbox: require('../assets/icons/Checkbox.png'),
+  checkIcon: require('../assets/icons/checkIcon.png'),
   fillHeart: require('../assets/icons/fillHeart.png'),
   check: require('../assets/icons/check.png'),
   cross: require('../assets/icons/cross.png'),

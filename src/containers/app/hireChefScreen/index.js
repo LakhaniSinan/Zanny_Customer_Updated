@@ -1,15 +1,19 @@
+import moment from 'moment';
 import React, {useRef, useState} from 'react';
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import {Calendar} from 'react-native-calendars';
 import {width} from 'react-native-dimension';
-import AppHeader from '../../../components/headerComponent';
+import {fontFamily, icons} from '../../../assets';
 import CustomPicker from '../../../components/customPicker';
 import GooglePlacesInput from '../../../components/googlePlaceInput';
+import AppHeader from '../../../components/headerComponent';
 import PrimaryButton from '../../../components/primaryButton';
 import {colors} from '../../../constants';
 
@@ -30,10 +34,18 @@ const GUEST_OPTIONS = [
 
 const TIME_SLOTS = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 AM'];
 
-const HireChefScreen = () => {
+const HireChefScreen = ({navigation}) => {
   const eventTypeRef = useRef(null);
   const dateRef = useRef(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+
   const guestsRef = useRef(null);
+
+  const handleDaySelect = day => {
+    setSelectedDate(day.dateString);
+    setShowCalendar(false);
+  };
 
   const [formState, setFormState] = useState({
     eventType: '',
@@ -52,11 +64,7 @@ const HireChefScreen = () => {
   };
 
   const handleProceed = () => {
-    // For now just log the selection – integrate navigation / API later
-    console.log('Hire Chef form submitted:', {
-      ...formState,
-      location: selectedLocation,
-    });
+    navigation.navigate('SelectMeals', formState);
   };
 
   return (
@@ -79,17 +87,72 @@ const HireChefScreen = () => {
           />
         </View>
 
-        <View style={styles.section}>
-          <CustomPicker
-            ref={dateRef}
-            label="Select Date"
-            labelll="Select date"
-            value={formState.date}
-            listData={[{name: 'Monday 10-12-25'}]}
-            name="date"
-            handleSelectValue={handleSelectValue}
-            handleOpenModal={() => dateRef.current?.show()}
-          />
+        <View style={{}}>
+          <Text
+            style={{
+              fontFamily: fontFamily.poppinSemiBold,
+              color: colors.black,
+              fontSize: 16,
+            }}>
+            Select Date
+          </Text>
+
+          <TouchableOpacity
+            onPress={() => setShowCalendar(prev => !prev)}
+            style={{
+              flexDirection: 'row',
+              borderRadius: 100,
+              padding: width(3),
+              paddingHorizontal: width(7),
+              alignItems: 'center',
+              borderColor: colors.softgray,
+              borderWidth: 1,
+              marginTop: width(2),
+            }}>
+            <Image
+              source={icons.calendarIcon}
+              resizeMode="contain"
+              style={{height: width(7), width: width(7)}}
+            />
+
+            <Text
+              style={{
+                fontFamily: fontFamily.poppinRegular,
+                color: colors.gray,
+                marginLeft: width(3),
+              }}>
+              {selectedDate
+                ? moment(selectedDate).format('dddd DD-MM-YYYY')
+                : 'Select delivery date'}
+            </Text>
+          </TouchableOpacity>
+
+          {showCalendar && (
+            <View style={{marginTop: width(4)}}>
+              <Calendar
+                current={selectedDate || moment().format('YYYY-MM-DD')}
+                onDayPress={handleDaySelect}
+                markedDates={
+                  selectedDate
+                    ? {
+                        [selectedDate]: {
+                          selected: true,
+                          selectedColor: colors.redish,
+                          selectedTextColor: colors.white,
+                        },
+                      }
+                    : {}
+                }
+                theme={{
+                  todayTextColor: colors.redish,
+                  arrowColor: colors.redish,
+                  textDayFontFamily: fontFamily.poppinRegular,
+                  textMonthFontFamily: fontFamily.poppinSemiBold,
+                  textDayHeaderFontFamily: fontFamily.poppinRegular,
+                }}
+              />
+            </View>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -106,10 +169,7 @@ const HireChefScreen = () => {
                       time,
                     }))
                   }
-                  style={[
-                    styles.timeChip,
-                    isActive && styles.timeChipActive,
-                  ]}>
+                  style={[styles.timeChip, isActive && styles.timeChipActive]}>
                   <Text
                     style={[
                       styles.timeText,
