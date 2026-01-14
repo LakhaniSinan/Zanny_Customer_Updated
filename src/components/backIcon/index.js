@@ -18,7 +18,7 @@ const BackButton = ({icon, onPress, border, height, width}) => {
       <Image
         source={icon}
         resizeMode="contain"
-        style={{height: 22, width: 22}}
+        style={{height: '50%', width: '50%'}}
       />
     </TouchableOpacity>
   );

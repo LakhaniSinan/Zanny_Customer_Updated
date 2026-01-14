@@ -47,6 +47,8 @@ import SignUpScreen from '../../containers/auth/SignUp';
 import {handelGetAddress} from '../../redux/slices/Address';
 import BottomNavigation from './bottomTab';
 import HireChefScreen from '../../containers/app/hireChefScreen';
+import SelectMeals from '../../containers/app/selectMeals';
+import OrderSummry from '../../containers/app/orderSummry';
 
 const Stack = createStackNavigator();
 
@@ -176,6 +178,20 @@ export function CustomerStack() {
       <Stack.Screen
         name="Products"
         component={Products}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="SelectMeals"
+        component={SelectMeals}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="OrderSummry"
+        component={OrderSummry}
         options={{
           headerShown: false,
         }}
