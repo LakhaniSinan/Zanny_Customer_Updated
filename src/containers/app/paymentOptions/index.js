@@ -63,13 +63,9 @@ const PaymentOptions = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [cardFieldKey, setCardFieldKey] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-  // Always enable Apple Pay and Google Pay on iOS devices
-  const [isApplePaySupported, setIsApplePaySupported] = useState(
-    Platform.OS === 'ios',
-  );
-  const [isGooglePaySupported, setIsGooglePaySupported] = useState(
-    Platform.OS === 'ios',
-  );
+  // Check Apple Pay and Google Pay support dynamically
+  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+  const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
   const {isPlatformPaySupported} = usePlatformPay();
 
   const [modalData, setModalData] = useState({
@@ -102,23 +98,38 @@ const PaymentOptions = ({navigation}) => {
 
   /* ================= PLATFORM PAY SUPPORT ================= */
   useEffect(() => {
-    // On iOS, always enable Apple Pay and Google Pay
-    if (Platform.OS === 'ios') {
-      setIsApplePaySupported(true);
-      setIsGooglePaySupported(true);
-    } else {
-      // On Android, check for Google Pay support
-      (async () => {
-        try {
-          const supported = await isPlatformPaySupported();
+    // Check platform pay support dynamically
+    (async () => {
+      try {
+        const supported = await isPlatformPaySupported();
+        console.log('PaymentOptions - Platform Pay Supported:', supported, 'Platform:', Platform.OS);
+        
+        if (Platform.OS === 'ios') {
+          if (supported) {
+            setIsApplePaySupported(true);
+            console.log('✅ Apple Pay is available on this device');
+          } else {
+            setIsApplePaySupported(false);
+            console.log('❌ Apple Pay not available - Device may not support it or Wallet not configured');
+          }
+          setIsGooglePaySupported(false); // Google Pay not on iOS
+        } else {
+          // On Android, check for Google Pay support
           if (supported) {
             setIsGooglePaySupported(true);
+            console.log('✅ Google Pay is available on this device');
+          } else {
+            setIsGooglePaySupported(false);
+            console.log('❌ Google Pay not available on this device');
           }
-        } catch (error) {
-          console.log('Platform pay support check error:', error);
+          setIsApplePaySupported(false); // Apple Pay not on Android
         }
-      })();
-    }
+      } catch (error) {
+        console.log('Platform pay support check error:', error);
+        setIsApplePaySupported(false);
+        setIsGooglePaySupported(false);
+      }
+    })();
   }, []);
 
   /* ================= CARD CHANGE ================= */
@@ -547,7 +558,7 @@ const PaymentOptions = ({navigation}) => {
 
               <StripeProvider
                 publishableKey={STRIPE_PUBLISH_LIVE}
-                merchantIdentifier="merchant.com.yourapp">
+                merchantIdentifier="merchant.com.zannycustomer">
                 <CardField
                   key={cardFieldKey}
                   postalCodeEnabled={false}
