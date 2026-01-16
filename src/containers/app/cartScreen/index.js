@@ -103,7 +103,6 @@ const CartScreen = () => {
   const [promoCode, setPromoCode] = useState('');
   const [isPromoApplied, setIsPromoApplied] = useState(false);
   const [promoData, setPromoData] = useState(null);
-  console.log(promoData, 'promoDatapromoDatapromoDatapromoDataasd');
 
   const [merchantDetails, setMerchantDetails] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -112,11 +111,14 @@ const CartScreen = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
   const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
+  console.log(
+    deliveryCharges,
+    'deliveryChargesdeliveryChargesdeliveryChargesdeliveryChargesasd',
+  );
 
   const {copiedCode} = useSelector(state => state.CopiedCodeSlice);
   const {user} = useSelector(s => s.LoginSlice);
   const wallet = useSelector(s => s.PaymentCardSlice.currentPaymentCard);
-  console.log(user, 'walletwalletwalletwalletwallet');
 
   const {address} = useSelector(s => s.AddressSlice);
   const selectedAddress = address && address.length ? address[0] : null;
@@ -139,14 +141,29 @@ const CartScreen = () => {
   );
 
   const {subTotal, discountedSubTotal, total} = useMemo(() => {
+    // 1️⃣ Subtotal = FINAL prices (discounted if exists)
     const st = cartData.reduce((acc, item) => {
-      const price = parsePriceToNumber(item?.price);
+      const originalPrice =
+        parsePriceToNumber(item?.foodId?.price) ||
+        parsePriceToNumber(item?.price);
+
+      const finalPrice =
+        Number(item?.foodId?.discount) > 0
+          ? Number(item.foodId.discount)
+          : Number(item?.discount) > 0
+          ? Number(item.discount)
+          : originalPrice;
+
       const qty = Number(item?.quantity || item?.selectedQty || 1);
-      return acc + price * qty;
+      return acc + finalPrice * qty;
     }, 0);
 
-    const discountPercent = promoData?.discount || 0;
-    const discounted = Number((st - (st * discountPercent) / 100).toFixed(2));
+    // 2️⃣ Promo discount (% based – correct)
+    const promoPercent = promoData?.discount || 0;
+    const promoDiscountAmount = (st * promoPercent) / 100;
+    const discounted = Number((st - promoDiscountAmount).toFixed(2));
+
+    // 3️⃣ Final total
     const t = Number(
       (
         discounted +
@@ -154,7 +171,12 @@ const CartScreen = () => {
         Number(serviceCharges || 0)
       ).toFixed(2),
     );
-    return {subTotal: st, discountedSubTotal: discounted, total: t};
+
+    return {
+      subTotal: Number(st.toFixed(2)),
+      discountedSubTotal: discounted,
+      total: t,
+    };
   }, [cartData, promoData, deliveryCharges, serviceCharges]);
 
   useEffect(() => {
@@ -230,6 +252,8 @@ const CartScreen = () => {
     // setLoading(true);
     try {
       const res = await getCalculatedDeliveryFee(payload);
+      console.log(res, 'resresresresresresresresasdasd');
+
       setDeliveryCharges(
         res?.data?.status === 'ok' && res.data.data != null
           ? Number(Number(res.data.data).toFixed(2))
@@ -248,12 +272,21 @@ const CartScreen = () => {
       setServiceCharges(0);
       return;
     }
+
     const totalValue = cartData.reduce((acc, item) => {
-      const price = parsePriceToNumber(item?.price);
+      const originalPrice =
+        parsePriceToNumber(item?.foodId?.price) ||
+        parsePriceToNumber(item?.price);
+
+      const finalPrice =
+        Number(item?.foodId?.discount) > 0
+          ? Number(item.foodId.discount)
+          : Number(item?.discount) > 0
+          ? Number(item.discount)
+          : originalPrice;
+
       const qty = Number(item?.quantity || item?.selectedQty || 1);
-      const effectivePrice =
-        Number(item?.discount) > 0 ? Number(item.discount) : price;
-      return acc + effectivePrice * qty;
+      return acc + finalPrice * qty;
     }, 0);
 
     const fee = Math.min(Math.max(totalValue * 0.05, 0.99), 4.5);
@@ -366,8 +399,10 @@ const CartScreen = () => {
 
       setLoading(true);
       try {
+        const amountInPence = Math.round(total);
+
         const intentRes = await createStripeClientSecret({
-          amount: total,
+          amount: amountInPence,
         });
         const clientSecret = intentRes?.data?.secretKey;
 
@@ -377,6 +412,7 @@ const CartScreen = () => {
             merchantName: 'Zannys Foods',
             merchantCountryCode: 'GB',
             currencyCode: 'GBP',
+            amount: amountInPence,
             billingAddressConfig: {
               format: PlatformPay.BillingAddressFormat.Full,
               isPhoneNumberRequired: true,

@@ -19,11 +19,14 @@ import {colors} from './../../../constants/index';
 import styles from './style';
 import {setCartData} from '../../../redux/slices/Cart';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import OverLayLoader from '../../../components/loader';
 
 const OrderDetail = ({navigation, route}) => {
   const data = route.params;
-  const {cartData} = useSelector(state => state.CartSlice);
+  console.log(data, 'datadatadatadatadatadatadata123d');
 
+  const {cartData} = useSelector(state => state.CartSlice);
+  const [isloading, setIsloding] = useState(false);
   const user = useSelector(state => state.LoginSlice.user);
   const [subTotal, setSubTotal] = useState(0);
   const [prepareTime, setPrepareTime] = useState('');
@@ -80,10 +83,12 @@ const OrderDetail = ({navigation, route}) => {
     let total = 0;
 
     data?.order?.forEach(item => {
-      const qty = item?.quantity ?? item?.selectedQty ?? 0;
-      const price = item?.price ?? 0;
+      const qty = item?.quantity ?? item?.selectedQty ?? 1;
 
-      total += qty * price;
+      const unitPrice =
+        Number(item?.discount) > 0 ? Number(item.discount) : Number(item.price);
+
+      total += qty * unitPrice;
     });
 
     setSubTotal(total);
@@ -95,7 +100,7 @@ const OrderDetail = ({navigation, route}) => {
       status: 'Cancelled',
       userId: user?._id,
     };
-
+    setIsloding(true);
     updateOrderStatus(payload)
       .then(response => {
         if (response?.data?.status == 'ok') {
@@ -106,6 +111,7 @@ const OrderDetail = ({navigation, route}) => {
             detail: response?.data?.message,
             buttonName: 'OK',
             onConfirm: () => {
+              setModalVisible(false);
               navigation.goBack();
             },
           });
@@ -117,6 +123,7 @@ const OrderDetail = ({navigation, route}) => {
             detail: response?.data?.message,
             buttonName: 'OK',
             onConfirm: () => {
+              setModalVisible(false);
               navigation.goBack();
             },
           });
@@ -124,7 +131,29 @@ const OrderDetail = ({navigation, route}) => {
       })
       .catch(error => {
         console.log(error, 'error');
+        setIsloding(false);
       });
+  };
+  const modalQueueRef = useRef([]);
+  const processingModalRef = useRef(false);
+  const openModalTimerRef = useRef(null);
+  const processModalQueue = () => {
+    if (processingModalRef.current) return;
+    const nextConfig = modalQueueRef.current.shift();
+    if (!nextConfig) return;
+
+    processingModalRef.current = true;
+    setModalConfig(nextConfig);
+    setModalVisible(true);
+
+    openModalTimerRef.current = setTimeout(() => {
+      processingModalRef.current = false;
+      processModalQueue();
+    }, 500);
+  };
+  const openModal = config => {
+    modalQueueRef.current.push(config);
+    processModalQueue();
   };
 
   const cofirmAlert = () => {
@@ -134,6 +163,7 @@ const OrderDetail = ({navigation, route}) => {
       name: 'Please Confirm',
       detail: 'Are you sure you want to cancel this order?',
       buttonName: 'Confirm',
+
       onConfirm: () => {
         setModalVisible(false);
         handleCancelOrder();
@@ -507,6 +537,7 @@ const OrderDetail = ({navigation, route}) => {
           />
         )}
       </View>
+      <OverLayLoader isloading={isloading} />
       <CustomModal
         visible={modalVisible}
         close={() => setModalVisible(false)}

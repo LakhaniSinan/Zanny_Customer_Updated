@@ -28,7 +28,7 @@ export const colors = {
   redish: '#3C0505',
   redlite: '#FFE9E5',
   softgray: '#E6E6E6',
-  gray: '#56585C',
+  gray: '#949597',
   grayLight: '#FFFFFF52',
   graydark: '#7C7C7C',
   grayplus: '#787878',

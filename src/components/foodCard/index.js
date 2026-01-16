@@ -9,8 +9,10 @@ import BackButton from '../backIcon';
 
 const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
   const navigation = useNavigation();
-  // Map your API response properly
-  console.log(item?.restaurantId?.deliveryTime, 'itemitemitemitemitemite');
+
+  const originalPrice = item.foodId?.price ?? item.price ?? 0;
+
+  const discountedPrice = item.foodId?.discount ?? item.discount ?? 0;
 
   const foodData = {
     foodImage: item.foodId?.image
@@ -18,26 +20,24 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
       : item.image
       ? {uri: item.image}
       : images.meal,
+
     foodName: item.foodId?.name || item.name,
-    foodRating: '4.8 (120+)  2.8 km away', // default
-    price:
-      item.foodId?.price !== undefined
-        ? `£${item.foodId.price}`
-        : item.price !== undefined
-        ? `£${item.price}`
-        : '0',
-    offPrice:
-      item.foodId?.discount !== undefined
-        ? `£${item.foodId.discount}`
-        : item.discount !== undefined
-        ? `£${item.discount}`
-        : null,
-    time:
-      item.foodId?.deliveryTime !== undefined
-        ? `${item.foodId.deliveryTime} mins`
-        : `${item?.restaurantId?.deliveryTime} mins` || '20 mins',
+
+    foodRating: '4.8 (120+)  2.8 km away',
+
+    // ✅ FINAL PRICE
+    price: discountedPrice > 0 ? `£${discountedPrice}` : `£${originalPrice}`,
+
+    // ✅ STRIKE PRICE
+    offPrice: discountedPrice > 0 ? `£${originalPrice}` : null,
+
+    time: item.foodId?.deliveryTime
+      ? `${item.foodId.deliveryTime} mins`
+      : `${item?.restaurantId?.deliveryTime ?? 20} mins`,
+
     cheifName: item.restaurantId?.name || item.cheifName || 'Leanne Wayne',
-    isFavourite: item.isFav === true, // always boolean
+
+    isFavourite: item.isFav === true,
   };
 
   return (
@@ -85,7 +85,6 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
             </Text>
           </View>
 
-          {/* Price & Time */}
           <View
             style={{
               flexDirection: 'row',
@@ -94,9 +93,13 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
               gap: 10,
             }}>
             <Text
-              style={{fontFamily: fontFamily.poppinBold, color: colors.red}}>
+              style={{
+                fontFamily: fontFamily.poppinBold,
+                color: colors.red,
+              }}>
               {foodData.price}
             </Text>
+
             {foodData.offPrice && (
               <Text
                 style={{

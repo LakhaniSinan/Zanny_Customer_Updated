@@ -29,6 +29,7 @@ const HistoryCard = ({item, handleAddToCart}) => {
 
   const statusStyle = getStatusStyle(item?.status);
   const product = item?.order?.[0];
+  console.log(product, 'productproductproductproductproductasd');
 
   return (
     <View
@@ -63,24 +64,35 @@ const HistoryCard = ({item, handleAddToCart}) => {
           </Text>
 
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: fontFamily.poppinBold,
-                color: colors.primaryOrange,
-              }}>
-              £{product?.price}
-            </Text>
+            {Number(product?.discount) > 0 ? (
+              <>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: fontFamily.poppinBold,
+                    color: colors.primaryOrange,
+                  }}>
+                  £{product.discount}
+                </Text>
 
-            {product?.oldPrice && (
+                <Text
+                  style={{
+                    marginLeft: 8,
+                    fontSize: 13,
+                    color: colors.grey,
+                    textDecorationLine: 'line-through',
+                  }}>
+                  £{product.price}
+                </Text>
+              </>
+            ) : (
               <Text
                 style={{
-                  marginLeft: 8,
-                  fontSize: 13,
-                  color: colors.grey,
-                  textDecorationLine: 'line-through',
+                  fontSize: 16,
+                  fontFamily: fontFamily.poppinBold,
+                  color: colors.primaryOrange,
                 }}>
-                £{product?.oldPrice}
+                £{product.price}
               </Text>
             )}
           </View>
