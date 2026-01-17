@@ -58,17 +58,28 @@ const PrivateOrder = ({route, navigation}) => {
 
   useEffect(() => {
     (async function () {
-      if (await isPlatformPaySupported()) {
-        if (Platform.OS == 'android') {
-          setIsGooglePaySupported(true);
-          setIsApplePaySupported(false);
+      try {
+        const supported = await isPlatformPaySupported();
+        console.log('Platform Pay Supported:', supported, 'Platform:', Platform.OS);
+        if (supported) {
+          if (Platform.OS === 'android') {
+            setIsGooglePaySupported(true);
+            setIsApplePaySupported(false);
+          } else {
+            setIsGooglePaySupported(false);
+            setIsApplePaySupported(true);
+          }
         } else {
           setIsGooglePaySupported(false);
-          setIsApplePaySupported(true);
+          setIsApplePaySupported(false);
         }
+      } catch (e) {
+        console.log('isPlatformPaySupported error', e);
+        setIsGooglePaySupported(false);
+        setIsApplePaySupported(false);
       }
     })();
-  }, [isPlatformPaySupported]);
+  }, []);
 
   useEffect(() => {
     let newArrr = selectedProduct.map((item, ind) => {
@@ -151,19 +162,44 @@ const PrivateOrder = ({route, navigation}) => {
   };
 
   const payWithApple = async orderPayload => {
-    let passedAmount = orderBill.subTotal;
-    createStripeClientSecret({
-      amount: orderBill.subTotal,
-    }).then(async ressss => {
+    // Double check if Apple Pay is supported before proceeding
+    try {
+      const supported = await isPlatformPaySupported();
+      if (!supported || Platform.OS !== 'ios') {
+        alert('Apple Pay is not available on this device.');
+        setIsLoading(false);
+        return;
+      }
+    } catch (e) {
+      console.log('Apple Pay availability check error', e);
+      alert('Apple Pay is not available on this device.');
       setIsLoading(false);
-      console.log(ressss.data.secretKey, 'RESSSS');
-      let clientSecret = ressss.data.secretKey;
+      return;
+    }
+
+    try {
+      // Convert amount to pence (smallest currency unit) for Stripe
+      const amountInPence = Math.round(orderBill.subTotal * 100);
+      const displayAmount = orderBill.subTotal.toFixed(2);
+
+      console.log('Creating payment intent for amount:', amountInPence, 'pence (£' + displayAmount + ')');
+      const intentRes = await createStripeClientSecret({
+        amount: amountInPence,
+      });
+      
+      if (!intentRes?.data?.secretKey) {
+        throw new Error('Failed to create payment intent');
+      }
+
+      const clientSecret = intentRes.data.secretKey;
+      console.log('Confirming Apple Pay payment...');
+
       const {error} = await confirmPlatformPayPayment(clientSecret, {
         applePay: {
           cartItems: [
             {
-              label: 'to Zannys Foods',
-              amount: passedAmount.toString(),
+              label: 'Zannys Foods Order',
+              amount: displayAmount,
               paymentType: PlatformPay.PaymentType.Immediate,
             },
           ],
@@ -175,30 +211,33 @@ const PrivateOrder = ({route, navigation}) => {
           requiredBillingContactFields: [PlatformPay.ContactField.PhoneNumber],
         },
       });
+
       if (error) {
         setIsLoading(false);
-        console.log(error, 'Errr');
-      } else {
-        setIsLoading(true);
-        placeUserOrder(orderPayload)
-          .then(res => {
-            if (res.status != 200) {
-              alert(res.data.message);
-              setIsLoading(false);
-            } else {
-              setIsLoading(false);
-              alert(res.data.message);
-              dispatch(setCartData([]));
-              AsyncStorage.setItem('cartData', JSON.stringify([]));
-              navigation.navigate('AllRestaurants');
-            }
-          })
-          .catch(err => {
-            setIsLoading(false);
-            alert(err?.response?.data?.message);
-          });
+        console.log('Apple Pay error:', error);
+        alert(error.message || 'Apple Pay payment failed. Please try again.');
+        return;
       }
-    });
+
+      console.log('Apple Pay payment successful, placing order...');
+      setIsLoading(true);
+      const res = await placeUserOrder(orderPayload);
+      
+      if (res?.status === 200 || res?.status === 201) {
+        setIsLoading(false);
+        alert(res.data.message);
+        dispatch(setCartData([]));
+        AsyncStorage.setItem('cartData', JSON.stringify([]));
+        navigation.navigate('AllRestaurants');
+      } else {
+        setIsLoading(false);
+        alert(res?.data?.message || 'Failed to place order');
+      }
+    } catch (err) {
+      setIsLoading(false);
+      console.log('payWithApple err', err);
+      alert(err?.response?.data?.message || err?.message || 'Apple Pay failed. Please try again.');
+    }
   };
 
   const handleCreateOrder = async () => {
@@ -449,7 +488,8 @@ const PrivateOrder = ({route, navigation}) => {
       <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
         <StripeProvider
           publishableKey={STRIPE_PUBLISH_LIVE}
-          merchantIdentifier="merchant.com.zannycustomer">
+          merchantIdentifier="merchant.com.zannycustomer"
+          urlScheme="zannysfood">
           <Header goBack={true} text={'Private Order'} />
           <DatePicker
             modal

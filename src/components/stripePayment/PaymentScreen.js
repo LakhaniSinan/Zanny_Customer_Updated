@@ -150,7 +150,7 @@ const PaymentScreen = ({navigation, route}) => {
   return (
     <StripeProvider
       publishableKey={STRIPE_PUBLISH_LIVE}
-      merchantIdentifier="merchant.com.yourapp" // required for Apple Pay
+      merchantIdentifier="merchant.com.zannycustomer" // required for Apple Pay
     >
       <AppHeader goBack text="Payment" />
       <View style={styles.wrapper}>
