@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {
   HeaderStyleInterpolators,
@@ -47,7 +48,10 @@ import ForgotPassword from '../../containers/auth/forgotPassword';
 import Login from '../../containers/auth/Login';
 import ResetPassword from '../../containers/auth/resetPassword';
 import SignUpScreen from '../../containers/auth/SignUp';
+import {helper} from '../../helper';
 import {handelGetAddress} from '../../redux/slices/Address';
+import {handleFetchHomeData} from '../../redux/slices/HomeData';
+import {setCurrentLocation} from '../../redux/slices/Location';
 import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
 
@@ -86,11 +90,61 @@ export function CustomerStack() {
   const dispatch = useDispatch(null);
   const {user} = useSelector(state => state.LoginSlice);
   const navigation = useNavigation();
+  const {currentLocation} = useSelector(state => state.LocationSlice);
 
   useEffect(() => {
+    handleGetCurrentLocation();
     if (user) dispatch(handelGetAddress());
     if (user) dispatch(handleFetchCardsData(user?._id));
   }, [dispatch, user]);
+
+  useEffect(() => {
+    let data = {
+      latitude: currentLocation?.latitude,
+      longitude: currentLocation?.longitude,
+    };
+    dispatch(handleFetchHomeData(data));
+  }, [dispatch]);
+
+  const handleGetCurrentLocation = async () => {
+    try {
+      const status = await helper.checkLocation();
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Location Required',
+          'Please allow location permission to continue',
+          [
+            {text: 'Cancel', style: 'cancel'},
+            {text: 'Open Settings', onPress: () => Linking.openSettings()},
+          ],
+        );
+        return null;
+      }
+      const position = await helper.getCurrentLocation();
+
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      let address = '';
+      try {
+        address = await helper.getLocationAddress(latitude, longitude);
+      } catch (err) {
+        console.log('Address error:', err);
+      }
+      let payload = {
+        latitude,
+        longitude,
+        address,
+      };
+      console.log(payload, 'THISNNNNNNNNNN');
+
+      await AsyncStorage.setItem('userCurrentAddress', JSON.stringify(payload));
+      dispatch(setCurrentLocation(payload));
+    } catch (error) {
+      console.log('getLatLngWithAddress error:', error);
+      return null;
+    }
+  };
 
   return (
     <Stack.Navigator

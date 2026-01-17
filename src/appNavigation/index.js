@@ -156,11 +156,8 @@ const Navigation = () => {
   };
 
   const checkAppVersion = apiRess => {
-    console.log(apiRess, 'apiRessapiRessapiRessapiRess');
-
     if (apiRess) {
       let result = DeviceInfo.getBuildNumber();
-      console.log(result, apiRess, 'THINGSSS');
       if (Platform.OS == 'android') {
         if (
           Number(result) !== Number(apiRess.androidCustomerVersion) &&

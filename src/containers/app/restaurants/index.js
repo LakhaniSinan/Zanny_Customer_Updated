@@ -33,7 +33,7 @@ const Restaurants = ({navigation}) => {
   const {currentLocation} = useSelector(state => state.LocationSlice);
   const [searchQuery, setSearchQuery] = useState('');
   const {homeData} = useSelector(state => state.HomeDataSlice);
-  console.log(homeData, 'homeDatahomeDatahomeDatahomeDatahomeData');
+  console.log(currentLocation, 'homeDatahomeDatahomeDatahomeDatahomeData');
   // ✅ Custom Modal State
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -72,7 +72,11 @@ const Restaurants = ({navigation}) => {
 
   const getHomeData = async () => {
     setIsLoading(true);
-    await dispatch(handleFetchHomeData());
+    let data = {
+      latitude: currentLocation?.latitude,
+      longitude: currentLocation?.longitude,
+    };
+    await dispatch(handleFetchHomeData(data));
     setIsLoading(false);
   };
 

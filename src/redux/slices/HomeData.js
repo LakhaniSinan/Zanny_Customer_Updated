@@ -32,11 +32,13 @@ export const {fetchHome, fetchHomeSuccess, fetchHomeFailure} =
 
 export default homeSlice.reducer;
 
-export function handleFetchHomeData() {
+export function handleFetchHomeData(data) {
+  console.log(data, 'datadatadatadatadatadataasd');
+
   return async dispatch => {
     dispatch(fetchHome());
     try {
-      const response = await getHomeData();
+      const response = await getHomeData(data);
       console.log(response, 'responseresponseresponseresponseresponseasdasd');
 
       if (response?.status === 200 || response?.status === 201) {
