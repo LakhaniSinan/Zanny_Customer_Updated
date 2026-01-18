@@ -34,6 +34,7 @@ export const images = {
   pasta: require('../assets/images/pasta.png'),
   first: require('../assets/images/first.png'),
   mapImage: require('../assets/images/mapImage.png'),
+  tickertCard: require('../assets/images/tickertCard.png'),
 };
 
 export const icons = {

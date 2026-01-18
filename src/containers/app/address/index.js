@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CommonActions} from '@react-navigation/native';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState, useRef} from 'react';
 import {
   RefreshControl,
   SafeAreaView,
@@ -50,11 +50,42 @@ const Address = ({navigation, route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState({});
 
+  const modalQueueRef = useRef([]);
+  const processingModalRef = useRef(false);
+  const openModalTimerRef = useRef(null);
+
+  /* ---------------- MODAL HELPER ---------------- */
+  const processModalQueue = () => {
+    if (processingModalRef.current) return;
+    const nextConfig = modalQueueRef.current.shift();
+    if (!nextConfig) return;
+
+    processingModalRef.current = true;
+    setModalConfig(nextConfig);
+    setModalVisible(true);
+
+    openModalTimerRef.current = setTimeout(() => {
+      processingModalRef.current = false;
+      processModalQueue();
+    }, 500);
+  };
+
   /* ---------------- MODAL HELPER ---------------- */
   const openModal = config => {
-    setModalConfig(config);
-    setModalVisible(true);
+    modalQueueRef.current.push(config);
+    processModalQueue();
   };
+
+  useEffect(() => {
+    return () => {
+      if (openModalTimerRef.current) {
+        clearTimeout(openModalTimerRef.current);
+        openModalTimerRef.current = null;
+      }
+      modalQueueRef.current = [];
+      processingModalRef.current = false;
+    };
+  }, []);
 
   /* ---------------- INITIAL LOAD ---------------- */
   useEffect(() => {
@@ -137,7 +168,6 @@ const Address = ({navigation, route}) => {
         latitude: item.latitude,
         longitude: item.longitude,
       };
-      console.log(params, 'paramsparamsparamsparamsparams');
 
       const res = await checkAddressCahngeIsPossible(params);
 
@@ -180,6 +210,7 @@ const Address = ({navigation, route}) => {
             setModalVisible(false);
             await saveAddress(item);
             dispatch(setCartData([]));
+            dispatch(handelGetAddress());
             await AsyncStorage.setItem('cartData', JSON.stringify([]));
             navigation.dispatch(
               CommonActions.reset({

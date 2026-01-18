@@ -1,22 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { width } from 'react-native-dimension';
-import { useDispatch, useSelector } from 'react-redux';
-import { fontFamily, icons, images } from '../../assets';
-import { colors } from '../../constants';
-import { helper } from '../../helper';
-import { setCartData } from '../../redux/slices/Cart';
+import {useNavigation} from '@react-navigation/native';
+import React, {useState} from 'react';
+import {Image, Text, TouchableOpacity, View} from 'react-native';
+import {width} from 'react-native-dimension';
+import {useDispatch, useSelector} from 'react-redux';
+import {fontFamily, icons, images} from '../../assets';
+import {colors} from '../../constants';
+import {helper} from '../../helper';
+import {setCartData} from '../../redux/slices/Cart';
 import BackButton from '../backIcon';
 import CustomModal from '../customModal';
 
-const CartCard = ({ item, index }) => {
+const CartCard = ({item, index}) => {
   console.log(item, 'itemitemitemitemitemitemitem');
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { cartData } = useSelector(state => state.CartSlice);
+  const {cartData} = useSelector(state => state.CartSlice);
   const [quantity, setQuantity] = useState(item?.quantity ?? 1);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -25,8 +25,8 @@ const CartCard = ({ item, index }) => {
     Icon: null,
     name: '',
     detail: '',
-    onConfirm: () => { },
-    onCancel: () => { },
+    onConfirm: () => {},
+    onCancel: () => {},
   });
 
   const openDeleteModal = itemToRemove => {
@@ -52,26 +52,25 @@ const CartCard = ({ item, index }) => {
     setModalVisible(true);
   };
 
-  const confirmDelete = async (item) => {
+  const confirmDelete = async item => {
     setModalVisible(false);
 
     setTimeout(async () => {
       if (!item) return;
 
       const updatedCart = cartData.filter(
-        cartItem => cartItem?._id !== item?._id
+        cartItem => cartItem?._id !== item?._id,
       );
 
       dispatch(setCartData(updatedCart));
 
-      await AsyncStorage.setItem("cartData", JSON.stringify(updatedCart));
-
+      await AsyncStorage.setItem('cartData', JSON.stringify(updatedCart));
     }, 250);
   };
 
   const updateCartQuantity = newQty => {
     const updatedCart = [...cartData];
-    updatedCart[index] = { ...updatedCart[index], quantity: newQty };
+    updatedCart[index] = {...updatedCart[index], quantity: newQty};
     dispatch(setCartData(updatedCart));
     AsyncStorage.setItem('cartData', JSON.stringify(updatedCart));
     setQuantity(newQty);
@@ -105,9 +104,19 @@ const CartCard = ({ item, index }) => {
   };
 
   const foodName = item?.name || 'Delicious Food';
-  const foodImage = item?.image ? { uri: item.image } : images.meal;
-  const price = item?.price ? `£${item?.price}` : `£${item?.foodId?.price}`;
-  const offPrice = item?.offPrice ? `£${item.offPrice}` : null;
+  const foodImage = item?.image ? {uri: item.image} : images.meal;
+  // ===== PRICE LOGIC (FINAL & SAFE) =====
+  const originalPrice = item?.foodId?.price ?? item?.price ?? 0;
+
+  const discountedPrice = item?.foodId?.discount ?? item?.discount ?? 0;
+
+  // FINAL price to show
+  const price =
+    discountedPrice > 0 ? `£${discountedPrice}` : `£${originalPrice}`;
+
+  // STRIKE price (only if discounted)
+  const offPrice = discountedPrice > 0 ? `£${originalPrice}` : null;
+
   const time = item?.time || '20mins';
   const rating = item?.rating || 4.8;
   const ratingCount = item?.ratingCount ? `(${item.ratingCount}+)` : '(120+)';
@@ -132,7 +141,7 @@ const CartCard = ({ item, index }) => {
           borderRadius: width(2),
           paddingRight: width(2),
         }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+        <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
           <Image
             source={foodImage}
             resizeMode="cover"
@@ -142,7 +151,7 @@ const CartCard = ({ item, index }) => {
               borderRadius: width(2),
             }}
           />
-          <View style={{ marginLeft: 8, flex: 1 }}>
+          <View style={{marginLeft: 8, flex: 1}}>
             <Text
               style={{
                 fontSize: 16,
@@ -162,7 +171,7 @@ const CartCard = ({ item, index }) => {
               <Image
                 source={icons.yellowStar}
                 resizeMode="contain"
-                style={{ height: width(3), width: width(3) }}
+                style={{height: width(3), width: width(3)}}
               />
               <Text
                 style={{
@@ -190,7 +199,7 @@ const CartCard = ({ item, index }) => {
                 marginTop: 6,
               }}>
               <Text
-                style={{ color: colors.red, fontFamily: fontFamily.poppinBold }}>
+                style={{color: colors.red, fontFamily: fontFamily.poppinBold}}>
                 {price}
               </Text>
               {offPrice && (
@@ -207,7 +216,7 @@ const CartCard = ({ item, index }) => {
               <Image
                 source={icons.clock}
                 resizeMode="contain"
-                style={{ height: width(3.2), width: width(3.2), marginLeft: 2 }}
+                style={{height: width(3.2), width: width(3.2), marginLeft: 2}}
               />
               <Text
                 style={{
@@ -289,7 +298,7 @@ const CartCard = ({ item, index }) => {
           </View>
         </View>
 
-        <View style={{ gap: 8, alignItems: 'center' }}>
+        <View style={{gap: 8, alignItems: 'center'}}>
           <BackButton
             icon={icons.deleteIcon}
             border={1}
@@ -307,17 +316,17 @@ const CartCard = ({ item, index }) => {
         }}>
         Made by
       </Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <Image
           source={
             item?.merchant?.merchantImage
-              ? { uri: item?.merchant?.merchantImage }
+              ? {uri: item?.merchant?.merchantImage}
               : images.cheif
           }
           resizeMode="cover"
-          style={{ height: width(10), width: width(10), borderRadius: width(5) }}
+          style={{height: width(10), width: width(10), borderRadius: width(5)}}
         />
-        <View style={{ marginLeft: 8 }}>
+        <View style={{marginLeft: 8}}>
           <Text
             style={{
               fontSize: 10,
@@ -326,7 +335,7 @@ const CartCard = ({ item, index }) => {
             }}>
             Chef
           </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 3}}>
             <Text
               style={{
                 fontSize: 12,

@@ -25,9 +25,9 @@ import {setCartData} from '../../../redux/slices/Cart';
 import {setPreOrderData} from '../../../redux/slices/PreOrder';
 import {addToFavFun} from '../../../services/favourite';
 import {getProductDetailById} from '../../../services/product';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
-const ProductDetail = ({ route}) => {
+const ProductDetail = ({route}) => {
   const {productId, type, data} = route?.params || {};
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -84,15 +84,20 @@ const ProductDetail = ({ route}) => {
     }
   };
 
-  const getFinalPrice = useCallback((price, discount) => {
-    if (navigationType == 'normal') {
-      if (!discount) return price;
-      const final = price - (price * discount) / 100;
-      return Number(final.toFixed(2));
-    } else {
-      return productData?.discountedPrice;
-    }
-  }, []);
+  const getFinalPrice = useCallback(
+    (price, discountedPrice) => {
+      if (!price) return 0;
+
+      // normal flow → discounted price already final hai
+      if (navigationType === 'normal') {
+        return discountedPrice > 0 ? Number(discountedPrice) : Number(price);
+      }
+
+      // other flow
+      return Number(productData?.discountedPrice ?? price);
+    },
+    [navigationType, productData?.discountedPrice],
+  );
 
   if (!productId) {
     return <OverLayLoader isloading={true} />;
@@ -141,7 +146,7 @@ const ProductDetail = ({ route}) => {
   const handleAddToCart = async () => {
     if (!user)
       return showModal('error', 'Please login first to add items in your cart');
-    
+
     if (!productDetails) {
       return showModal('error', 'Product details not loaded yet');
     }

@@ -26,15 +26,15 @@ import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
 
+import {setUserData} from '../../../redux/slices/Login';
 import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
 import {setPaymentType} from '../../../redux/slices/PaymentType';
+import {handleFetchCardsData} from '../../../redux/slices/UserCards';
 import {
   addPaymentCard,
   createStripId,
   deletePaymentCard,
 } from '../../../services/paymentCard';
-import {handelGetCard} from '../../../redux/slices/UserCards';
-import {setUserData} from '../../../redux/slices/Login';
 
 const PaymentOptions = ({navigation}) => {
   const dispatch = useDispatch();
@@ -60,13 +60,9 @@ const PaymentOptions = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [cardFieldKey, setCardFieldKey] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-  // Always enable Apple Pay and Google Pay on iOS devices
-  const [isApplePaySupported, setIsApplePaySupported] = useState(
-    Platform.OS === 'ios',
-  );
-  const [isGooglePaySupported, setIsGooglePaySupported] = useState(
-    Platform.OS === 'ios',
-  );
+  // Check Apple Pay and Google Pay support dynamically
+  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+  const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
   const {isPlatformPaySupported} = usePlatformPay();
 
   const [modalData, setModalData] = useState({
@@ -99,23 +95,45 @@ const PaymentOptions = ({navigation}) => {
 
   /* ================= PLATFORM PAY SUPPORT ================= */
   useEffect(() => {
-    // On iOS, always enable Apple Pay and Google Pay
-    if (Platform.OS === 'ios') {
-      setIsApplePaySupported(true);
-      setIsGooglePaySupported(true);
-    } else {
-      // On Android, check for Google Pay support
-      (async () => {
-        try {
-          const supported = await isPlatformPaySupported();
+    // Check platform pay support dynamically
+    (async () => {
+      try {
+        const supported = await isPlatformPaySupported();
+        console.log(
+          'PaymentOptions - Platform Pay Supported:',
+          supported,
+          'Platform:',
+          Platform.OS,
+        );
+
+        if (Platform.OS === 'ios') {
+          if (supported) {
+            setIsApplePaySupported(true);
+            console.log('✅ Apple Pay is available on this device');
+          } else {
+            setIsApplePaySupported(false);
+            console.log(
+              '❌ Apple Pay not available - Device may not support it or Wallet not configured',
+            );
+          }
+          setIsGooglePaySupported(false); // Google Pay not on iOS
+        } else {
+          // On Android, check for Google Pay support
           if (supported) {
             setIsGooglePaySupported(true);
+            console.log('✅ Google Pay is available on this device');
+          } else {
+            setIsGooglePaySupported(false);
+            console.log('❌ Google Pay not available on this device');
           }
-        } catch (error) {
-          console.log('Platform pay support check error:', error);
+          setIsApplePaySupported(false); // Apple Pay not on Android
         }
-      })();
-    }
+      } catch (error) {
+        console.log('Platform pay support check error:', error);
+        setIsApplePaySupported(false);
+        setIsGooglePaySupported(false);
+      }
+    })();
   }, []);
 
   /* ================= CARD CHANGE ================= */
@@ -193,6 +211,70 @@ const PaymentOptions = ({navigation}) => {
       });
 
       setModalVisible(true);
+      return;
+    }
+
+    if (method === 'google') {
+      dispatch(setPaymentType('GooglePay'));
+      await AsyncStorage.setItem('paymentType', JSON.stringify('GooglePay'));
+      navigation.goBack();
+      return;
+    }
+
+    if (method === 'apple') {
+      dispatch(setPaymentType('ApplePay'));
+      await AsyncStorage.setItem('paymentType', JSON.stringify('ApplePay'));
+      navigation.goBack();
+      return;
+    }
+  };
+
+  const handleSaveCard = () => {
+    if (!isCardValid || !cardDetails) {
+      showModal('error', 'Please enter complete card details');
+      return;
+    }
+
+    const detailsToSave = cardDetails;
+    setCardFieldKey(prev => prev + 1); // reset CardField
+    setCardDetails(null);
+    setIsCardValid(false);
+    createTokenForStripe(detailsToSave);
+  };
+
+  const createTokenForStripe = async details => {
+    try {
+      setIsLoading(true);
+
+      const {paymentMethod, error} = await createPaymentMethod({
+        paymentMethodType: 'Card',
+        card: details,
+      });
+
+      if (error) {
+        showModal('error', error.message);
+        return;
+      }
+
+      let payload = {
+        paymentId: paymentMethod.id,
+        email: user?.email,
+        userId: user?._id,
+      };
+
+      const response = await addPaymentCard(payload);
+
+      if (response.status === 200 || response.status === 201) {
+        dispatch(handleFetchCardsData(user?._id));
+        showModal('success', 'Card added successfully');
+      } else {
+        showModal('error', response.data.message);
+      }
+    } catch (error) {
+      console.log('Error creating payment method:', error);
+      showModal('error', 'Something went wrong while adding card');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -211,9 +293,10 @@ const PaymentOptions = ({navigation}) => {
             paymentId: cardItem?.paymentMethodId,
             userId: user?._id,
           });
+          console.log(response, 'responseresponseresponse');
 
           if (response?.status === 200 || response?.status === 201) {
-            dispatch(handelGetCard(user?._id));
+            dispatch(handleFetchCardsData(user?._id));
             showModal('success', response?.data?.message);
           } else {
             showModal('error', response?.data?.message);
@@ -309,7 +392,7 @@ const PaymentOptions = ({navigation}) => {
           return;
         }
 
-        dispatch(handelGetCard(user?._id));
+        dispatch(handleFetchCardsData(user?._id));
       }
 
       dispatch(
@@ -329,7 +412,9 @@ const PaymentOptions = ({navigation}) => {
       setCardDetails(null);
       setIsCardValid(false);
 
-      navigation.navigate('CartScreen');
+      setTimeout(() => {
+        navigation.navigate('CartScreen');
+      }, 500);
     } catch (error) {
       showModal('error', error.message || 'Something went wrong');
     } finally {
@@ -477,7 +562,7 @@ const PaymentOptions = ({navigation}) => {
 
               <StripeProvider
                 publishableKey={STRIPE_PUBLISH_TEST}
-                merchantIdentifier="merchant.com.yourapp">
+                merchantIdentifier="merchant.com.zannycustomer">
                 <CardField
                   key={cardFieldKey}
                   postalCodeEnabled={false}

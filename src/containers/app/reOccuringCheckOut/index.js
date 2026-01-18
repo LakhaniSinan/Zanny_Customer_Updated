@@ -5,13 +5,17 @@ import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
+import {
+  confirmPlatformPayPayment,
+  PlatformPay,
+} from '@stripe/stripe-react-native';
 import moment from 'moment';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
-  Alert,
   FlatList,
   Image,
   Keyboard,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
@@ -33,6 +37,7 @@ import {getAdminSettings} from '../../../services/adminSettings';
 import {getMerchantProfile} from '../../../services/merchant';
 import {
   applyPromoCode,
+  createStripeClientSecret,
   getCalculatedDeliveryFee,
   placeUserOrder,
 } from '../../../services/order';
@@ -107,10 +112,11 @@ const ReOccuringCheckout = ({route}) => {
   const [merchantDetails, setMerchantDetails] = useState(null);
   const [selectedDates, setSelectedDates] = useState(selected);
 
-  const selectedItems = useMemo(
-    () => preOrderData?.filter(item => item?.isSelected),
-    [preOrderData],
-  );
+  const checkoutItems = useMemo(() => {
+    return selectedDates
+      .flatMap(d => d.products || [])
+      .filter(p => p.isSelected);
+  }, [selectedDates]);
 
   const [note, setNote] = useState('');
 
@@ -118,7 +124,7 @@ const ReOccuringCheckout = ({route}) => {
   const [serviceCharges, setServiceCharges] = useState(0);
   const [deliveryCharges, setDeliveryCharges] = useState(0);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const location = useSelector(s => s.LocationSlice.currentLocation);
+
   const {user} = useSelector(s => s.LoginSlice);
   const wallet = useSelector(s => s.PaymentCardSlice.currentPaymentCard);
   const {address} = useSelector(s => s.AddressSlice);
@@ -145,9 +151,9 @@ const ReOccuringCheckout = ({route}) => {
   }, [orderType, deliveryCharges]);
 
   const {subTotal, discountedSubTotal, total} = useMemo(() => {
-    const st = selectedItems.reduce((acc, item) => {
+    const st = checkoutItems.reduce((acc, item) => {
       const price = parsePriceToNumber(item?.price);
-      const qty = Number(item?.quantity || item?.selectedQty || 1);
+      const qty = Number(item?.selectedQty || 1);
       return acc + price * qty;
     }, 0);
 
@@ -167,7 +173,7 @@ const ReOccuringCheckout = ({route}) => {
       discountedSubTotal: discounted,
       total: t,
     };
-  }, [selectedItems, promoData, effectiveDeliveryCharges, serviceCharges]);
+  }, [checkoutItems, promoData, effectiveDeliveryCharges, serviceCharges]);
 
   useEffect(() => {
     setLoading(true);
@@ -241,23 +247,20 @@ const ReOccuringCheckout = ({route}) => {
   }, [merchantDetails, currentLocation, orderType]);
 
   const calculateServiceCharges = useCallback(() => {
-    if (!selectedItems?.length) {
+    if (!checkoutItems?.length) {
       setServiceCharges(0);
       return;
     }
 
-    const totalValue = selectedItems.reduce((acc, item) => {
+    const totalValue = checkoutItems.reduce((acc, item) => {
       const price = parsePriceToNumber(item?.price);
-      const qty = Number(item?.quantity || item?.selectedQty || 1);
-      const effectivePrice =
-        Number(item?.discount) > 0 ? Number(item.discount) : price;
-
-      return acc + effectivePrice * qty;
+      const qty = Number(item?.selectedQty || 1);
+      return acc + price * qty;
     }, 0);
 
     const fee = Math.min(Math.max(totalValue * 0.05, 0.99), 4.5);
     setServiceCharges(Number(fee.toFixed(2)));
-  }, [selectedItems]);
+  }, [checkoutItems]);
 
   useFocusEffect(
     useCallback(() => {
@@ -344,8 +347,30 @@ const ReOccuringCheckout = ({route}) => {
     [dispatch, navigation],
   );
 
+  const ordersByDate = useMemo(() => {
+    return selectedDates
+      .map(d => {
+        const items = (d.products || []).filter(p => p.isSelected);
+        if (!items.length) return null;
+
+        const subTotal = items.reduce((acc, item) => {
+          const price = parsePriceToNumber(item.price);
+          return acc + price * (item.selectedQty || 1);
+        }, 0);
+
+        return {
+          deliveryDate: moment(d.date).format('YYYY-MM-DD'),
+          items,
+          subTotal,
+        };
+      })
+      .filter(Boolean);
+  }, [selectedDates]);
+
+  // console.log(ordersByDate, 'ordersByDateordersByDateordersByDateordersByDate');
+
   const handleOrderNow = useCallback(async () => {
-    if (!selectedItems.length) {
+    if (!checkoutItems?.length) {
       return showModal({
         title: 'No Items Selected',
         message: 'Please select at least one item to continue',
@@ -359,19 +384,28 @@ const ReOccuringCheckout = ({route}) => {
       });
 
     const payload = {
-      order: selectedItems,
+      order: checkoutItems,
       tip: 0,
+
       userId: user?._id,
+      merchantId: preOrderData[0]?.merchantId,
+
       serviceCharges,
       address: addressLine,
       subTotal: discountedSubTotal,
       deliveryCharges: effectiveDeliveryCharges,
       totalBill: total,
+
       discount: promoData?.discount || 0,
-      date: moment().format('DD-MM-YYYY'),
-      merchantId: preOrderData[0]?.merchantId,
-      latitude: selectedAddress?.latitude || 0,
-      longitude: selectedAddress?.longitude || 0,
+
+      deliveryData: moment(data?.selectedDate || selectedDates[0]?.date).format(
+        'DD-MM-YYYY',
+      ),
+      deliveryTime: moment(data?.time).format('hh:mm A'),
+
+      latitude: currentLocation?.latitude || 0,
+      longitude: currentLocation?.longitude || 0,
+
       userDetails: {
         email: user?.email,
         name: user?.name,
@@ -379,18 +413,45 @@ const ReOccuringCheckout = ({route}) => {
         image: user?.customerImage,
         stripeCustomerID: user?.stripeCustomerID,
       },
+
       merchantDetails,
       userCardDetails: wallet,
-      orderType: orderType,
-      paymentType: wallet,
-      promoData: promoData,
 
+      orderType,
+
+      paymentType:
+        wallet?.paymentMethodId === 'GOOGLE_PAY' ||
+        wallet?.cardNo === 'Google Pay'
+          ? 'GOOGLE_PAY'
+          : wallet?.paymentMethodId === 'APPLE_PAY' ||
+            wallet?.cardNo === 'Apple Pay'
+          ? 'APPLE_PAY'
+          : wallet
+          ? 'card'
+          : 'COD',
+
+      promoData,
       noteForChef: note,
-      deliveryData: moment(data?.selectedDate).format('DD-MM-YYYY'),
-      deliveryTime: moment(data?.time).format('hh:mm A'),
-      orderCategory: 'preOrder',
+      orderCategory: 'daily',
     };
 
+    if (
+      wallet?.paymentMethodId === 'GOOGLE_PAY' ||
+      wallet?.cardNo === 'Google Pay'
+    ) {
+      await payWithGoogle(payload);
+      return;
+    }
+
+    if (
+      wallet?.paymentMethodId === 'APPLE_PAY' ||
+      wallet?.cardNo === 'Apple Pay'
+    ) {
+      await payWithApple(payload);
+      return;
+    }
+
+    console.log(payload, 'payloadpayloadpayloadpayloadpayload');
     setLoading(true);
     try {
       const res = await placeUserOrder(payload);
@@ -424,6 +485,188 @@ const ReOccuringCheckout = ({route}) => {
     selectedAddress,
     afterOrderSuccess,
   ]);
+
+  const payWithGoogle = useCallback(
+    async orderPayload => {
+      setLoading(true);
+      try {
+        const amountInPence = Math.round(total);
+
+        const intentRes = await createStripeClientSecret({
+          amount: amountInPence,
+        });
+        const clientSecret = intentRes?.data?.secretKey;
+
+        const {error} = await confirmPlatformPayPayment(clientSecret, {
+          googlePay: {
+            testEnv: true,
+            merchantName: 'Zannys Foods',
+            merchantCountryCode: 'GB',
+            currencyCode: 'GBP',
+            amount: amountInPence,
+            billingAddressConfig: {
+              format: PlatformPay.BillingAddressFormat.Full,
+              isPhoneNumberRequired: true,
+              isRequired: true,
+            },
+          },
+        });
+
+        if (error) {
+          console.log('Google Pay error', error);
+          showModal({
+            title: 'Payment Failed',
+            message: error.message || 'Google Pay payment failed',
+          });
+          return;
+        }
+
+        const res = await placeUserOrder(orderPayload);
+        if (res?.status === 200 || res?.status === 201) {
+          afterOrderSuccess(res?.data?.message);
+        } else {
+          showModal({
+            title: 'Error',
+            message: res?.data?.message || 'Failed to place order',
+          });
+        }
+      } catch (err) {
+        console.log('payWithGoogle err', err);
+        showModal({
+          title: 'Error',
+          message: err?.response?.data?.message || 'Google Pay failed',
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [total, afterOrderSuccess, showModal],
+  );
+
+  const payWithApple = useCallback(
+    async orderPayload => {
+      // Only check platform - if iOS, proceed with Apple Pay
+      // Let Stripe SDK handle the actual capability check
+      if (Platform.OS !== 'ios') {
+        showModal({
+          icons: icons.cross,
+          title: 'Apple Pay',
+          message: 'Apple Pay is only available on iOS devices.',
+        });
+        return;
+      }
+
+      console.log('🍎 Starting Apple Pay flow on iOS device');
+      console.log('Total amount:', total);
+
+      setLoading(true);
+      try {
+        // Convert total to pence (smallest currency unit) for Stripe
+        const amountInPence = Math.round(total * 100);
+        const displayAmount = total.toFixed(2);
+
+        console.log(
+          '💰 Creating payment intent for amount:',
+          amountInPence,
+          'pence (£' + displayAmount + ')',
+        );
+        const intentRes = await createStripeClientSecret({
+          amount: amountInPence,
+        });
+
+        if (!intentRes?.data?.secretKey) {
+          console.error('❌ Failed to get client secret from server');
+          throw new Error('Failed to create payment intent. Please try again.');
+        }
+
+        const clientSecret = intentRes.data.secretKey;
+        console.log('✅ Payment intent created, client secret received');
+
+        console.log('🍎 Attempting to confirm Apple Pay payment...');
+        console.log('Merchant ID: merchant.com.zannycustomer');
+        console.log('Amount:', displayAmount, 'GBP');
+
+        // Try to confirm payment - Stripe SDK will handle device capability check
+        const {error} = await confirmPlatformPayPayment(clientSecret, {
+          applePay: {
+            cartItems: [
+              {
+                label: 'Zannys Foods Order',
+                amount: displayAmount,
+                paymentType: PlatformPay.PaymentType.Immediate,
+              },
+            ],
+            merchantCountryCode: 'GB',
+            currencyCode: 'GBP',
+            requiredShippingAddressFields: [
+              PlatformPay.ContactField.PostalAddress,
+            ],
+            requiredBillingContactFields: [
+              PlatformPay.ContactField.PhoneNumber,
+            ],
+          },
+        });
+
+        if (error) {
+          console.error('❌ Apple Pay payment error:', error);
+          console.error('Error code:', error.code);
+          console.error('Error message:', error.message);
+
+          let errorMessage = 'Apple Pay payment failed. ';
+          if (error.code === 'Canceled') {
+            errorMessage = 'Apple Pay payment was cancelled.';
+          } else if (error.message) {
+            errorMessage += error.message;
+          } else {
+            errorMessage +=
+              'Please ensure Apple Pay is set up in Wallet app and try again.';
+          }
+
+          showModal({
+            title: 'Payment Failed',
+            message: errorMessage,
+          });
+          setLoading(false);
+          return;
+        }
+
+        console.log('✅ Apple Pay payment successful!');
+        console.log('📦 Placing order...');
+
+        const res = await placeUserOrder(orderPayload);
+        if (res?.status === 200 || res?.status === 201) {
+          console.log('✅ Order placed successfully');
+          afterOrderSuccess(res?.data?.message);
+        } else {
+          console.error('❌ Order placement failed:', res?.data?.message);
+          showModal({
+            title: 'Error',
+            message: res?.data?.message || 'Failed to place order',
+          });
+        }
+      } catch (err) {
+        console.error('❌ payWithApple exception:', err);
+        console.error('Error details:', JSON.stringify(err, null, 2));
+
+        let errorMessage = 'Apple Pay failed. ';
+        if (err?.message) {
+          errorMessage += err.message;
+        } else if (err?.response?.data?.message) {
+          errorMessage += err.response.data.message;
+        } else {
+          errorMessage += 'Please try again or contact support.';
+        }
+
+        showModal({
+          title: 'Error',
+          message: errorMessage,
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [total, confirmPlatformPayPayment, afterOrderSuccess, showModal],
+  );
 
   const renderEmpty = () => (
     <View
@@ -563,8 +806,8 @@ const ReOccuringCheckout = ({route}) => {
                   />
                   <View
                     style={{paddingHorizontal: width(4), marginTop: width(4)}}>
-                    {(preOrderData[0].merchant?.isPickUp ||
-                      preOrderData[0].merchant?.isDelivery) && (
+                    {(preOrderData[0]?.merchant?.isPickUp ||
+                      preOrderData[0]?.merchant?.isDelivery) && (
                       <Text
                         style={{
                           fontFamily: fontFamily.poppinSemiBold,
@@ -583,7 +826,7 @@ const ReOccuringCheckout = ({route}) => {
                         borderBottomColor: colors.border,
                         borderBottomWidth: 1,
                       }}>
-                      {preOrderData[0].merchant?.isPickUp && (
+                      {preOrderData[0]?.merchant?.isPickUp && (
                         <TouchableOpacity
                           onPress={() => dispatch(setOrderType('collection'))}
                           style={{
@@ -615,7 +858,7 @@ const ReOccuringCheckout = ({route}) => {
                           </Text>
                         </TouchableOpacity>
                       )}
-                      {preOrderData[0].merchant?.isDelivery && (
+                      {preOrderData[0]?.merchant?.isDelivery && (
                         <TouchableOpacity
                           onPress={() => dispatch(setOrderType('delivery'))}
                           style={{
@@ -809,7 +1052,7 @@ const ReOccuringCheckout = ({route}) => {
                 <CustomInput
                   value={note}
                   multiline={true}
-                  onChangeText={text => setNote(text)}
+                  onChangeText={setNote}
                   placeholder="Type here..."
                   placeholderTextColor={colors.graydark}
                 />
@@ -874,12 +1117,7 @@ const ReOccuringCheckout = ({route}) => {
             fontSize={14}
             bgcColor={colors.black}
             fontColor={colors.white}
-            onPress={() =>
-              Alert.alert(
-                'Coming Soon',
-                'This feature is currently under development. Please check back later!',
-              )
-            }
+            onPress={handleOrderNow}
           />
         </View>
       )}

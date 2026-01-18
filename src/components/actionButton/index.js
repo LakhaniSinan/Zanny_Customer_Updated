@@ -9,10 +9,10 @@ const ActionBuuton = ({
   onPress,
   height,
   customStyle,
+  fontSize,
   textStyle,
   fontWeight,
   disabled,
-  fontSize,
   styleProps,
   borderRadius,
 }) => {

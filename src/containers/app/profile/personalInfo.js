@@ -253,6 +253,7 @@ function PersonalInfo({navigation}) {
               value={inputValue.firstName}
               onChangeText={v => handleChange('firstName', v)}
             />
+            <View style={{height: width(4)}} />
 
             <CustomInput
               title="Last Name"
@@ -262,6 +263,7 @@ function PersonalInfo({navigation}) {
               containerStyle={{marginTop: width(3)}}
             />
 
+            <View style={{height: width(4)}} />
             <CustomInput
               title="Email"
               value={inputValue.email}
@@ -269,6 +271,7 @@ function PersonalInfo({navigation}) {
               containerStyle={{marginTop: width(3)}}
             />
 
+            <View style={{height: width(4)}} />
             <CustomInput
               title="Phone Number"
               placeholder="Enter phone"

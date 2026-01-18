@@ -112,6 +112,10 @@ const CartScreen = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
   const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
+  console.log(
+    deliveryCharges,
+    'deliveryChargesdeliveryChargesdeliveryChargesdeliveryChargesasd',
+  );
 
   const {copiedCode} = useSelector(state => state.CopiedCodeSlice);
   const {user} = useSelector(s => s.LoginSlice);
@@ -139,14 +143,29 @@ const CartScreen = () => {
   );
 
   const {subTotal, discountedSubTotal, total} = useMemo(() => {
+    // 1️⃣ Subtotal = FINAL prices (discounted if exists)
     const st = cartData.reduce((acc, item) => {
-      const price = parsePriceToNumber(item?.price);
+      const originalPrice =
+        parsePriceToNumber(item?.foodId?.price) ||
+        parsePriceToNumber(item?.price);
+
+      const finalPrice =
+        Number(item?.foodId?.discount) > 0
+          ? Number(item.foodId.discount)
+          : Number(item?.discount) > 0
+          ? Number(item.discount)
+          : originalPrice;
+
       const qty = Number(item?.quantity || item?.selectedQty || 1);
-      return acc + price * qty;
+      return acc + finalPrice * qty;
     }, 0);
 
-    const discountPercent = promoData?.discount || 0;
-    const discounted = Number((st - (st * discountPercent) / 100).toFixed(2));
+    // 2️⃣ Promo discount (% based – correct)
+    const promoPercent = promoData?.discount || 0;
+    const promoDiscountAmount = (st * promoPercent) / 100;
+    const discounted = Number((st - promoDiscountAmount).toFixed(2));
+
+    // 3️⃣ Final total
     const t = Number(
       (
         discounted +
@@ -154,7 +173,12 @@ const CartScreen = () => {
         Number(serviceCharges || 0)
       ).toFixed(2),
     );
-    return {subTotal: st, discountedSubTotal: discounted, total: t};
+
+    return {
+      subTotal: Number(st.toFixed(2)),
+      discountedSubTotal: discounted,
+      total: t,
+    };
   }, [cartData, promoData, deliveryCharges, serviceCharges]);
 
   useEffect(() => {
@@ -169,19 +193,59 @@ const CartScreen = () => {
   useEffect(() => {
     (async () => {
       try {
+        // Check platform pay support - this checks device capability
         const supported = await isPlatformPaySupported();
-        if (supported) {
-          if (Platform.OS === 'ios') {
+        console.log('🔍 Platform Pay Support Check:');
+        console.log('  - Supported:', supported);
+        console.log('  - Platform:', Platform.OS);
+        console.log(
+          '  - Device Model:',
+          Platform.OS === 'ios' ? 'iPhone' : 'Android',
+        );
+
+        if (Platform.OS === 'ios') {
+          // For iOS, always allow Apple Pay attempt - let Stripe SDK handle capability
+          // The actual check happens when user tries to pay
+          if (supported) {
             setIsApplePaySupported(true);
+            console.log('✅ Apple Pay capability detected');
           } else {
-            setIsGooglePaySupported(true);
+            // Even if check fails, allow attempt - might be configuration issue
+            setIsApplePaySupported(true);
+            console.log(
+              '⚠️ Platform Pay check returned false, but allowing Apple Pay attempt (iOS device)',
+            );
+            console.log(
+              '   Note: Actual capability will be checked during payment',
+            );
           }
+          setIsGooglePaySupported(false); // Google Pay not on iOS
+        } else {
+          // For Android, check Google Pay
+          if (supported) {
+            setIsGooglePaySupported(true);
+            console.log('✅ Google Pay is available on this device');
+          } else {
+            setIsGooglePaySupported(false);
+            console.log('❌ Google Pay not available on this device');
+          }
+          setIsApplePaySupported(false); // Apple Pay not on Android
         }
       } catch (e) {
-        console.log('isPlatformPaySupported error', e);
+        console.error('❌ isPlatformPaySupported error:', e);
+        // On error, still allow Apple Pay on iOS (let Stripe handle it)
+        if (Platform.OS === 'ios') {
+          setIsApplePaySupported(true);
+          console.log(
+            '⚠️ Error checking support, but allowing Apple Pay attempt on iOS',
+          );
+        } else {
+          setIsApplePaySupported(false);
+        }
+        setIsGooglePaySupported(false);
       }
     })();
-  }, [isPlatformPaySupported]);
+  }, []);
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () =>
@@ -230,6 +294,8 @@ const CartScreen = () => {
     // setLoading(true);
     try {
       const res = await getCalculatedDeliveryFee(payload);
+      console.log(res, 'resresresresresresresresasdasd');
+
       setDeliveryCharges(
         res?.data?.status === 'ok' && res.data.data != null
           ? Number(Number(res.data.data).toFixed(2))
@@ -248,12 +314,21 @@ const CartScreen = () => {
       setServiceCharges(0);
       return;
     }
+
     const totalValue = cartData.reduce((acc, item) => {
-      const price = parsePriceToNumber(item?.price);
+      const originalPrice =
+        parsePriceToNumber(item?.foodId?.price) ||
+        parsePriceToNumber(item?.price);
+
+      const finalPrice =
+        Number(item?.foodId?.discount) > 0
+          ? Number(item.foodId.discount)
+          : Number(item?.discount) > 0
+          ? Number(item.discount)
+          : originalPrice;
+
       const qty = Number(item?.quantity || item?.selectedQty || 1);
-      const effectivePrice =
-        Number(item?.discount) > 0 ? Number(item.discount) : price;
-      return acc + effectivePrice * qty;
+      return acc + finalPrice * qty;
     }, 0);
 
     const fee = Math.min(Math.max(totalValue * 0.05, 0.99), 4.5);
@@ -366,8 +441,10 @@ const CartScreen = () => {
 
       setLoading(true);
       try {
+        const amountInPence = Math.round(total);
+
         const intentRes = await createStripeClientSecret({
-          amount: total,
+          amount: amountInPence,
         });
         const clientSecret = intentRes?.data?.secretKey;
 
@@ -377,6 +454,7 @@ const CartScreen = () => {
             merchantName: 'Zannys Foods',
             merchantCountryCode: 'GB',
             currencyCode: 'GBP',
+            amount: amountInPence,
             billingAddressConfig: {
               format: PlatformPay.BillingAddressFormat.Full,
               isPhoneNumberRequired: true,
@@ -424,28 +502,54 @@ const CartScreen = () => {
 
   const payWithApple = useCallback(
     async orderPayload => {
-      if (!isApplePaySupported) {
+      // Only check platform - if iOS, proceed with Apple Pay
+      // Let Stripe SDK handle the actual capability check
+      if (Platform.OS !== 'ios') {
         showModal({
           icons: icons.cross,
           title: 'Apple Pay',
-          message: 'Apple Pay is not available on this device.',
+          message: 'Apple Pay is only available on iOS devices.',
         });
         return;
       }
 
+      console.log('🍎 Starting Apple Pay flow on iOS device');
+      console.log('Total amount:', total);
+
       setLoading(true);
       try {
-        const intentRes = await createStripeClientSecret({
-          amount: total,
-        });
-        const clientSecret = intentRes?.data?.secretKey;
+        // Convert total to pence (smallest currency unit) for Stripe
+        const amountInPence = Math.round(total * 100);
+        const displayAmount = total.toFixed(2);
 
+        console.log(
+          '💰 Creating payment intent for amount:',
+          amountInPence,
+          'pence (£' + displayAmount + ')',
+        );
+        const intentRes = await createStripeClientSecret({
+          amount: amountInPence,
+        });
+
+        if (!intentRes?.data?.secretKey) {
+          console.error('❌ Failed to get client secret from server');
+          throw new Error('Failed to create payment intent. Please try again.');
+        }
+
+        const clientSecret = intentRes.data.secretKey;
+        console.log('✅ Payment intent created, client secret received');
+
+        console.log('🍎 Attempting to confirm Apple Pay payment...');
+        console.log('Merchant ID: merchant.com.zannycustomer');
+        console.log('Amount:', displayAmount, 'GBP');
+
+        // Try to confirm payment - Stripe SDK will handle device capability check
         const {error} = await confirmPlatformPayPayment(clientSecret, {
           applePay: {
             cartItems: [
               {
-                label: 'to Zannys Foods',
-                amount: total.toString(),
+                label: 'Zannys Foods Order',
+                amount: displayAmount,
                 paymentType: PlatformPay.PaymentType.Immediate,
               },
             ],
@@ -461,40 +565,64 @@ const CartScreen = () => {
         });
 
         if (error) {
-          console.log('Apple Pay error', error);
+          console.error('❌ Apple Pay payment error:', error);
+          console.error('Error code:', error.code);
+          console.error('Error message:', error.message);
+
+          let errorMessage = 'Apple Pay payment failed. ';
+          if (error.code === 'Canceled') {
+            errorMessage = 'Apple Pay payment was cancelled.';
+          } else if (error.message) {
+            errorMessage += error.message;
+          } else {
+            errorMessage +=
+              'Please ensure Apple Pay is set up in Wallet app and try again.';
+          }
+
           showModal({
             title: 'Payment Failed',
-            message: error.message || 'Apple Pay payment failed',
+            message: errorMessage,
           });
+          setLoading(false);
           return;
         }
 
+        console.log('✅ Apple Pay payment successful!');
+        console.log('📦 Placing order...');
+
         const res = await placeUserOrder(orderPayload);
         if (res?.status === 200 || res?.status === 201) {
+          console.log('✅ Order placed successfully');
           afterOrderSuccess(res?.data?.message);
         } else {
+          console.error('❌ Order placement failed:', res?.data?.message);
           showModal({
             title: 'Error',
             message: res?.data?.message || 'Failed to place order',
           });
         }
       } catch (err) {
-        console.log('payWithApple err', err);
+        console.error('❌ payWithApple exception:', err);
+        console.error('Error details:', JSON.stringify(err, null, 2));
+
+        let errorMessage = 'Apple Pay failed. ';
+        if (err?.message) {
+          errorMessage += err.message;
+        } else if (err?.response?.data?.message) {
+          errorMessage += err.response.data.message;
+        } else {
+          errorMessage += 'Please try again or contact support.';
+        }
+
         showModal({
           title: 'Error',
-          message: err?.response?.data?.message || 'Apple Pay failed',
+          message: errorMessage,
         });
       } finally {
         setLoading(false);
       }
     },
-    [
-      isApplePaySupported,
-      total,
-      confirmPlatformPayPayment,
-      afterOrderSuccess,
-      showModal,
-    ],
+    [total, confirmPlatformPayPayment, afterOrderSuccess, showModal],
   );
 
   const handleOrderNow = useCallback(async () => {
@@ -505,6 +633,7 @@ const CartScreen = () => {
       });
     if (!wallet)
       return showModal({
+        icons: icons.cross,
         title: 'Payment Method',
         message: 'Please select a payment method',
       });
@@ -533,6 +662,7 @@ const CartScreen = () => {
       merchantDetails,
       userCardDetails: wallet,
       orderType: 'delivery',
+      orderCategory: 'normal',
       paymentType:
         wallet?.paymentMethodId === 'GOOGLE_PAY'
           ? 'GOOGLE_PAY'
@@ -781,7 +911,8 @@ const CartScreen = () => {
   return (
     <StripeProvider
       publishableKey={STRIPE_PUBLISH_TEST}
-      merchantIdentifier="merchant.com.zannycustomer">
+      merchantIdentifier="merchant.com.zannycustomer"
+      urlScheme="zannysfood">
       <View style={{flex: 1, backgroundColor: colors.white}}>
         <AppHeader goBack notificationsIcon text="Cart" />
         <FlatList

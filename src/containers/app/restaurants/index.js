@@ -34,6 +34,7 @@ const Restaurants = ({navigation}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const {homeData} = useSelector(state => state.HomeDataSlice);
   console.log(homeData, 'homeDatahomeDatahomeDatahomeDatahomeData');
+  console.log(currentLocation, 'homeDatahomeDatahomeDatahomeDatahomeData');
   // ✅ Custom Modal State
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -72,7 +73,11 @@ const Restaurants = ({navigation}) => {
 
   const getHomeData = async () => {
     setIsLoading(true);
-    await dispatch(handleFetchHomeData());
+    let data = {
+      latitude: currentLocation?.latitude,
+      longitude: currentLocation?.longitude,
+    };
+    await dispatch(handleFetchHomeData(data));
     setIsLoading(false);
   };
 
@@ -86,50 +91,72 @@ const Restaurants = ({navigation}) => {
   }, []);
 
   const renderRecommendedItem = useCallback(
-    ({item}) => (
-      <TouchableOpacity
-        style={styles.recommendedCard}
-        onPress={() =>
-          navigation.navigate('ProductDetail', {
-            data: item,
-            productId: item?._id,
-            type: 'normal',
-          })
-        }>
-        <Image source={{uri: item?.image}} style={styles.foodImage} />
+    ({item}) => {
+      console.log(item, 'itemitemitemitemitemitemitem');
 
-        <View style={styles.foodTextContainer}>
-          <View style={styles.foodHeader}>
-            <Text style={styles.foodName}>{item?.name}</Text>
-            <Text style={styles.foodPrice}>£{item?.price}</Text>
-          </View>
+      return (
+        <TouchableOpacity
+          style={styles.recommendedCard}
+          onPress={() =>
+            navigation.navigate('ProductDetail', {
+              data: item,
+              productId: item?._id,
+              type: 'normal',
+            })
+          }>
+          <Image source={{uri: item?.image}} style={styles.foodImage} />
 
-          <Text numberOfLines={2} style={styles.foodDetail}>
-            {item?.description}
-          </Text>
+          <View style={styles.foodTextContainer}>
+            <View style={styles.foodHeader}>
+              <Text style={styles.foodName}>{item?.name}</Text>
+              {item?.discount > 0 ? (
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text style={styles.foodPrice}>£{item?.discount}</Text>
 
-          <View style={styles.foodRatingRow}>
-            {renderStars(5)}
-            <Text style={styles.foodRatingText}>4.8 (120+) • 2.8km</Text>
-          </View>
+                  <Text
+                    style={[
+                      styles.foodPrice,
+                      {
+                        marginLeft: 6,
+                        color: colors.gray,
+                        textDecorationLine: 'line-through',
+                      },
+                    ]}>
+                    £{item?.price}
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.foodPrice}>£{item?.price}</Text>
+              )}
+            </View>
 
-          <View style={styles.chefContainer}>
-            <Image
-              source={{uri: item?.merchantImage}}
-              style={styles.chefImage}
-            />
-            <View style={{marginLeft: width(2)}}>
-              <Text style={styles.chefLabel}>Chef</Text>
+            <Text numberOfLines={2} style={styles.foodDetail}>
+              {item?.description}
+            </Text>
 
-              <View style={styles.chefNameContainer}>
-                <Text style={styles.chefName}>{item?.merchantName}</Text>
-                <Image source={icons.objects} style={styles.objectsIcon} />
+            <View style={styles.foodRatingRow}>
+              {renderStars(5)}
+              <Text style={styles.foodRatingText}>4.8 (120+) • 2.8km</Text>
+            </View>
+
+            <View style={styles.chefContainer}>
+              <Image
+                source={{uri: item?.merchantImage}}
+                style={styles.chefImage}
+              />
+              <View style={{marginLeft: width(2)}}>
+                <Text style={styles.chefLabel}>Chef</Text>
+
+                <View style={styles.chefNameContainer}>
+                  <Text style={styles.chefName}>{item?.merchantName}</Text>
+                  <Image source={icons.objects} style={styles.objectsIcon} />
+                </View>
               </View>
             </View>
           </View>
-        </View>
-      </TouchableOpacity>
-    ),
+        </TouchableOpacity>
+      );
+    },
     [renderStars],
   );
 

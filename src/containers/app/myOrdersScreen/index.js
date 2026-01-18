@@ -20,8 +20,8 @@ import AppHeader from '../../../components/headerComponent';
 import HistoryCard from '../../../components/historyCard';
 import OverLayLoader from '../../../components/loader';
 import {colors, Colors} from '../../../constants';
-import {setCartData} from '../../../redux/slices/Cart';
 import {getAllOrdersByCustomerId} from '../../../services/order';
+import {setCartData} from '../../../redux/slices/Cart';
 
 const MyOrdersScreen = () => {
   const navigation = useNavigation();
@@ -32,7 +32,6 @@ const MyOrdersScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // 🔑 TAB STATE (NORMAL / PREORDER)
   const [orderCategoryTab, setOrderCategoryTab] = useState('normal');
 
   const user = useSelector(state => state.LoginSlice.user);
@@ -92,17 +91,38 @@ const MyOrdersScreen = () => {
     <View style={styles.emptyContainer}>
       <Image source={images.noOrders} style={styles.emptyImage} />
       <Text style={styles.emptyText}>
-        No {orderCategoryTab === 'normal' ? 'Normal' : 'Pre-Order'} Orders Found
+        No{' '}
+        {orderCategoryTab === 'normal'
+          ? 'Normal'
+          : orderCategoryTab === 'daliy'
+          ? 'Daliy'
+          : 'Pre-Order'}{' '}
+        Orders Found
       </Text>
+      {!user && (
+        <View style={{width: width(30), marginLeft: 10, marginTop: width(2)}}>
+          <ActionBuuton
+            name="Login"
+            height={50}
+            fontSize={14}
+            bgcColor={colors.redish}
+            fontColor={colors.white}
+            onPress={() => navigation.navigate('Login')}
+          />
+        </View>
+      )}
     </View>
   );
 
+  // **************************************************
+  // 🚀 ORDER AGAIN HANDLER (FINAL LOGIC)
+  // **************************************************
   const handleAddToCart = async selectedItem => {
     const orderArray = selectedItem?.order || [];
 
     if (!user) {
       showModal(
-        icons.cross,
+        icons?.cross,
         'error',
         'Please login first to add items in your cart',
       );
@@ -119,9 +139,12 @@ const MyOrdersScreen = () => {
       return;
     }
 
-    if (cartData[0]?.merchantId !== orderMerchantId) {
+    // 3️⃣ Validate merchant for existing cart
+    const cartMerchantId = cartData[0]?.merchantId;
+
+    if (cartMerchantId !== orderMerchantId) {
       showModal(
-        icons.cross,
+        icons?.cross,
         'error',
         'You can only order from the same merchant',
       );
@@ -135,7 +158,7 @@ const MyOrdersScreen = () => {
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
-      <AppHeader goBack cartIcon text="History" />
+      <AppHeader goBack={true} cartIcon={true} text="History" />
 
       {/* 🔘 TABS */}
       <View style={styles.tabContainer}>
@@ -151,6 +174,20 @@ const MyOrdersScreen = () => {
               orderCategoryTab === 'normal' && styles.activeText,
             ]}>
             Normal
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setOrderCategoryTab('daily')}
+          style={[
+            styles.tabButton,
+            orderCategoryTab === 'daily' && styles.activeTab,
+          ]}>
+          <Text
+            style={[
+              styles.tabText,
+              orderCategoryTab === 'daily' && styles.activeText,
+            ]}>
+            Daily
           </Text>
         </TouchableOpacity>
 
@@ -173,7 +210,7 @@ const MyOrdersScreen = () => {
       {/* 📦 ORDERS LIST */}
       <FlatList
         data={filteredOrders}
-        keyExtractor={item => item._id}
+        keyExtractor={(item, index) => index.toString()}
         renderItem={({item}) => (
           <HistoryCard item={item} handleAddToCart={handleAddToCart} />
         )}
@@ -210,10 +247,10 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     height: width(12),
-    width: width(45),
     borderRadius: 100,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: width(8),
   },
   activeTab: {
     backgroundColor: colors.redish,

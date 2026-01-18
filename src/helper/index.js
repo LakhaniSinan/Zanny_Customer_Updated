@@ -3,6 +3,7 @@ import {Alert, Linking, Platform, Share} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import {check, PERMISSIONS} from 'react-native-permissions';
 import {notification} from '../constants/variables';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 
 export const helper = {
   async getCurrentLocation() {
@@ -143,8 +144,6 @@ export const helper = {
         .get(url)
         .then(response => {
           const data = response.data;
-          console.log('Geocoding API response status:', data.status);
-          console.log('Full API response:', JSON.stringify(data, null, 2));
 
           if (data.status === 'OK' && data.results.length > 0) {
             const location = data.results[0].formatted_address;
@@ -187,31 +186,53 @@ export const helper = {
     });
   },
 
-  async ImageUploadService(imagee) {
-    const form = new FormData();
-    form.append('file', imagee);
-    form.append('upload_preset', 'znuys2j4');
-    form.append('cloud_name', 'dcmawlfn2');
+  async resizeImage(image) {
+    try {
+      const resized = await ImageResizer.createResizedImage(
+        image.uri,
+        800,
+        800,
+        'JPEG',
+        80,
+        0,
+      );
 
-    return new Promise((resolve, reject) => {
-      axios
-        .post(`https://api.cloudinary.com/v1_1/dcmawlfn2/image/upload`, form, {
+      return {
+        uri: resized.uri,
+        name: 'image.jpg',
+        type: 'image/jpeg',
+      };
+    } catch (err) {
+      console.log('Resize error:', err);
+      throw err;
+    }
+  },
+  async ImageUploadService(imagee) {
+    try {
+      const resizedImage = await helper.resizeImage(imagee);
+
+      const form = new FormData();
+      form.append('file', resizedImage);
+      form.append('upload_preset', 'znuys2j4');
+      form.append('cloud_name', 'dcmawlfn2');
+
+      const response = await axios.post(
+        'https://api.cloudinary.com/v1_1/dcmawlfn2/image/upload',
+        form,
+        {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
-        })
-        .then(response => {
-          if (response.status == 200 || response.status == 201) {
-            resolve(response.data.secure_url);
-          } else {
-            reject('Image uploading failed.');
-          }
-        })
-        .catch(error => {
-          reject('Image uploading failed.');
-        });
-    });
+        },
+      );
+
+      return response.data.secure_url;
+    } catch (error) {
+      console.log('Upload error:', error);
+      throw error;
+    }
   },
+
   async notificationCall(titleee, bodyyy, handlePress) {
     return notification?.popup?.show({
       onPress: () => {

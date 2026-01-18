@@ -17,6 +17,8 @@ const HistoryCard = ({item, handleAddToCart}) => {
         return {bg: 'rgba(30,144,255,0.2)', color: '#1E90FF'};
       case 'cancelled':
         return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
+      case 'rejected':
+        return {bg: 'rgba(255,69,0,0.2)', color: '#FF4500'};
       case 'completed':
       case 'delivered':
         return {bg: 'rgba(50,205,50,0.2)', color: '#32CD32'};
@@ -27,6 +29,7 @@ const HistoryCard = ({item, handleAddToCart}) => {
 
   const statusStyle = getStatusStyle(item?.status);
   const product = item?.order?.[0];
+  console.log(product, 'productproductproductproductproductasd');
 
   return (
     <View
@@ -61,24 +64,35 @@ const HistoryCard = ({item, handleAddToCart}) => {
           </Text>
 
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Text
-              style={{
-                fontSize: 16,
-                fontFamily: fontFamily.poppinBold,
-                color: colors.primaryOrange,
-              }}>
-              £{product?.price}
-            </Text>
+            {Number(product?.discount) > 0 ? (
+              <>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontFamily: fontFamily.poppinBold,
+                    color: colors.primaryOrange,
+                  }}>
+                  £{product.discount}
+                </Text>
 
-            {product?.oldPrice && (
+                <Text
+                  style={{
+                    marginLeft: 8,
+                    fontSize: 13,
+                    color: colors.grey,
+                    textDecorationLine: 'line-through',
+                  }}>
+                  £{product.price}
+                </Text>
+              </>
+            ) : (
               <Text
                 style={{
-                  marginLeft: 8,
-                  fontSize: 13,
-                  color: colors.grey,
-                  textDecorationLine: 'line-through',
+                  fontSize: 16,
+                  fontFamily: fontFamily.poppinBold,
+                  color: colors.primaryOrange,
                 }}>
-                £{product?.oldPrice}
+                £{product.price}
               </Text>
             )}
           </View>
@@ -149,46 +163,71 @@ const HistoryCard = ({item, handleAddToCart}) => {
           Made by
         </Text>
 
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Image
-            source={{uri: product?.merchant?.merchantImage}}
-            style={{
-              width: width(9),
-              height: width(9),
-              borderRadius: width(4.5),
-            }}
-          />
-
-          <View style={{marginLeft: 8}}>
-            <Text
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Image
+              source={{uri: product?.merchant?.merchantImage}}
               style={{
-                fontSize: 11,
-                fontFamily: fontFamily.poppinBold,
-                color: colors.primaryOrange,
-              }}>
-              Chef
-            </Text>
+                width: width(9),
+                height: width(9),
+                borderRadius: width(4.5),
+              }}
+            />
 
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{marginLeft: 8}}>
               <Text
                 style={{
-                  fontSize: 13,
+                  fontSize: 11,
                   fontFamily: fontFamily.poppinBold,
-                  color: colors.black,
+                  color: colors.primaryOrange,
                 }}>
-                {product?.merchant?.name}
+                Chef
               </Text>
 
-              <Image
-                source={icons.objects}
-                style={{
-                  width: 14,
-                  height: 14,
-                  marginLeft: 3,
-                  marginBottom: 5,
-                }}
-              />
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontFamily: fontFamily.poppinBold,
+                    color: colors.black,
+                  }}>
+                  {product?.merchant?.name}
+                </Text>
+
+                <Image
+                  source={icons.objects}
+                  style={{
+                    width: 14,
+                    height: 14,
+                    marginLeft: 3,
+                    marginBottom: 5,
+                  }}
+                />
+              </View>
             </View>
+          </View>
+          <View
+            style={{
+              height: width(8),
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 100,
+              paddingHorizontal: width(4),
+              backgroundColor: colors.red,
+            }}>
+            <Text
+              style={{
+                color: colors.white,
+                fontFamily: fontFamily.poppinBold,
+                fontSize: 10,
+              }}>
+              {item?.orderCategory?.toUpperCase()}
+            </Text>
           </View>
         </View>
       </View>

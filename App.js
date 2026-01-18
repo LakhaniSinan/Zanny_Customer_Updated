@@ -16,7 +16,6 @@ import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import Navigation from './src/appNavigation';
 import SplachScreen from './src/components/splashScreen';
 import store from './src/redux/index';
-import {handleFetchHomeData} from './src/redux/slices/HomeData';
 LogBox.ignoreLogs(['useInsertionEffect must not schedule updates']);
 LogBox.ignoreLogs(['Encountered two children with the same key']);
 const App = () => {
@@ -44,10 +43,6 @@ const App = () => {
     } else {
     }
   };
-
-  useEffect(() => {
-    dispatch(handleFetchHomeData());
-  }, [dispatch]);
 
   return (
     <Provider store={store}>
