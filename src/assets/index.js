@@ -35,6 +35,7 @@ export const images = {
   first: require('../assets/images/first.png'),
   mapImage: require('../assets/images/mapImage.png'),
   tickertCard: require('../assets/images/tickertCard.png'),
+  reviewIcon: require('../assets/images/reviewIcon.png'),
 };
 
 export const icons = {

@@ -100,9 +100,12 @@ export const endPoints = {
   applyPromoCode: 'applyPromo',
   getAllPromo: 'getAllPromo',
   getPromoStatus: 'getPromoStatus',
-  
+
   // notifications
 
-  notifications:"user/fetch-notifications",
-  markAsRead:"user/mark-as-read",
+  notifications: 'user/fetch-notifications',
+  markAsRead: 'user/mark-as-read',
+
+  //addReviews
+  addReviews: 'createReview',
 };

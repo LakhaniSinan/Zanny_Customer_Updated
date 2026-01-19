@@ -2060,14 +2060,58 @@ PODS:
     - Yoga
   - RNDeviceInfo (15.0.1):
     - React-Core
-  - RNFBApp (23.8.2):
+  - RNFBApp (23.8.3):
+    - DoubleConversion
     - Firebase/CoreOnly (= 12.8.0)
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
-  - RNFBMessaging (23.8.2):
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNFBMessaging (23.8.3):
+    - DoubleConversion
     - Firebase/Messaging (= 12.8.0)
     - FirebaseCoreExtension
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
     - RNFBApp
+    - Yoga
   - RNGestureHandler (2.30.0):
     - DoubleConversion
     - glog
@@ -2794,12 +2838,12 @@ SPEC CHECKSUMS:
   RNCMaskedView: ae521efb1c6c2b183ae0f8479487db03c826184c
   RNCPicker: 28c076ae12a1056269ec0305fe35fac3086c477d
   RNDeviceInfo: 36d7f232bfe7c9b5c494cb7793230424ed32c388
-  RNFBApp: f56dd8a0e54571e4760a8d621f88d12f22c70c01
-  RNFBMessaging: 6436d2b93d59523db22c920056a148ca266aaa08
+  RNFBApp: 665585d1a40c224954f0a03b5f2d1eb97e747cc8
+  RNFBMessaging: bcdf842e6a020d6765a384b54b73722d6ab8fa30
   RNGestureHandler: 4d34255948b634d4f3827cc534a1a3d05e50095b
   RNGoogleSignin: a8c3e472b67d0f065b9198e9cd148a0d7c14a50c
   RNImageCropPicker: 367a8e3788651dad88540d9fa8888fcb07ffd1d1
-  RNPermissions: e258b4c4ecfef8003b03476eb086271a4d6090d9
+  RNPermissions: 87dd66ce956207bc6c9372960b53e3e079b8a32f
   RNScreens: 3402421da150f080d9e1293cfa5558548a735fb6
   RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748

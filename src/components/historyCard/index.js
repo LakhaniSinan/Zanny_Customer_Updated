@@ -131,23 +131,13 @@ const HistoryCard = ({item, handleAddToCart}) => {
               width: width(45),
               marginTop: width(3),
             }}>
-            {item?.status === 'Completed' || item?.status === 'Delivered' ? (
-              <ActionButton
-                bgcColor="#3b0b0b"
-                fontColor={colors.white}
-                name="Order again"
-                fontSize={12}
-                onPress={() => handleAddToCart(item)}
-              />
-            ) : (
-              <ActionButton
-                bgcColor="#3b0b0b"
-                fontColor={colors.white}
-                name="View details"
-                fontSize={10}
-                onPress={() => navigation.navigate('OrderDetail', item)}
-              />
-            )}
+            <ActionButton
+              bgcColor="#3b0b0b"
+              fontColor={colors.white}
+              name="View details"
+              fontSize={10}
+              onPress={() => navigation.navigate('OrderDetail', item)}
+            />
           </View>
         </View>
       </View>

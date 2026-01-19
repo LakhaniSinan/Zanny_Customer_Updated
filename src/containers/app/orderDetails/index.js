@@ -316,8 +316,6 @@ const OrderDetail = ({navigation, route}) => {
     }
   };
 
-
-
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <AppHeader text="Order Details" goBack={true} />
@@ -527,16 +525,31 @@ const OrderDetail = ({navigation, route}) => {
             styleProps={{borderWidth: 0}}
           />
         ) : (
-          <ActionBuuton
-            onPress={() => handleAddToCart(data)}
-            name={'Order Again'}
-            bgcColor={colors.black}
-            fontColor={colors.white}
-            height={width(12)}
-            borderRadius={100}
-            fontSize={16}
-            styleProps={{borderWidth: 0}}
-          />
+          <>
+            {!data?.reviewStatus && (
+              <ActionBuuton
+                onPress={() => navigation.navigate('LeaveReviewScreen', data)}
+                name={'Leave A Rivew'}
+                bgcColor={colors.black}
+                fontColor={colors.white}
+                height={width(12)}
+                borderRadius={100}
+                fontSize={16}
+                styleProps={{borderWidth: 0}}
+              />
+            )}
+            <View style={{height: width(2)}} />
+            <ActionBuuton
+              onPress={() => handleAddToCart(data)}
+              name={'Order Again'}
+              bgcColor={colors.black}
+              fontColor={colors.white}
+              height={width(12)}
+              borderRadius={100}
+              fontSize={16}
+              styleProps={{borderWidth: 0}}
+            />
+          </>
         )}
       </View>
       <OverLayLoader isloading={isloading} />

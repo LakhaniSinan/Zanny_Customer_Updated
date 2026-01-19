@@ -56,7 +56,8 @@ import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
 import HelpCenter from '../../containers/app/helpCenter';
 import Notifications from '../../containers/app/notification';
-import { Alert, Linking } from 'react-native';
+import {Alert, Linking} from 'react-native';
+import LeaveReviewScreen from '../../containers/app/addReview';
 
 const Stack = createStackNavigator();
 
@@ -171,6 +172,14 @@ export function CustomerStack() {
         }}
         name="ReOccurinOrder"
         component={ReOccurinOrder}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="LeaveReviewScreen"
+        component={LeaveReviewScreen}
       />
       <Stack.Screen
         options={{

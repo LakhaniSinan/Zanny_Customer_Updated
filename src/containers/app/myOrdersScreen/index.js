@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
     margin: width(4),
     flexDirection: 'row',
     padding: width(1),
+    justifyContent: 'space-between',
   },
   tabButton: {
     height: width(12),
