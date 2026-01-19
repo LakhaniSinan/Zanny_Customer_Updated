@@ -4,6 +4,7 @@ import {
   FlatList,
   Image,
   ImageBackground,
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -88,7 +89,12 @@ const Restaurants = ({navigation}) => {
   };
 
   const checkPermission = async () => {
-    let result = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+    let result =
+      Platform.OS == 'ios'
+        ? await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE)
+        : await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+    console.log(result, 'resultresultresultresultresultresultresult');
+
     setStatus(result);
     if (result === RESULTS.DENIED) {
       const req = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
