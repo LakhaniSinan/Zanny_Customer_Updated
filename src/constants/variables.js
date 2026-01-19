@@ -18,7 +18,7 @@ export const endPoints = {
   createStripId: 'create-stripe-customer',
 
   //merchant
-  getAllMerchants: 'getAllMerchants',
+  getAllMerchants: 'getApproveMerchants',
   getAllMerchantByCurrentLocation: 'getAllMerchantByCurrentLocation',
   getAllMerchantByCurrentLocationPickUp:
     'getAllMerchantByCurrentLocation/pickup',

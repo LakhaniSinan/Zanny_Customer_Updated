@@ -518,15 +518,9 @@ const CartScreen = () => {
 
       setLoading(true);
       try {
-        // Convert total to pence (smallest currency unit) for Stripe
-        const amountInPence = Math.round(total * 100);
+        const amountInPence = Math.round(total);
         const displayAmount = total.toFixed(2);
 
-        console.log(
-          '💰 Creating payment intent for amount:',
-          amountInPence,
-          'pence (£' + displayAmount + ')',
-        );
         const intentRes = await createStripeClientSecret({
           amount: amountInPence,
         });
@@ -650,8 +644,8 @@ const CartScreen = () => {
       discount: promoData?.discount || 0,
       date: moment().format('DD-MM-YYYY'),
       merchantId: cartData[0]?.merchantId,
-      latitude: selectedAddress?.latitude || 0,
-      longitude: selectedAddress?.longitude || 0,
+      latitude: currentLocation?.latitude || 0,
+      longitude: currentLocation?.longitude || 0,
       userDetails: {
         email: user?.email,
         name: user?.name,
@@ -676,7 +670,6 @@ const CartScreen = () => {
 
     console.log(payload, 'payloadpayloadpayloadpayloadpayloadlkasbndlksa');
 
-    // Route to correct payment flow
     if (wallet?.paymentMethodId === 'GOOGLE_PAY') {
       await payWithGoogle(payload);
       return;
