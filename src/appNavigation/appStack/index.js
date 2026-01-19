@@ -6,7 +6,7 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 import {useEffect} from 'react';
-import {RESULTS} from 'react-native-permissions';
+import {openSettings, RESULTS} from 'react-native-permissions';
 import {useDispatch, useSelector} from 'react-redux';
 import PaymentScreen from '../../components/stripePayment/PaymentScreen';
 import Address from '../../containers/app/address';
@@ -55,6 +55,7 @@ import {handleFetchHomeData} from '../../redux/slices/HomeData';
 import {setCurrentLocation} from '../../redux/slices/Location';
 import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
+import {Platform} from 'react-native';
 
 const Stack = createStackNavigator();
 
@@ -115,17 +116,23 @@ export function CustomerStack() {
 
   const handleGetCurrentLocation = async () => {
     try {
-      let status = await helper.checkLocation();
-      console.log(status, 'statusstatusstatusstatus');
+      let status;
 
-      if (status !== RESULTS.GRANTED) {
+      // ✅ iOS: direct request (check pe rely nahi)
+      // ✅ Android: check → request
+      if (Platform.OS === 'ios') {
         status = await helper.requestLocationPermission();
+      } else {
+        status = await helper.checkLocation();
+        if (status !== RESULTS.GRANTED) {
+          status = await helper.requestLocationPermission();
+        }
       }
 
-      if (status !== 'granted') {
-        console.log(
-          'Location permission denied, using default Canada location',
-        );
+      if (status !== RESULTS.GRANTED) {
+        if (status === RESULTS.BLOCKED && Platform.OS === 'ios') {
+          openSettings();
+        }
 
         await AsyncStorage.setItem(
           'userCurrentAddress',
@@ -137,14 +144,15 @@ export function CustomerStack() {
       }
 
       const position = await helper.getCurrentLocation();
+
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
 
       let address = '';
       try {
         address = await helper.getLocationAddress(latitude, longitude);
-      } catch (err) {
-        console.log('Address error:', err);
+      } catch (e) {
+        console.log('Address error:', e);
       }
 
       const payload = {
@@ -157,9 +165,8 @@ export function CustomerStack() {
 
       dispatch(setCurrentLocation(payload));
     } catch (error) {
-      console.log('getLatLngWithAddress error:', error);
+      console.log('Location error:', error);
 
-      // ❗ Safety fallback
       dispatch(setCurrentLocation(DEFAULT_UK_LOCATION));
     }
   };

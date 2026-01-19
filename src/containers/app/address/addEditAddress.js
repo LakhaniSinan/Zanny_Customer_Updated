@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
+  Linking,
 } from 'react-native';
 import Header from '../../../components/header';
 import Button from '../../../components/button';

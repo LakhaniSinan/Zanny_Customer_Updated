@@ -8,43 +8,49 @@ import ImageResizer from '@bam.tech/react-native-image-resizer';
 export const helper = {
   async getCurrentLocation() {
     return new Promise((resolve, reject) => {
-      Geolocation.getCurrentPosition(resolve, error => reject(error => {}), {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 10000,
-      });
+      Geolocation.getCurrentPosition(
+        position => resolve(position),
+        error => {
+          console.log('Location error:', error.code, error.message);
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 0,
+          forceRequestLocation: true,
+          showLocationDialog: true,
+        },
+      );
     });
   },
 
   async checkLocation() {
-    if (Platform.OS == 'android') {
-      return check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION).then(
-        async status => {
-          if (status == 'granted') {
-            return 'granted';
-          } else if (status == 'denied') {
-            return 'denied';
-          } else if (status == 'blocked') {
-            return 'blocked';
-          }
-        },
-      );
-    } else {
-      return await Geolocation.requestAuthorization('whenInUse')
-        .then(async status => {
-          if (status == 'granted') {
-            return 'granted';
-          } else if (status == 'denied') {
-            return 'denied';
-          } else if (status == 'blocked') {
-            return 'blocked';
-          }
-        })
-        .catch(err => {
-          console.log(err, 'err');
-        });
+    try {
+      if (Platform.OS === 'android') {
+        let status = await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+
+        if (status === RESULTS.DENIED) {
+          status = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
+        }
+
+        return status; // granted | denied | blocked
+      }
+
+      // iOS
+      let status = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+
+      if (status === RESULTS.DENIED) {
+        status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+      }
+
+      return status; // granted | denied | blocked
+    } catch (e) {
+      console.log('checkLocation error:', e);
+      return RESULTS.BLOCKED;
     }
   },
+
   /**
    * Share helper
    * valueee: main text message or object with { title?, text? }
@@ -150,57 +156,20 @@ export const helper = {
   },
 
   async getLocationAddress(lat, lng) {
-    return new Promise((resolve, reject) => {
-      console.log(`Attempting geocoding for coordinates: ${lat}, ${lng}`);
-
+    try {
       const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyAvPVhgFVY2qv4c6kvukvIP2krPJe9dZGA`;
 
-      axios
-        .get(url)
-        .then(response => {
-          const data = response.data;
-          console.log('Geocoding API response status:', data.status);
-          console.log('Full API response:', JSON.stringify(data, null, 2));
+      const res = await axios.get(url);
 
-          if (data.status === 'OK' && data.results.length > 0) {
-            const location = data.results[0].formatted_address;
-            console.log('Geocoding successful:', location);
-            resolve(location);
-          } else if (data.status === 'ZERO_RESULTS') {
-            console.log('No results found for these coordinates');
-            reject('No address found for these coordinates');
-          } else if (data.status === 'REQUEST_DENIED') {
-            console.log('API request denied:', data.error_message);
-            reject(`API request denied: ${data.error_message}`);
-          } else if (data.status === 'OVER_QUERY_LIMIT') {
-            console.log('API quota exceeded');
-            reject('API quota exceeded. Please try again later.');
-          } else if (data.status === 'INVALID_REQUEST') {
-            console.log('Invalid request parameters');
-            reject('Invalid coordinates provided');
-          } else {
-            console.log('Geocoding failed - API response:', data);
-            reject(
-              `Geocoding failed. Status: ${data.status}, Error: ${
-                data.error_message || 'Unknown error'
-              }`,
-            );
-          }
-        })
-        .catch(error => {
-          console.log(
-            'Geocoding request error:',
-            error.response?.data || error.message,
-          );
-          if (error.response?.status === 403) {
-            reject('API key is invalid or restricted');
-          } else if (error.response?.status === 429) {
-            reject('Too many requests. Please try again later.');
-          } else {
-            reject(`Geocoding request failed. Network error: ${error.message}`);
-          }
-        });
-    });
+      if (res.data?.status === 'OK') {
+        return res?.data?.results[0]?.formatted_address;
+      }
+
+      return '';
+    } catch (e) {
+      console.log('Geocode error:', e?.message);
+      return '';
+    }
   },
 
   async resizeImage(image) {

@@ -75,7 +75,7 @@ const HireCheifCard = ({item, handleHireChef}) => {
           width={width(20)}
           numberOfLines={1}
           style={{fontSize: 10, fontWeight: 400, color: Colors.black}}>
-          {item?.address}
+          {/* {item?.address} */}
         </Text>
       </View>
       <View

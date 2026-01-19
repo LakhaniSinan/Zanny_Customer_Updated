@@ -24,7 +24,7 @@ import {fontFamily, icons} from '../../../assets';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import {colors, STRIPE_PUBLISH_LIVE} from '../../../constants';
+import {colors, STRIPE_PUBLISH_LIVE, STRIPE_SECRET_TEST} from '../../../constants';
 
 import {setUserData} from '../../../redux/slices/Login';
 import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
@@ -557,7 +557,7 @@ const PaymentOptions = ({navigation}) => {
               </Text>
 
               <StripeProvider
-                publishableKey={STRIPE_PUBLISH_LIVE}
+                publishableKey={STRIPE_SECRET_TEST}
                 merchantIdentifier="merchant.com.zannycustomer">
                 <CardField
                   key={cardFieldKey}

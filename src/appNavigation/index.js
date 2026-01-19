@@ -148,7 +148,7 @@ const Navigation = () => {
       if (response.status === 200 || response.status === 201) {
         checkAppVersion(data);
       } else {
-        console.error('Failed to fetch data: Invalid status', response.status);
+        console.error('Failed to fetch data: Invalid status', response.message);
       }
     } catch (error) {
       console.error('Error fetching tips:', error);
