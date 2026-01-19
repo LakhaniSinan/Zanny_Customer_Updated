@@ -1,3 +1,125 @@
+import React, {useState} from 'react';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+const LeaveReviewScreen = () => {
+  const [rating, setRating] = useState(3);
+  const [selectedTipTo, setSelectedTipTo] = useState('Chef');
+  const [selectedTip, setSelectedTip] = useState(20);
+
+  const tips = [20, 10, 5, 25];
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity>
+          <Text style={styles.backArrow}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Leave Review</Text>
+      </View>
+
+      <View style={styles.iconContainer}>
+        <Image
+          source={require('./assets/review_icon.png')}
+          style={styles.icon}
+        />
+      </View>
+
+      <Text style={styles.title}>How was your Order?</Text>
+      <Text style={styles.subTitle}>Your overall rating</Text>
+
+      <View style={styles.starRow}>
+        {[1, 2, 3, 4, 5].map(item => (
+          <TouchableOpacity key={item} onPress={() => setRating(item)}>
+            <Text
+              style={[
+                styles.star,
+                {color: item <= rating ? '#F5A623' : '#E0E0E0'},
+              ]}>
+              ★
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <Text style={styles.label}>Add Detailed review</Text>
+      <TextInput
+        placeholder="Enter here"
+        placeholderTextColor="#BDBDBD"
+        style={styles.input}
+        multiline
+      />
+
+      <TouchableOpacity style={styles.photoRow}>
+        <Text style={styles.photoIcon}>🖼️</Text>
+        <Text style={styles.photoText}>Add Photo</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.tipLabel}>
+        Tip <Text style={{color: '#999'}}>(Select who is getting a tip)</Text>
+      </Text>
+
+      <View style={styles.tipPersonRow}>
+        {['Chef', 'Driver'].map(item => (
+          <TouchableOpacity
+            key={item}
+            onPress={() => setSelectedTipTo(item)}
+            style={[
+              styles.tipPersonBtn,
+              selectedTipTo === item && styles.tipPersonBtnActive,
+            ]}>
+            <Text
+              style={[
+                styles.tipPersonText,
+                selectedTipTo === item && styles.tipPersonTextActive,
+              ]}>
+              {item}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={styles.tipAmountRow}>
+        {tips.map(item => (
+          <TouchableOpacity
+            key={item}
+            onPress={() => setSelectedTip(item)}
+            style={[
+              styles.tipAmountBtn,
+              selectedTip === item && styles.tipAmountBtnActive,
+            ]}>
+            <Text
+              style={[
+                styles.tipAmountText,
+                selectedTip === item && styles.tipAmountTextActive,
+              ]}>
+              £{item}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <View style={styles.bottomRow}>
+        <TouchableOpacity style={styles.cancelBtn}>
+          <Text style={styles.cancelText}>Cancel</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.submitBtn}>
+          <Text style={styles.submitText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+};
+
+export default LeaveReviewScreen;
+
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#FFF'},
 
