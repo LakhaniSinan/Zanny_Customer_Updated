@@ -7,7 +7,7 @@ import {
   usePlatformPay,
 } from '@stripe/stripe-react-native';
 import moment from 'moment';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -25,7 +25,7 @@ import CartCard from '../../../components/cartCard';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import {STRIPE_PUBLISH_LIVE, colors} from '../../../constants';
+import {STRIPE_PUBLISH_TEST, colors} from '../../../constants';
 import {setCartData} from '../../../redux/slices/Cart';
 import {setCopiedCodeData} from '../../../redux/slices/ClaimedPromo';
 import {getAdminSettings} from '../../../services/adminSettings';
@@ -441,7 +441,7 @@ const CartScreen = () => {
 
       setLoading(true);
       try {
-        const amountInPence = Math.round(total);
+        const amountInPence = Math.round(Number(total) * 100);
 
         const intentRes = await createStripeClientSecret({
           amount: amountInPence,
@@ -518,7 +518,7 @@ const CartScreen = () => {
 
       setLoading(true);
       try {
-        const amountInPence = Math.round(total);
+        const amountInPence = Math.round(Number(total) * 100);
         const displayAmount = total.toFixed(2);
 
         const intentRes = await createStripeClientSecret({
@@ -537,7 +537,6 @@ const CartScreen = () => {
         console.log('Merchant ID: merchant.com.zannycustomer');
         console.log('Amount:', displayAmount, 'GBP');
 
-        // Try to confirm payment - Stripe SDK will handle device capability check
         const {error} = await confirmPlatformPayPayment(clientSecret, {
           applePay: {
             cartItems: [
@@ -903,7 +902,7 @@ const CartScreen = () => {
 
   return (
     <StripeProvider
-      publishableKey={STRIPE_PUBLISH_LIVE}
+      publishableKey={STRIPE_PUBLISH_TEST}
       merchantIdentifier="merchant.com.zannycustomer"
       urlScheme="zannysfood">
       <View style={{flex: 1, backgroundColor: colors.white}}>

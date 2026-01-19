@@ -7,7 +7,7 @@ import {
 } from '@react-navigation/stack';
 import {useEffect} from 'react';
 import {Platform} from 'react-native';
-import {openSettings, RESULTS} from 'react-native-permissions';
+import {RESULTS} from 'react-native-permissions';
 import {useDispatch, useSelector} from 'react-redux';
 import PaymentScreen from '../../components/stripePayment/PaymentScreen';
 import Address from '../../containers/app/address';
@@ -119,20 +119,18 @@ export function CustomerStack() {
 
   const handleGetCurrentLocation = async () => {
     try {
-      let status;
-
-      // ✅ iOS: direct request (check pe rely nahi)
-      // ✅ Android: check → request
-      if (Platform.OS === 'ios') {
-        status = await helper.requestLocationPermission();
-      } else {
-        status = await helper.checkLocation();
-        if (status !== RESULTS.GRANTED) {
-          status = await helper.requestLocationPermission();
-        }
-      }
+      let status = await helper.checkLocation();
+      console.log(status, 'statusstatusstatusstatus');
 
       if (status !== RESULTS.GRANTED) {
+        status = await helper.requestLocationPermission();
+      }
+
+      if (status !== 'granted') {
+        console.log(
+          'Location permission denied, using default Canada location',
+        );
+
         await AsyncStorage.setItem(
           'userCurrentAddress',
           JSON.stringify(DEFAULT_UK_LOCATION),
@@ -143,7 +141,6 @@ export function CustomerStack() {
       }
 
       const position = await helper.getCurrentLocation();
-
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
 
@@ -164,8 +161,9 @@ export function CustomerStack() {
 
       dispatch(setCurrentLocation(payload));
     } catch (error) {
-      console.log('Location error:', error);
+      console.log('getLatLngWithAddress error:', error);
 
+      // ❗ Safety fallback
       dispatch(setCurrentLocation(DEFAULT_UK_LOCATION));
     }
   };

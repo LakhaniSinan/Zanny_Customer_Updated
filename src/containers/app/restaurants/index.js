@@ -17,17 +17,17 @@ import {width} from 'react-native-dimension';
 import Carousel from 'react-native-snap-carousel';
 
 import {getMessaging} from '@react-native-firebase/messaging';
+import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons} from '../../../assets';
 import Category from '../../../components/categoryCard';
 import CustomModal from '../../../components/customModal';
 import HireCheifCard from '../../../components/hireChefCard';
 import SectionHeader from '../../../components/sectionHeader';
+import PermissionSlider from '../../../components/slider';
 import {Colors, colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {handleFetchHomeData} from '../../../redux/slices/HomeData';
-import PermissionSlider from '../../../components/slider';
-import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import RestaurantsSkeleton from './HomeSkeleton';
 
 const Restaurants = ({navigation}) => {
