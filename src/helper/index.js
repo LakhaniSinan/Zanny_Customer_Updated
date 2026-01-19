@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {Alert, Linking, Platform, Share} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import {check, PERMISSIONS} from 'react-native-permissions';
+import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import {notification} from '../constants/variables';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 
@@ -131,6 +131,21 @@ export const helper = {
       } else {
         Alert.alert('Share failed', error.message || String(error));
       }
+    }
+  },
+
+  async requestLocationPermission() {
+    try {
+      const permission =
+        Platform.OS === 'android'
+          ? PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
+          : PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
+
+      const status = await request(permission);
+      return status; // granted | denied | blocked
+    } catch (error) {
+      console.log('Request location error:', error);
+      return RESULTS.UNAVAILABLE;
     }
   },
 

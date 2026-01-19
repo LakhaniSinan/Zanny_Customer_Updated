@@ -24,6 +24,7 @@ import SectionHeader from '../../../components/sectionHeader';
 import {Colors, colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {handleFetchHomeData} from '../../../redux/slices/HomeData';
+import PermissionSlider from '../../../components/slider';
 
 const Restaurants = ({navigation}) => {
   const dispatch = useDispatch();
@@ -33,8 +34,7 @@ const Restaurants = ({navigation}) => {
   const {currentLocation} = useSelector(state => state.LocationSlice);
   const [searchQuery, setSearchQuery] = useState('');
   const {homeData} = useSelector(state => state.HomeDataSlice);
-  console.log(currentLocation, 'homeDatahomeDatahomeDatahomeDatahomeData');
-  // ✅ Custom Modal State
+
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     Icon: null,
@@ -44,7 +44,6 @@ const Restaurants = ({navigation}) => {
     onPress: () => setModalVisible(false),
   });
 
-  // ✅ SHOW "COMING SOON" MODAL
   const showComingSoon = () => {
     setModalData({
       Icon: null,
@@ -91,8 +90,6 @@ const Restaurants = ({navigation}) => {
 
   const renderRecommendedItem = useCallback(
     ({item}) => {
-      console.log(item, 'itemitemitemitemitemitemitem');
-
       return (
         <TouchableOpacity
           style={styles.recommendedCard}
@@ -183,6 +180,7 @@ const Restaurants = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      <PermissionSlider />
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.searchContainer}>

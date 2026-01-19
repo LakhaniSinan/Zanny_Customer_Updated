@@ -12,8 +12,6 @@ import BackButton from '../backIcon';
 import CustomModal from '../customModal';
 
 const CartCard = ({item, index}) => {
-  console.log(item, 'itemitemitemitemitemitemitem');
-
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const {cartData} = useSelector(state => state.CartSlice);

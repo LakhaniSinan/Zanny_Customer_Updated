@@ -25,7 +25,7 @@ import CartCard from '../../../components/cartCard';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import {STRIPE_PUBLISH_LIVE, colors} from '../../../constants';
+import {STRIPE_PUBLISH_TEST, colors} from '../../../constants';
 import {setCartData} from '../../../redux/slices/Cart';
 import {setCopiedCodeData} from '../../../redux/slices/ClaimedPromo';
 import {getAdminSettings} from '../../../services/adminSettings';
@@ -196,8 +196,11 @@ const CartScreen = () => {
         console.log('🔍 Platform Pay Support Check:');
         console.log('  - Supported:', supported);
         console.log('  - Platform:', Platform.OS);
-        console.log('  - Device Model:', Platform.OS === 'ios' ? 'iPhone' : 'Android');
-        
+        console.log(
+          '  - Device Model:',
+          Platform.OS === 'ios' ? 'iPhone' : 'Android',
+        );
+
         if (Platform.OS === 'ios') {
           // For iOS, always allow Apple Pay attempt - let Stripe SDK handle capability
           // The actual check happens when user tries to pay
@@ -207,8 +210,12 @@ const CartScreen = () => {
           } else {
             // Even if check fails, allow attempt - might be configuration issue
             setIsApplePaySupported(true);
-            console.log('⚠️ Platform Pay check returned false, but allowing Apple Pay attempt (iOS device)');
-            console.log('   Note: Actual capability will be checked during payment');
+            console.log(
+              '⚠️ Platform Pay check returned false, but allowing Apple Pay attempt (iOS device)',
+            );
+            console.log(
+              '   Note: Actual capability will be checked during payment',
+            );
           }
           setIsGooglePaySupported(false); // Google Pay not on iOS
         } else {
@@ -227,7 +234,9 @@ const CartScreen = () => {
         // On error, still allow Apple Pay on iOS (let Stripe handle it)
         if (Platform.OS === 'ios') {
           setIsApplePaySupported(true);
-          console.log('⚠️ Error checking support, but allowing Apple Pay attempt on iOS');
+          console.log(
+            '⚠️ Error checking support, but allowing Apple Pay attempt on iOS',
+          );
         } else {
           setIsApplePaySupported(false);
         }
@@ -504,18 +513,16 @@ const CartScreen = () => {
 
       console.log('🍎 Starting Apple Pay flow on iOS device');
       console.log('Total amount:', total);
-      
+
       setLoading(true);
       try {
-        // Convert total to pence (smallest currency unit) for Stripe
-        const amountInPence = Math.round(total * 100);
+        const amountInPence = Math.round(total);
         const displayAmount = total.toFixed(2);
 
-        console.log('💰 Creating payment intent for amount:', amountInPence, 'pence (£' + displayAmount + ')');
         const intentRes = await createStripeClientSecret({
           amount: amountInPence,
         });
-        
+
         if (!intentRes?.data?.secretKey) {
           console.error('❌ Failed to get client secret from server');
           throw new Error('Failed to create payment intent. Please try again.');
@@ -527,8 +534,7 @@ const CartScreen = () => {
         console.log('🍎 Attempting to confirm Apple Pay payment...');
         console.log('Merchant ID: merchant.com.zannycustomer');
         console.log('Amount:', displayAmount, 'GBP');
-        
-        // Try to confirm payment - Stripe SDK will handle device capability check
+
         const {error} = await confirmPlatformPayPayment(clientSecret, {
           applePay: {
             cartItems: [
@@ -553,16 +559,17 @@ const CartScreen = () => {
           console.error('❌ Apple Pay payment error:', error);
           console.error('Error code:', error.code);
           console.error('Error message:', error.message);
-          
+
           let errorMessage = 'Apple Pay payment failed. ';
           if (error.code === 'Canceled') {
             errorMessage = 'Apple Pay payment was cancelled.';
           } else if (error.message) {
             errorMessage += error.message;
           } else {
-            errorMessage += 'Please ensure Apple Pay is set up in Wallet app and try again.';
+            errorMessage +=
+              'Please ensure Apple Pay is set up in Wallet app and try again.';
           }
-          
+
           showModal({
             title: 'Payment Failed',
             message: errorMessage,
@@ -573,7 +580,7 @@ const CartScreen = () => {
 
         console.log('✅ Apple Pay payment successful!');
         console.log('📦 Placing order...');
-        
+
         const res = await placeUserOrder(orderPayload);
         if (res?.status === 200 || res?.status === 201) {
           console.log('✅ Order placed successfully');
@@ -588,7 +595,7 @@ const CartScreen = () => {
       } catch (err) {
         console.error('❌ payWithApple exception:', err);
         console.error('Error details:', JSON.stringify(err, null, 2));
-        
+
         let errorMessage = 'Apple Pay failed. ';
         if (err?.message) {
           errorMessage += err.message;
@@ -597,7 +604,7 @@ const CartScreen = () => {
         } else {
           errorMessage += 'Please try again or contact support.';
         }
-        
+
         showModal({
           title: 'Error',
           message: errorMessage,
@@ -606,12 +613,7 @@ const CartScreen = () => {
         setLoading(false);
       }
     },
-    [
-      total,
-      confirmPlatformPayPayment,
-      afterOrderSuccess,
-      showModal,
-    ],
+    [total, confirmPlatformPayPayment, afterOrderSuccess, showModal],
   );
 
   const handleOrderNow = useCallback(async () => {
@@ -639,8 +641,8 @@ const CartScreen = () => {
       discount: promoData?.discount || 0,
       date: moment().format('DD-MM-YYYY'),
       merchantId: cartData[0]?.merchantId,
-      latitude: selectedAddress?.latitude || 0,
-      longitude: selectedAddress?.longitude || 0,
+      latitude: currentLocation?.latitude || 0,
+      longitude: currentLocation?.longitude || 0,
       userDetails: {
         email: user?.email,
         name: user?.name,
@@ -664,7 +666,6 @@ const CartScreen = () => {
 
     console.log(payload, 'payloadpayloadpayloadpayloadpayloadlkasbndlksa');
 
-    // Route to correct payment flow
     if (wallet?.paymentMethodId === 'GOOGLE_PAY') {
       await payWithGoogle(payload);
       return;
@@ -898,7 +899,7 @@ const CartScreen = () => {
 
   return (
     <StripeProvider
-      publishableKey={STRIPE_PUBLISH_LIVE}
+      publishableKey={STRIPE_PUBLISH_TEST}
       merchantIdentifier="merchant.com.zannycustomer"
       urlScheme="zannysfood">
       <View style={{flex: 1, backgroundColor: colors.white}}>

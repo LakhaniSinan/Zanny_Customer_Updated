@@ -1,12 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CommonActions} from '@react-navigation/native';
-import React, {useCallback, useEffect, useMemo, useState, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
+  Alert,
+  Linking,
   RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
+  View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
@@ -26,6 +29,8 @@ import {setCurrentLocation} from '../../../redux/slices/Location';
 import {setOrderType} from '../../../redux/slices/OrderType';
 import {setPaymentType} from '../../../redux/slices/PaymentType';
 
+import PrimaryButton from '../../../components/primaryButton';
+import {helper} from '../../../helper';
 import {
   addAddress,
   checkAddressCahngeIsPossible,
@@ -70,6 +75,7 @@ const Address = ({navigation, route}) => {
     }, 500);
   };
 
+  /* ---------------- MODAL HELPER ---------------- */
   const openModal = config => {
     modalQueueRef.current.push(config);
     processModalQueue();
@@ -123,23 +129,16 @@ const Address = ({navigation, route}) => {
     try {
       setIsLoading(true);
       const res = await deleteAddress(id);
-      if (res.status == 200 || res.status == 201) {
-        openModal({
-          Icon: icons.check,
-          name: 'Success',
-          detail: res?.data?.message,
-          onConfirm: () => {
-            setModalVisible(false);
-            dispatch(handelGetAddress());
-          },
-        });
-      } else {
-        openModal({
-          Icon: icons.cross,
-          name: 'Error',
-          detail: res?.data?.message,
-        });
-      }
+
+      openModal({
+        Icon: icons.check,
+        name: 'Success',
+        detail: res?.data?.message,
+        onConfirm: () => {
+          setModalVisible(false);
+          dispatch(handelGetAddress());
+        },
+      });
     } catch (e) {
       console.log(e);
     } finally {
@@ -235,7 +234,6 @@ const Address = ({navigation, route}) => {
     }
   };
 
-  /* ---------------- ADD / UPDATE ---------------- */
   const handleAddOrUpdate = async formData => {
     setShowAddressPopup(false);
 
@@ -272,7 +270,6 @@ const Address = ({navigation, route}) => {
     }
   };
 
-  /* ---------------- MEMOIZED LIST ---------------- */
   const addressList = useMemo(() => {
     return address?.map(item => (
       <AddressCard
@@ -289,7 +286,48 @@ const Address = ({navigation, route}) => {
     ));
   }, [address]);
 
-  /* ---------------- UI ---------------- */
+  const handleGetCurrentLocation = async () => {
+    try {
+      const status = await helper.checkLocation();
+      console.log(status, 'statusstatusstatusstatusstatus');
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Location Required',
+          'Please allow location permission to continue',
+          [
+            {text: 'Cancel', style: 'cancel'},
+            {text: 'Open Settings', onPress: () => Linking.openSettings()},
+          ],
+        );
+        return null;
+      }
+      const position = await helper.getCurrentLocation();
+
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      let address = '';
+      try {
+        address = await helper.getLocationAddress(latitude, longitude);
+      } catch (err) {
+        console.log('Address error:', err);
+      }
+      let payload = {
+        latitude,
+        longitude,
+        address,
+      };
+      console.log(payload, 'THISNNNNNNNNNN');
+
+      await AsyncStorage.setItem('userCurrentAddress', JSON.stringify(payload));
+      dispatch(setCurrentLocation(payload));
+      navigation.goBack();
+    } catch (error) {
+      console.log('getLatLngWithAddress error:', error);
+      return null;
+    }
+  };
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
       <OverLayLoader isloading={isLoading} />
@@ -306,13 +344,29 @@ const Address = ({navigation, route}) => {
       />
 
       <ScrollView
+        style={{flex: 1}}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }>
         {address?.length > 0 ? (
           addressList
         ) : (
-          <Text style={styles.empty}>No Saved Address Found</Text>
+          <View style={{flex: 1, alignItems: 'center'}}>
+            <Text style={styles.empty}>
+              No Saved Address Found, Or Select your current location.
+            </Text>
+            <View
+              style={{
+                height: width(10),
+                width: width(60),
+                marginTop: width(3),
+              }}>
+              <PrimaryButton
+                name={'Get Current Location'}
+                onPress={handleGetCurrentLocation}
+              />
+            </View>
+          </View>
         )}
       </ScrollView>
 
@@ -344,6 +398,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: colors.black,
+    width: width(70),
   },
 });
 
