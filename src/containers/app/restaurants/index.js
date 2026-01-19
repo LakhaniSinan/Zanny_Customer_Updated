@@ -1,5 +1,6 @@
 import React, {memo, useCallback, useEffect, useRef, useState} from 'react';
 import {
+  Alert,
   FlatList,
   Image,
   ImageBackground,
@@ -25,6 +26,8 @@ import {Colors, colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {handleFetchHomeData} from '../../../redux/slices/HomeData';
 import PermissionSlider from '../../../components/slider';
+import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
+import RestaurantsSkeleton from './HomeSkeleton';
 
 const Restaurants = ({navigation}) => {
   const dispatch = useDispatch();
@@ -37,6 +40,9 @@ const Restaurants = ({navigation}) => {
   console.log(homeData, 'homeDatahomeDatahomeDatahomeDatahomeData');
   console.log(currentLocation, 'homeDatahomeDatahomeDatahomeDatahomeData');
   // ✅ Custom Modal State
+  const [status, setStatus] = useState('');
+  console.log(status, 'statusstatusstatusstatus');
+
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     Icon: null,
@@ -80,6 +86,25 @@ const Restaurants = ({navigation}) => {
     await dispatch(handleFetchHomeData(data));
     setIsLoading(false);
   };
+
+  const checkPermission = async () => {
+    let result = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+    setStatus(result);
+    if (result === RESULTS.DENIED) {
+      const req = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+      setStatus(req);
+      console.log('Request result:', req);
+    } else if (result === RESULTS.BLOCKED) {
+      Alert.alert(
+        'Permission Blocked',
+        'Location permission is blocked. Go to Settings to enable it.',
+      );
+    }
+  };
+
+  useEffect(() => {
+    checkPermission();
+  }, [currentLocation]);
 
   const renderStars = useCallback((rating = 5) => {
     const rounded = Math.round(rating);
@@ -181,192 +206,196 @@ const Restaurants = ({navigation}) => {
   );
 
   return (
-    <View style={styles.container}>
-      <PermissionSlider />
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.searchContainer}>
-          <Image source={icons.MagnifyingGlass} style={styles.searchIcon} />
-          <TextInput
-            placeholder="Search food"
-            placeholderTextColor={Colors.gray}
-            style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            returnKeyType="search" // ✅ Show search button on keyboard
-            onSubmitEditing={() => {
-              if (searchQuery.trim() !== '') {
-                navigation.navigate('AllFoodScreen', {search: searchQuery});
-              }
-            }}
-          />
-        </View>
-
-        <TouchableOpacity
-          style={styles.headerIconButton}
-          onPress={() => navigation.navigate('AllVouchers')}>
-          <Image source={icons.Ticket} style={styles.headerIcon} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate('CartScreen')}
-          style={styles.headerIconButton}>
-          <Image source={icons.ShoppingCart} style={styles.headerIcon} />
-        </TouchableOpacity>
-        {cartData?.length > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{cartData.length}</Text>
-          </View>
-        )}
-      </View>
-
-      {/* MAIN SCROLL */}
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoading}
-            onRefresh={getHomeData}
-            colors={[Colors.orange]}
-          />
-        }>
-        {/* Banner Slider */}
-        <View style={{}}>
-          <Carousel
-            ref={carouselRef}
-            data={homeData?.banners || []}
-            renderItem={renderCarousel}
-            sliderWidth={width(100)}
-            itemWidth={width(100)}
-            loop
-            autoplay
-            autoplayInterval={5000}
-            inactiveSlideOpacity={0.7}
-            inactiveSlideScale={0.8}
-            onSnapToItem={index => setActiveIndex(index)}
-          />
-
-          <View style={styles.paginationDots}>
-            {(homeData?.banners || []).map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.dot,
-                  {
-                    backgroundColor:
-                      activeIndex === index ? Colors.white : 'gray',
-                  },
-                ]}
-              />
-            ))}
-          </View>
-        </View>
-
-        {/* Delivery Address */}
-        <TouchableOpacity
-          onPress={
-            user
-              ? () => navigation.navigate('Address')
-              : () => navigation.navigate('Profile')
-          }
-          style={styles.addressContainer}>
-          <View style={styles.addressLeft}>
-            <View style={styles.addressIconContainer}>
-              <Image
-                source={icons.location}
-                style={styles.addressIcon}
-                resizeMode="contain"
+    <>
+      {homeData ? (
+        <View style={styles.container}>
+          {status !== 'granted' && <PermissionSlider />}
+          <View style={styles.header}>
+            <View style={styles.searchContainer}>
+              <Image source={icons.MagnifyingGlass} style={styles.searchIcon} />
+              <TextInput
+                placeholder="Search food"
+                placeholderTextColor={Colors.gray}
+                style={styles.searchInput}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                returnKeyType="search" // ✅ Show search button on keyboard
+                onSubmitEditing={() => {
+                  if (searchQuery.trim() !== '') {
+                    navigation.navigate('AllFoodScreen', {search: searchQuery});
+                  }
+                }}
               />
             </View>
 
-            <View>
-              <Text style={styles.addressTitle}>Delivery Address</Text>
-              <Text style={styles.addressText} numberOfLines={1}>
-                {currentLocation?.address || 'No address available'}
-              </Text>
-            </View>
-          </View>
+            <TouchableOpacity
+              style={styles.headerIconButton}
+              onPress={() => navigation.navigate('AllVouchers')}>
+              <Image source={icons.Ticket} style={styles.headerIcon} />
+            </TouchableOpacity>
 
-          <Image source={icons.CaretRight} style={styles.arrowIcon} />
-        </TouchableOpacity>
-
-        {/* Delicacies */}
-        <View style={styles.sectionWrapper}>
-          <SectionHeader
-            name="Delicacies"
-            action="See All"
-            onPress={() => navigation.navigate('AllFoodScreen')}
-            color={Colors.redish}
-          />
-        </View>
-
-        <FlatList
-          data={homeData?.products?.slice(0, 6) || []} // take first 6 items
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={renderRecommendedItem}
-        />
-
-        {/* Categories */}
-        <View style={styles.sectionWrapper}>
-          <SectionHeader
-            name="Category"
-            action="See All"
-            onPress={() =>
-              navigation.navigate('AllCategories', homeData?.foodCategories)
-            }
-          />
-
-          <FlatList
-            data={homeData?.foodCategories?.slice(0, 6) || []}
-            renderItem={({item}) => (
-              <Category
-                item={item}
-                onPress={item => navigation.navigate('AllFoodScreen', item)}
-              />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('CartScreen')}
+              style={styles.headerIconButton}>
+              <Image source={icons.ShoppingCart} style={styles.headerIcon} />
+            </TouchableOpacity>
+            {cartData?.length > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{cartData.length}</Text>
+              </View>
             )}
-            keyExtractor={item => item?.id}
-            numColumns={3}
-            columnWrapperStyle={styles.categoryRow}
-          />
-        </View>
+          </View>
 
-        <View style={styles.sectionWrapper}>
-          <SectionHeader
-            name="Hire a Chef"
-            action="See All"
-            onPress={() => navigation.navigate('AllChefs')}
-          />
-        </View>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={isLoading}
+                onRefresh={getHomeData}
+                colors={[Colors.orange]}
+              />
+            }>
+            {/* Banner Slider */}
+            <View style={{}}>
+              <Carousel
+                ref={carouselRef}
+                data={homeData?.banners || []}
+                renderItem={renderCarousel}
+                sliderWidth={width(100)}
+                itemWidth={width(100)}
+                loop
+                autoplay
+                autoplayInterval={5000}
+                inactiveSlideOpacity={0.7}
+                inactiveSlideScale={0.8}
+                onSnapToItem={index => setActiveIndex(index)}
+              />
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: width(3),
-            paddingBottom: width(3),
-            paddingRight: width(50),
-            gap: width(3),
-          }}>
-          {homeData?.merchants?.map((item, index) => (
-            <HireCheifCard
-              key={item?._id || item?.id || index}
-              item={item}
-              handleHireChef={showComingSoon}
+              <View style={styles.paginationDots}>
+                {(homeData?.banners || []).map((_, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.dot,
+                      {
+                        backgroundColor:
+                          activeIndex === index ? Colors.white : 'gray',
+                      },
+                    ]}
+                  />
+                ))}
+              </View>
+            </View>
+
+            {/* Delivery Address */}
+            <TouchableOpacity
+              onPress={
+                user
+                  ? () => navigation.navigate('Address')
+                  : () => navigation.navigate('Profile')
+              }
+              style={styles.addressContainer}>
+              <View style={styles.addressLeft}>
+                <View style={styles.addressIconContainer}>
+                  <Image
+                    source={icons.location}
+                    style={styles.addressIcon}
+                    resizeMode="contain"
+                  />
+                </View>
+
+                <View>
+                  <Text style={styles.addressTitle}>Delivery Address</Text>
+                  <Text style={styles.addressText} numberOfLines={1}>
+                    {currentLocation?.address || 'No address available'}
+                  </Text>
+                </View>
+              </View>
+
+              <Image source={icons.CaretRight} style={styles.arrowIcon} />
+            </TouchableOpacity>
+
+            {/* Delicacies */}
+            <View style={styles.sectionWrapper}>
+              <SectionHeader
+                name="Delicacies"
+                action="See All"
+                onPress={() => navigation.navigate('AllFoodScreen')}
+                color={Colors.redish}
+              />
+            </View>
+
+            <FlatList
+              data={homeData?.products?.slice(0, 6) || []} // take first 6 items
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={renderRecommendedItem}
             />
-          ))}
-        </ScrollView>
-        <CustomModal
-          visible={modalVisible}
-          Icon={modalData.Icon}
-          name={modalData.title}
-          detail={modalData.detail}
-          buttonName={modalData.buttonName}
-          onPress={modalData.onPress}
-          close={() => setModalVisible(false)}
-        />
-      </ScrollView>
-    </View>
+
+            {/* Categories */}
+            <View style={styles.sectionWrapper}>
+              <SectionHeader
+                name="Category"
+                action="See All"
+                onPress={() =>
+                  navigation.navigate('AllCategories', homeData?.foodCategories)
+                }
+              />
+
+              <FlatList
+                data={homeData?.foodCategories?.slice(0, 6) || []}
+                renderItem={({item}) => (
+                  <Category
+                    item={item}
+                    onPress={item => navigation.navigate('AllFoodScreen', item)}
+                  />
+                )}
+                keyExtractor={item => item?.id}
+                numColumns={3}
+                columnWrapperStyle={styles.categoryRow}
+              />
+            </View>
+
+            <View style={styles.sectionWrapper}>
+              <SectionHeader
+                // name="Hire a Chef"
+                action="See All"
+                onPress={() => navigation.navigate('AllChefs')}
+              />
+            </View>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingHorizontal: width(3),
+                paddingBottom: width(3),
+                paddingRight: width(50),
+                gap: width(3),
+              }}>
+              {homeData?.merchants?.map((item, index) => (
+                <HireCheifCard
+                  key={item?._id || item?.id || index}
+                  item={item}
+                  handleHireChef={showComingSoon}
+                />
+              ))}
+            </ScrollView>
+            <CustomModal
+              visible={modalVisible}
+              Icon={modalData.Icon}
+              name={modalData.title}
+              detail={modalData.detail}
+              buttonName={modalData.buttonName}
+              onPress={modalData.onPress}
+              close={() => setModalVisible(false)}
+            />
+          </ScrollView>
+        </View>
+      ) : (
+        <RestaurantsSkeleton />
+      )}
+    </>
   );
 };
 

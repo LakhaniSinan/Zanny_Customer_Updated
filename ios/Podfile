@@ -1,4 +1,6 @@
 # Resolve react_native_pods.rb with node to allow for hoisting
+require_relative '../node_modules/react-native-permissions/scripts/setup'
+
 require Pod::Executable.execute_command('node', ['-p',
   'require.resolve(
     "react-native/scripts/react_native_pods.rb",
@@ -16,6 +18,10 @@ pod 'FirebaseCore', :modular_headers => true
 
 # Firebase Messaging Pod (for push notifications)
 pod 'FirebaseMessaging', :modular_headers => true
+
+setup_permissions([
+  'LocationWhenInUse',
+])
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil

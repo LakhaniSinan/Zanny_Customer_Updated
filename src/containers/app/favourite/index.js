@@ -14,6 +14,7 @@ import {colors, Colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {setCartData} from '../../../redux/slices/Cart';
 import {addToFavFun, getUserFavProFun} from '../../../services/favourite';
+import HistoryCardSkeleton from '../../../components/cardSkeleton/OrderSkeleton';
 
 const Favourite = () => {
   const navigation = useNavigation();
@@ -188,16 +189,20 @@ const Favourite = () => {
       <AppHeader goBack={true} cartIcon={true} text="Favourite" />
 
       <FlatList
-        data={favoritesData}
+        data={loading ? [1, 2, 3] : favoritesData}
         keyExtractor={item => item._id}
-        renderItem={({item}) => (
-          <FoodCard
-            item={item}
-            handleAddToCart={handleAddToCart}
-            onFavPress={handleFavToggle}
-            handleShareProduct={handleShareProduct}
-          />
-        )}
+        renderItem={({item}) => {
+          return loading ? (
+            <HistoryCardSkeleton />
+          ) : (
+            <FoodCard
+              item={item}
+              handleAddToCart={handleAddToCart}
+              onFavPress={handleFavToggle}
+              handleShareProduct={handleShareProduct}
+            />
+          );
+        }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={!loading && renderEmptyComponent()}
         refreshing={refreshing}
@@ -217,7 +222,7 @@ const Favourite = () => {
         close={() => setModalVisible(false)}
       />
 
-      <OverLayLoader isloading={loading} />
+      {/* <OverLayLoader isloading={loading} /> */}
     </View>
   );
 };

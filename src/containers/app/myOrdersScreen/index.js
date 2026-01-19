@@ -22,6 +22,7 @@ import OverLayLoader from '../../../components/loader';
 import {colors, Colors} from '../../../constants';
 import {getAllOrdersByCustomerId} from '../../../services/order';
 import {setCartData} from '../../../redux/slices/Cart';
+import HistoryCardSkeleton from '../../../components/cardSkeleton/OrderSkeleton';
 
 const MyOrdersScreen = () => {
   const navigation = useNavigation();
@@ -209,19 +210,21 @@ const MyOrdersScreen = () => {
 
       {/* 📦 ORDERS LIST */}
       <FlatList
-        data={filteredOrders}
+        data={loading ? [1, 1, 1] : filteredOrders}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
-          <HistoryCard item={item} handleAddToCart={handleAddToCart} />
-        )}
+        renderItem={({item}) => {
+          return loading ? (
+            <HistoryCardSkeleton />
+          ) : (
+            <HistoryCard item={item} handleAddToCart={handleAddToCart} />
+          );
+        }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={!loading && renderEmptyComponent()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
-
-      <OverLayLoader isloading={loading} />
 
       <CustomModal
         visible={modalVisible}
