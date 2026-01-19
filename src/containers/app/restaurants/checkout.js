@@ -78,7 +78,12 @@ const Checkout = ({navigation}) => {
     (async function () {
       try {
         const supported = await isPlatformPaySupported();
-        console.log('Platform Pay Supported:', supported, 'Platform:', Platform.OS);
+        console.log(
+          'Platform Pay Supported:',
+          supported,
+          'Platform:',
+          Platform.OS,
+        );
         if (supported) {
           if (Platform.OS === 'android') {
             setIsGooglePaySupported(true);
@@ -346,14 +351,18 @@ const Checkout = ({navigation}) => {
     try {
       const totalAmount = orderBill.subTotal + deliveryCharges;
       // Convert amount to pence (smallest currency unit) for Stripe
-      const amountInPence = Math.round(totalAmount * 100);
+      const amountInPence = Math.round(totalAmount);
       const displayAmount = totalAmount.toFixed(2);
 
-      console.log('Creating payment intent for amount:', amountInPence, 'pence (£' + displayAmount + ')');
+      console.log(
+        'Creating payment intent for amount:',
+        amountInPence,
+        'pence (£' + displayAmount + ')',
+      );
       const intentRes = await createStripeClientSecret({
         amount: amountInPence,
       });
-      
+
       if (!intentRes?.data?.secretKey) {
         throw new Error('Failed to create payment intent');
       }
@@ -389,7 +398,7 @@ const Checkout = ({navigation}) => {
       console.log('Apple Pay payment successful, placing order...');
       setIsLoading(true);
       const res = await placeUserOrder(orderPayload);
-      
+
       if (res?.status === 200 || res?.status === 201) {
         setIsLoading(false);
         alert(res.data.message);
@@ -403,7 +412,11 @@ const Checkout = ({navigation}) => {
     } catch (err) {
       setIsLoading(false);
       console.log('payWithApple err', err);
-      alert(err?.response?.data?.message || err?.message || 'Apple Pay failed. Please try again.');
+      alert(
+        err?.response?.data?.message ||
+          err?.message ||
+          'Apple Pay failed. Please try again.',
+      );
     }
   };
 
