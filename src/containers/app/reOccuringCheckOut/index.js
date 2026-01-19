@@ -122,15 +122,17 @@ const ReOccuringCheckout = ({route}) => {
       .filter(p => p.isSelected);
   }, [selectedDates]);
 
-  const preparedOrderItems = checkoutItems.map(item => ({
-    ...item,
-
-    date: moment(data?.selectedDate || selectedDates[0]?.date).format(
-      'YYYY-MM-DD',
-    ),
-
-    time: moment(data?.time).format('HH:mm'),
-  }));
+  const preparedOrderItems = useMemo(() => {
+    return selectedDates.flatMap(d =>
+      (d.products || [])
+        .filter(p => p.isSelected)
+        .map(p => ({
+          ...p,
+          date: moment(d.date).format('YYYY-MM-DD'), // ✅ apni date
+          time: moment(data?.time).format('HH:mm'),
+        })),
+    );
+  }, [selectedDates, data?.time]);
 
   const [note, setNote] = useState('');
 
