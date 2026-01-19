@@ -287,9 +287,10 @@ const Address = ({navigation, route}) => {
   }, [address]);
 
   const handleGetCurrentLocation = async () => {
+    console.log('handleGetCurrentLocation called');
+
     try {
       const status = await helper.checkLocation();
-      console.log(status, 'statusstatusstatusstatusstatus');
 
       if (status !== 'granted') {
         Alert.alert(
@@ -300,31 +301,43 @@ const Address = ({navigation, route}) => {
             {text: 'Open Settings', onPress: () => Linking.openSettings()},
           ],
         );
-        return null;
+        return;
       }
+
       const position = await helper.getCurrentLocation();
 
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
+      if (!position || !position.coords) {
+        throw new Error('Location not available');
+      }
+
+      const {latitude, longitude} = position.coords;
+
       let address = '';
       try {
         address = await helper.getLocationAddress(latitude, longitude);
       } catch (err) {
         console.log('Address error:', err);
       }
-      let payload = {
+
+      const payload = {
         latitude,
         longitude,
         address,
       };
-      console.log(payload, 'THISNNNNNNNNNN');
+
+      console.log('Current location payload:', payload);
 
       await AsyncStorage.setItem('userCurrentAddress', JSON.stringify(payload));
       dispatch(setCurrentLocation(payload));
+
       navigation.goBack();
     } catch (error) {
-      console.log('getLatLngWithAddress error:', error);
-      return null;
+      console.log('getLatLngWithAddress error:', error?.code, error?.message);
+
+      Alert.alert(
+        'Location Error',
+        error?.message || 'Unable to get current location',
+      );
     }
   };
 
