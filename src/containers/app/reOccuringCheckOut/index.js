@@ -111,12 +111,26 @@ const ReOccuringCheckout = ({route}) => {
   const [promoData, setPromoData] = useState(null);
   const [merchantDetails, setMerchantDetails] = useState(null);
   const [selectedDates, setSelectedDates] = useState(selected);
+  console.log(
+    selectedDates,
+    'selectedDatesselectedDatesselectedDatesselectedDatesselectedDates',
+  );
 
   const checkoutItems = useMemo(() => {
     return selectedDates
       .flatMap(d => d.products || [])
       .filter(p => p.isSelected);
   }, [selectedDates]);
+
+  const preparedOrderItems = checkoutItems.map(item => ({
+    ...item,
+
+    date: moment(data?.selectedDate || selectedDates[0]?.date).format(
+      'YYYY-MM-DD',
+    ),
+
+    time: moment(data?.time).format('HH:mm'),
+  }));
 
   const [note, setNote] = useState('');
 
@@ -384,7 +398,8 @@ const ReOccuringCheckout = ({route}) => {
       });
 
     const payload = {
-      order: checkoutItems,
+      order: preparedOrderItems,
+
       tip: 0,
 
       userId: user?._id,

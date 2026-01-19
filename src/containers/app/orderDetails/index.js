@@ -103,7 +103,8 @@ const OrderDetail = ({navigation, route}) => {
     setIsloding(true);
     updateOrderStatus(payload)
       .then(response => {
-        if (response?.data?.status == 'ok') {
+        setIsloding(false);
+        if (response?.status == 200 || response?.status == 201) {
           openModal({
             type: 'success',
             Icon: icons.check,
@@ -316,6 +317,27 @@ const OrderDetail = ({navigation, route}) => {
     }
   };
 
+  console.log(data.order, 'data.orderdata.order');
+
+  const groupedOrders =
+    data?.orderCategory === 'daily'
+      ? Object.values(
+          (data?.order || []).reduce((acc, item) => {
+            const dateKey = item.date;
+
+            if (!acc[dateKey]) {
+              acc[dateKey] = {
+                date: dateKey,
+                items: [],
+              };
+            }
+
+            acc[dateKey].items.push(item);
+            return acc;
+          }, {}),
+        )
+      : data?.order;
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <AppHeader text="Order Details" goBack={true} />
@@ -356,7 +378,9 @@ const OrderDetail = ({navigation, route}) => {
             <Text style={styles.orderNumberText}>#{data.orderId}</Text>
           </View>
 
-          {data.order?.map((item, ind) => {
+          {/* {data.order?.map((item, ind) => {
+            console.log(item, 'itemitemitemitemitemitemitemitem');
+
             return (
               <View key={ind}>
                 <View style={styles.orderItemContainer}>
@@ -385,7 +409,79 @@ const OrderDetail = ({navigation, route}) => {
                 )}
               </View>
             );
-          })}
+          })} */}
+          {data?.orderCategory === 'daily'
+            ? groupedOrders.map((group, gIndex) => (
+                <View key={gIndex}>
+                  {/* DATE HEADING */}
+                  <Text
+                    style={{
+                      fontFamily: fontFamily.poppinBold,
+                      fontSize: 16,
+                      marginVertical: width(2),
+                      color: colors.black,
+                    }}>
+                    {moment(group.date).format('dddd, MMM D')}
+                  </Text>
+
+                  {group.items.map((item, ind) => (
+                    <View key={ind}>
+                      <View style={styles.orderItemContainer}>
+                        <Image
+                          source={{
+                            uri:
+                              item?.image ||
+                              item?.productImage ||
+                              'https://via.placeholder.com/100',
+                          }}
+                          style={styles.orderItemImage}
+                          resizeMode="cover"
+                        />
+                        <View style={styles.orderItemDetails}>
+                          <Text style={styles.orderItemName}>{item.name}</Text>
+                          <Text style={styles.orderItemPrice}>
+                            £{item?.discount > 0 ? item?.discount : item?.price}
+                          </Text>
+                          <Text style={styles.orderItemQty}>
+                            x{item.quantity || item.selectedQty || 1}
+                          </Text>
+                        </View>
+                      </View>
+                      {ind < group.items.length - 1 && (
+                        <View style={styles.itemSeparator} />
+                      )}
+                    </View>
+                  ))}
+                </View>
+              ))
+            : data.order?.map((item, ind) => (
+                <View key={ind}>
+                  <View style={styles.orderItemContainer}>
+                    <Image
+                      source={{
+                        uri:
+                          item?.image ||
+                          item?.productImage ||
+                          'https://via.placeholder.com/100',
+                      }}
+                      style={styles.orderItemImage}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.orderItemDetails}>
+                      <Text style={styles.orderItemName}>{item.name}</Text>
+                      <Text style={styles.orderItemPrice}>
+                        £{item?.discount > 0 ? item?.discount : item?.price}
+                      </Text>
+                      <Text style={styles.orderItemQty}>
+                        x{item.quantity || item.selectedQty || 1}
+                      </Text>
+                    </View>
+                  </View>
+                  {ind < data.order.length - 1 && (
+                    <View style={styles.itemSeparator} />
+                  )}
+                </View>
+              ))}
 
           <View style={styles.chefSection}>
             <Text style={styles.chefLabel}>Chef's Name</Text>
