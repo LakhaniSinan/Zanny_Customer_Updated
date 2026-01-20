@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useEffect, useState} from 'react';
 import {
   FlatList,
@@ -15,16 +16,17 @@ import FoodCard from '../../../components/foodCard';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import {colors} from '../../../constants';
+import {helper} from '../../../helper';
 import {setCartData} from '../../../redux/slices/Cart';
 import {addToFavFun} from '../../../services/favourite';
 import {getMerchantProAndDetails} from '../../../services/merchant';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChefDetails = ({route, navigation}) => {
   const {merchantId} = route.params;
   const {user} = useSelector(state => state.LoginSlice);
   const dispatch = useDispatch(null);
   const {cartData} = useSelector(state => state.CartSlice);
+  const {currentLocation} = useSelector(state => state.LocationSlice);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     Icon: '',
@@ -228,6 +230,24 @@ const ChefDetails = ({route, navigation}) => {
                 item={item}
                 handleAddToCart={handleAddToCart}
                 onFavPress={handleFavToggle}
+                handleShareProduct={item => {
+                  if (!item?._id) {
+                    return;
+                  }
+
+                  const productLink = `https://zannysfood.com/app/ProductDetail/${item?._id}`;
+                  const deepLink = `zannysfood://app/ProductDetail/${item?._id}`;
+
+                  helper.handleShare(
+                    `Check out ${item?.name || 'this product'}`,
+                    {
+                      title: item?.name,
+                      webLink: productLink,
+                      deepLink,
+                    },
+                  );
+                }}
+                currentLocation={currentLocation}
               />
             );
           }}
