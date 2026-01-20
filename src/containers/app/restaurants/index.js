@@ -266,7 +266,6 @@ const Restaurants = ({navigation}) => {
                 colors={[Colors.orange]}
               />
             }>
-            {/* Banner Slider */}
             <View style={{}}>
               <Carousel
                 ref={carouselRef}
@@ -298,7 +297,6 @@ const Restaurants = ({navigation}) => {
               </View>
             </View>
 
-            {/* Delivery Address */}
             <TouchableOpacity
               onPress={
                 user
