@@ -21,7 +21,7 @@ const Favourite = () => {
   const dispatch = useDispatch();
   const {user} = useSelector(state => state.LoginSlice);
   const {cartData} = useSelector(state => state.CartSlice);
-
+  const {currentLocation} = useSelector(state => state.LocationSlice);
   const [favoritesData, setFavoritesData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -199,6 +199,7 @@ const Favourite = () => {
               item={item}
               handleAddToCart={handleAddToCart}
               onFavPress={handleFavToggle}
+              currentLocation={currentLocation}
               handleShareProduct={handleShareProduct}
             />
           );

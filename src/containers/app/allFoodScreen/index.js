@@ -35,6 +35,7 @@ const AllFoodScreen = ({route}) => {
   const [initialLoading, setInitialLoading] = useState(true); // First load
   const [loading, setLoading] = useState(false); // Infinite scroll loader
   const [refreshing, setRefreshing] = useState(false); // Pull-to-refresh loader
+  const {currentLocation} = useSelector(state => state.LocationSlice);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -79,7 +80,6 @@ const AllFoodScreen = ({route}) => {
       </View>
     );
 
-  // ⭐ FETCH PRODUCTS
   const fetchProducts = useCallback(
     async (reset = false) => {
       if (loading || (!hasMore && !reset)) return;
@@ -97,12 +97,21 @@ const AllFoodScreen = ({route}) => {
           page: reset ? 1 : page,
           limit: 10,
         };
+
         if (data?._id) params.categoryId = data._id;
         if (user?._id) params.userId = user._id;
         if (user?._id) params.searchQuery = data?.search;
+
+        // ✅ ADD CURRENT USER LAT/LNG
+        if (currentLocation?.latitude && currentLocation?.longitude) {
+          params.latitude = currentLocation.latitude;
+          params.longitude = currentLocation.longitude;
+        }
+
         console.log(params, 'paramsparamsparamsparams');
 
         const res = await getAllProducts(params);
+
         if (res.status === 200) {
           const newProducts = res?.data?.data || [];
           const totalPages = res?.data?.totalPages || 1;
@@ -128,7 +137,7 @@ const AllFoodScreen = ({route}) => {
         setRefreshing(false);
       }
     },
-    [page, loading, hasMore, user?._id],
+    [page, loading, hasMore, user?._id, currentLocation],
   );
 
   useEffect(() => {
@@ -250,6 +259,7 @@ const AllFoodScreen = ({route}) => {
             handleAddToCart={handleAddToCart}
             onFavPress={onFavPress}
             handleShareProduct={() => handleShareProduct(item)}
+            currentLocation={currentLocation}
           />
         )}
         ListEmptyComponent={<ListEmpty />}

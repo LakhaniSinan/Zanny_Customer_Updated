@@ -63,7 +63,7 @@ const PreOrderCard = ({
                   fontFamily: fontFamily.poppinRegular,
                   marginTop: width(1),
                 }}>
-                {'4.8 (120+)  2.8 km away'}
+                {'5.0   2.8 km away'}
               </Text>
             </View>
           )}

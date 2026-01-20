@@ -121,66 +121,69 @@ const Restaurants = ({navigation}) => {
   const renderRecommendedItem = useCallback(
     ({item}) => {
       return (
-        <TouchableOpacity
-          style={styles.recommendedCard}
-          onPress={() =>
-            navigation.navigate('ProductDetail', {
-              data: item,
-              productId: item?._id,
-              type: 'normal',
-            })
-          }>
-          <Image source={{uri: item?.image}} style={styles.foodImage} />
+        <View style={styles.recommendedCard}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('ProductDetail', {
+                data: item,
+                productId: item?._id,
+                type: 'normal',
+              })
+            }>
+            <Image source={{uri: item?.image}} style={styles.foodImage} />
 
-          <View style={styles.foodTextContainer}>
-            <View style={styles.foodHeader}>
-              <Text style={styles.foodName}>{item?.name}</Text>
-              {item?.discount > 0 ? (
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                  <Text style={styles.foodPrice}>£{item?.discount}</Text>
+            <View style={styles.foodTextContainer}>
+              <View style={styles.foodHeader}>
+                <Text style={styles.foodName}>{item?.name}</Text>
+                {item?.discount > 0 ? (
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Text style={styles.foodPrice}>£{item?.discount}</Text>
+                    <Text
+                      style={[
+                        styles.foodPrice,
+                        {
+                          marginLeft: 6,
+                          color: colors.gray,
+                          textDecorationLine: 'line-through',
+                        },
+                      ]}>
+                      £{item?.price}
+                    </Text>
+                  </View>
+                ) : (
+                  <Text style={styles.foodPrice}>£{item?.price}</Text>
+                )}
+              </View>
 
-                  <Text
-                    style={[
-                      styles.foodPrice,
-                      {
-                        marginLeft: 6,
-                        color: colors.gray,
-                        textDecorationLine: 'line-through',
-                      },
-                    ]}>
-                    £{item?.price}
-                  </Text>
-                </View>
-              ) : (
-                <Text style={styles.foodPrice}>£{item?.price}</Text>
-              )}
-            </View>
+              <Text numberOfLines={2} style={styles.foodDetail}>
+                {item?.description}
+              </Text>
 
-            <Text numberOfLines={2} style={styles.foodDetail}>
-              {item?.description}
-            </Text>
-
-            <View style={styles.foodRatingRow}>
-              {renderStars(5)}
-              <Text style={styles.foodRatingText}>4.8 (120+) • 2.8km</Text>
-            </View>
-
-            <View style={styles.chefContainer}>
-              <Image
-                source={{uri: item?.merchantImage}}
-                style={styles.chefImage}
-              />
-              <View style={{marginLeft: width(2)}}>
-                <Text style={styles.chefLabel}>Chef</Text>
-
-                <View style={styles.chefNameContainer}>
-                  <Text style={styles.chefName}>{item?.merchantName}</Text>
-                  <Image source={icons.objects} style={styles.objectsIcon} />
-                </View>
+              <View style={styles.foodRatingRow}>
+                {renderStars(5)}
+                <Text style={styles.foodRatingText}>
+                  5.0 • {item?.distance} km away
+                </Text>
               </View>
             </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.chefContainer}
+            onPress={() => navigation.navigate('ChefDetails', item)}>
+            <Image
+              source={{uri: item?.merchantImage}}
+              style={styles.chefImage}
+            />
+            <View style={{marginLeft: width(2)}}>
+              <Text style={styles.chefLabel}>Chef</Text>
+
+              <View style={styles.chefNameContainer}>
+                <Text style={styles.chefName}>{item?.merchantName}</Text>
+                <Image source={icons.objects} style={styles.objectsIcon} />
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
       );
     },
     [renderStars],
@@ -258,7 +261,6 @@ const Restaurants = ({navigation}) => {
                 colors={[Colors.orange]}
               />
             }>
-            {/* Banner Slider */}
             <View style={{}}>
               <Carousel
                 ref={carouselRef}
@@ -290,7 +292,6 @@ const Restaurants = ({navigation}) => {
               </View>
             </View>
 
-            {/* Delivery Address */}
             <TouchableOpacity
               onPress={
                 user
@@ -329,7 +330,7 @@ const Restaurants = ({navigation}) => {
             </View>
 
             <FlatList
-              data={homeData?.products?.slice(0, 6) || []} // take first 6 items
+              data={homeData?.products?.slice(0, 6) || []}
               horizontal
               showsHorizontalScrollIndicator={false}
               renderItem={renderRecommendedItem}
@@ -346,7 +347,7 @@ const Restaurants = ({navigation}) => {
               />
 
               <FlatList
-                data={homeData?.foodCategories?.slice(0, 6) || []}
+                data={homeData?.foodCategories?.slice(0, 10) || []}
                 renderItem={({item}) => (
                   <Category
                     item={item}

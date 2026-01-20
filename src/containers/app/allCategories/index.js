@@ -24,9 +24,7 @@ const AllCategories = ({route, navigation}) => {
           <Image source={icons.rice} resizeMode="contain" style={styles.icon} />
         </View>
 
-        <Text style={styles.titleText} numberOfLines={1}>
-          {item?.name}
-        </Text>
+        <Text style={styles.titleText}>{item?.name}</Text>
       </TouchableOpacity>
     );
   }, []);
@@ -87,6 +85,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontFamily: fontFamily.poppinBold,
     color: Colors.black,
+    fontSize: 12,
     textAlign: 'center',
     marginTop: 6,
   },

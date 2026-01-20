@@ -1,17 +1,59 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {fontFamily, icons, images} from '../../assets';
 import {Colors, colors} from '../../constants';
+import {helper} from '../../helper';
 import ActionBuuton from '../actionButton';
 import BackButton from '../backIcon';
 
-const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
+const FoodCard = ({
+  item,
+  handleAddToCart,
+  onFavPress,
+  handleShareProduct,
+  currentLocation,
+}) => {
   const navigation = useNavigation();
+  const [distance, setDistance] = useState(null);
+  console.log(item, 'itemitemitemitemitemitemitem');
+
+  // ✅ Calculate distance
+  useEffect(() => {
+    const calculateDistance = async () => {
+      const userLat = Number(currentLocation?.latitude);
+      const userLng = Number(currentLocation?.longitude);
+
+      const merchantLat =
+        Number(item?.merchant?.latitude) ||
+        Number(item?.restaurantId?.latitude);
+      const merchantLng =
+        Number(item?.merchant?.longitude) ||
+        Number(item?.restaurantId?.longitude);
+
+      if (userLat && userLng && merchantLat && merchantLng) {
+        try {
+          const dist = await helper.getDistanceInKm(
+            userLat,
+            userLng,
+            merchantLat,
+            merchantLng,
+          );
+          setDistance(dist);
+        } catch (err) {
+          console.log('Distance calculation error:', err);
+          setDistance(0);
+        }
+      } else {
+        setDistance(0);
+      }
+    };
+
+    calculateDistance();
+  }, [currentLocation, item]);
 
   const originalPrice = item.foodId?.price ?? item.price ?? 0;
-
   const discountedPrice = item.foodId?.discount ?? item.discount ?? 0;
 
   const foodData = {
@@ -23,20 +65,19 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
 
     foodName: item.foodId?.name || item.name,
 
-    foodRating: '4.8 (120+)  2.8 km away',
+    foodRating:
+      distance !== null ? `5.0  ${distance} km away` : 'Calculating...',
 
-    // ✅ FINAL PRICE
     price: discountedPrice > 0 ? `£${discountedPrice}` : `£${originalPrice}`,
-
-    // ✅ STRIKE PRICE
     offPrice: discountedPrice > 0 ? `£${originalPrice}` : null,
 
     time: item.foodId?.deliveryTime
       ? `${item.foodId.deliveryTime} mins`
-      : `${item?.restaurantId?.deliveryTime ?? 20} mins`,
+      : item?.merchant?.deliveryTime
+      ? `${item?.merchant?.deliveryTime} mins`
+      : `${item?.restaurantId?.deliveryTime || 20} mins`,
 
     cheifName: item.restaurantId?.name || item.cheifName || 'Leanne Wayne',
-
     isFavourite: item.isFav === true,
   };
 
@@ -51,7 +92,6 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
         borderBottomWidth: 1,
         borderBottomColor: Colors.grayyy,
       }}>
-      {/* Top Row: Image + Details */}
       <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
         <Image
           source={foodData.foodImage}
@@ -85,6 +125,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
             </Text>
           </View>
 
+          {/* Price & Time */}
           <View
             style={{
               flexDirection: 'row',
@@ -93,13 +134,9 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
               gap: 10,
             }}>
             <Text
-              style={{
-                fontFamily: fontFamily.poppinBold,
-                color: colors.red,
-              }}>
+              style={{fontFamily: fontFamily.poppinBold, color: colors.red}}>
               {foodData.price}
             </Text>
-
             {foodData.offPrice && (
               <Text
                 style={{
@@ -153,7 +190,7 @@ const FoodCard = ({item, handleAddToCart, onFavPress, handleShareProduct}) => {
           </View>
         </View>
 
-        {/* Heart & Share Icons */}
+        {/* Heart & Share */}
         <View
           style={{
             marginLeft: 8,

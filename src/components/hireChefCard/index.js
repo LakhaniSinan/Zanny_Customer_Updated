@@ -71,12 +71,6 @@ const HireCheifCard = ({item, handleHireChef}) => {
           </Text>
           <Image source={icons.objects} style={{height: 14, width: 14}} />
         </View>
-        <Text
-          width={width(20)}
-          numberOfLines={1}
-          style={{fontSize: 10, fontWeight: 400, color: Colors.black}}>
-          {/* {item?.address} */}
-        </Text>
       </View>
       <View
         style={{
@@ -87,7 +81,7 @@ const HireCheifCard = ({item, handleHireChef}) => {
         }}>
         <View style={{alignItems: 'center'}}>
           <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>
-            3.7
+            5.0
           </Text>
           <Text style={{fontSize: 8, fontWeight: 400}}>Customer Service</Text>
         </View>
@@ -100,7 +94,7 @@ const HireCheifCard = ({item, handleHireChef}) => {
         />
         <View style={{alignItems: 'center'}}>
           <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>
-            91%
+            100%
           </Text>
           <Text style={{fontSize: 8, fontWeight: 400}}>Response Rate</Text>
         </View>

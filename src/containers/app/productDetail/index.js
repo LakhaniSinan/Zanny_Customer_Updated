@@ -33,9 +33,12 @@ const ProductDetail = ({route}) => {
   const navigation = useNavigation();
   const navigationType = type || 'normal';
   const productData = data;
+  const {currentLocation} = useSelector(state => state.LocationSlice);
 
   const {user} = useSelector(state => state.LoginSlice);
   const [productDetails, setProductDetails] = useState(null);
+  console.log(productDetails, 'productDetailsproductDetailsproductDetails');
+
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Nutrition');
   const {cartData} = useSelector(state => state.CartSlice);
@@ -306,7 +309,10 @@ const ProductDetail = ({route}) => {
             getFinalPrice={getFinalPrice}
           />
 
-          <Location />
+          <Location
+            merchant={productDetails.merchant}
+            currentLocation={currentLocation}
+          />
 
           <Description text={productDetails?.description} />
           {productDetails?.merchant?.isDelivery && (
@@ -521,18 +527,50 @@ const PriceRow = ({productDetails, getFinalPrice}) => (
         resizeMode="contain"
       />
       <Text style={styles.servingsText}>
-        {productDetails?.otherProducts?.length} servings
+        {productDetails?.availableFor || 1} servings
       </Text>
     </View>
   </View>
 );
 
-const Location = () => (
-  <View style={styles.location}>
-    <Image source={icons.map} style={styles.locationIcon} />
-    <Text style={styles.locationText}>2.8 km away</Text>
-  </View>
-);
+const Location = ({merchant, currentLocation}) => {
+  const [distance, setDistance] = useState(null);
+
+  useEffect(() => {
+    const calculateDistance = async () => {
+      if (
+        currentLocation?.latitude &&
+        currentLocation?.longitude &&
+        merchant?.latitude &&
+        merchant?.longitude
+      ) {
+        try {
+          const dist = await helper.getDistanceInKm(
+            Number(currentLocation.latitude),
+            Number(currentLocation.longitude),
+            Number(merchant.latitude),
+            Number(merchant.longitude),
+          );
+          setDistance(dist);
+        } catch (err) {
+          console.log('Distance calculation error:', err);
+          setDistance(0);
+        }
+      }
+    };
+
+    calculateDistance();
+  }, [currentLocation, merchant]);
+
+  return (
+    <View style={styles.location}>
+      <Image source={icons.map} style={styles.locationIcon} />
+      <Text style={styles.locationText}>
+        {distance !== null ? `${distance} km away` : 'Calculating...'}
+      </Text>
+    </View>
+  );
+};
 
 const Description = ({text}) => (
   <View style={{marginTop: width(2)}}>
