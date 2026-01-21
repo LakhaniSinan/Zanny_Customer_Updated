@@ -133,10 +133,6 @@ export function CustomerStack() {
       }
 
       if (status !== RESULTS.GRANTED) {
-        if (status === RESULTS.BLOCKED && Platform.OS === 'ios') {
-          openSettings();
-        }
-
         await AsyncStorage.setItem(
           'userCurrentAddress',
           JSON.stringify(DEFAULT_UK_LOCATION),
