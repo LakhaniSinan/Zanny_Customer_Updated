@@ -113,7 +113,9 @@ const OrderDetail = ({navigation, route}) => {
             buttonName: 'OK',
             onConfirm: () => {
               setModalVisible(false);
-              navigation.goBack();
+              setTimeout(() => {
+                navigation.goBack();
+              }, 300);
             },
           });
         } else {
@@ -167,7 +169,9 @@ const OrderDetail = ({navigation, route}) => {
 
       onConfirm: () => {
         setModalVisible(false);
-        handleCancelOrder();
+        setTimeout(() => {
+          handleCancelOrder();
+        }, 300);
       },
       onCancel: () => setModalVisible(false),
     });
