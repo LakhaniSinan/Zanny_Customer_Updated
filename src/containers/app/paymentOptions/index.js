@@ -557,7 +557,7 @@ const PaymentOptions = ({navigation}) => {
               </Text>
 
               <StripeProvider
-                publishableKey={STRIPE_SECRET_TEST}
+                publishableKey={STRIPE_PUBLISH_LIVE}
                 merchantIdentifier="merchant.com.zannycustomer">
                 <CardField
                   key={cardFieldKey}
