@@ -7,7 +7,7 @@ import {
   usePlatformPay,
 } from '@stripe/stripe-react-native';
 import moment from 'moment';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -500,6 +500,8 @@ const CartScreen = () => {
 
   const payWithApple = useCallback(
     async orderPayload => {
+      // Only check platform - if iOS, proceed with Apple Pay
+      // Let Stripe SDK handle the actual capability check
       if (Platform.OS !== 'ios') {
         showModal({
           icons: icons.cross,
@@ -509,9 +511,14 @@ const CartScreen = () => {
         return;
       }
 
+      console.log('🍎 Starting Apple Pay flow on iOS device');
+      console.log('Total amount:', total);
+
       setLoading(true);
       try {
         const amountInPence = Math.round(Number(total) * 100);
+        const displayAmount = total.toFixed(2);
+
         const intentRes = await createStripeClientSecret({
           amount: amountInPence,
         });
@@ -522,13 +529,18 @@ const CartScreen = () => {
         }
 
         const clientSecret = intentRes.data.secretKey;
+        console.log('✅ Payment intent created, client secret received');
+
+        console.log('🍎 Attempting to confirm Apple Pay payment...');
+        console.log('Merchant ID: merchant.com.zannycustomer');
+        console.log('Amount:', displayAmount, 'GBP');
 
         const {error} = await confirmPlatformPayPayment(clientSecret, {
           applePay: {
             cartItems: [
               {
                 label: 'Zannys Foods Order',
-                amount: amountInPence,
+                amount: displayAmount,
                 paymentType: PlatformPay.PaymentType.Immediate,
               },
             ],
