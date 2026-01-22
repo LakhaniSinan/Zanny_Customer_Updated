@@ -16,7 +16,7 @@ import {
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
 import {icons} from '../../assets';
-import {colors, STRIPE_PUBLISH_LIVE} from '../../constants';
+import {colors, STRIPE_PUBLISH_TEST} from '../../constants';
 import {setCurrentPaymentCard} from '../../redux/slices/paymentCard';
 import {setPaymentType} from '../../redux/slices/PaymentType';
 import {getPaymentCardById} from '../../services/paymentCard';
@@ -149,7 +149,7 @@ const PaymentScreen = ({navigation, route}) => {
 
   return (
     <StripeProvider
-      publishableKey={STRIPE_PUBLISH_LIVE}
+      publishableKey={STRIPE_PUBLISH_TEST}
       merchantIdentifier="merchant.com.zannycustomer" // required for Apple Pay
     >
       <AppHeader goBack text="Payment" />
