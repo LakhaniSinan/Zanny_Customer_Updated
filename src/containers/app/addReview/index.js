@@ -37,7 +37,7 @@ const LeaveReviewScreen = ({route, navigation}) => {
       if (response.status === 200 || response.status === 201) {
         navigation.reset({
           index: 0,
-          routes: [{name: 'History'}], // yahan apni screen ka name do
+          routes: [{name: 'MyOrdersScreen'}], // yahan apni screen ka name do
         });
       } else {
         Alert.alert('Error', response.data?.message);
