@@ -24,15 +24,12 @@ import {fontFamily, icons} from '../../../assets';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import {colors, STRIPE_PUBLISH_LIVE, STRIPE_SECRET_TEST} from '../../../constants';
+import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
 
 import {setUserData} from '../../../redux/slices/Login';
 import {setCurrentPaymentCard} from '../../../redux/slices/paymentCard';
 import {setPaymentType} from '../../../redux/slices/PaymentType';
-import {
-  handelGetCard,
-  handleFetchCardsData,
-} from '../../../redux/slices/UserCards';
+import {handleFetchCardsData} from '../../../redux/slices/UserCards';
 import {
   addPaymentCard,
   createStripId,
@@ -102,15 +99,22 @@ const PaymentOptions = ({navigation}) => {
     (async () => {
       try {
         const supported = await isPlatformPaySupported();
-        console.log('PaymentOptions - Platform Pay Supported:', supported, 'Platform:', Platform.OS);
-        
+        console.log(
+          'PaymentOptions - Platform Pay Supported:',
+          supported,
+          'Platform:',
+          Platform.OS,
+        );
+
         if (Platform.OS === 'ios') {
           if (supported) {
             setIsApplePaySupported(true);
             console.log('✅ Apple Pay is available on this device');
           } else {
             setIsApplePaySupported(false);
-            console.log('❌ Apple Pay not available - Device may not support it or Wallet not configured');
+            console.log(
+              '❌ Apple Pay not available - Device may not support it or Wallet not configured',
+            );
           }
           setIsGooglePaySupported(false); // Google Pay not on iOS
         } else {
@@ -557,7 +561,7 @@ const PaymentOptions = ({navigation}) => {
               </Text>
 
               <StripeProvider
-                publishableKey={STRIPE_PUBLISH_LIVE}
+                publishableKey={STRIPE_PUBLISH_TEST}
                 merchantIdentifier="merchant.com.zannycustomer">
                 <CardField
                   key={cardFieldKey}
