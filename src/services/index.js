@@ -5,6 +5,7 @@ import axios from 'axios';
 let baseUrl = 'https://zannysfood-28892707e10a.herokuapp.com/api/';
 // let baseUrl = 'https://0g01d8wd-4000.inc1.devtunnels.ms/api/';
 // let baseUrl = 'https://pure-sands-31625-2fc0c2d49903.herokuapp.com/api/';
+// let baseUrl = 'https://zannysfood-28892707e10a.herokuapp.com/api/';
 // let baseUrl = 'https://tk4c2l16-4000.euw.devtunnels.ms/api/';
 
 const api = async (path, params, method) => {
