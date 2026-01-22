@@ -25,7 +25,7 @@ import CartCard from '../../../components/cartCard';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import {STRIPE_PUBLISH_TEST, colors} from '../../../constants';
+import {STRIPE_PUBLISH_LIVE, colors} from '../../../constants';
 import {setCartData} from '../../../redux/slices/Cart';
 import {setCopiedCodeData} from '../../../redux/slices/ClaimedPromo';
 import {getAdminSettings} from '../../../services/adminSettings';
@@ -903,7 +903,7 @@ const CartScreen = () => {
 
   return (
     <StripeProvider
-      publishableKey={STRIPE_PUBLISH_TEST}
+      publishableKey={STRIPE_PUBLISH_LIVE}
       merchantIdentifier="merchant.com.zannycustomer"
       urlScheme="zannysfood">
       <View style={{flex: 1, backgroundColor: colors.white}}>
