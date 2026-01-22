@@ -28,8 +28,6 @@ import PermissionSlider from '../../../components/slider';
 import {Colors, colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {handleFetchHomeData} from '../../../redux/slices/HomeData';
-import PermissionSlider from '../../../components/slider';
-import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import RestaurantsSkeleton from './HomeSkeleton';
 
 const Restaurants = ({navigation}) => {

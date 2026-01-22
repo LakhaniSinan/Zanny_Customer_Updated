@@ -76,19 +76,28 @@ const PreOrderCard = ({
               gap: 10,
             }}>
             {item?.discount > 0 ? (
-              <Text
-                style={{
-                  textDecorationLine: 'line-through',
-                  color: colors.grey,
-                }}>
-                {item?.discount}
-              </Text>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <Text
+                  style={{
+                    color: colors.red,
+                    fontFamily: fontFamily.poppinBold,
+                  }}>
+                  £{item.discount}
+                </Text>
+                <Text
+                  style={{
+                    textDecorationLine: 'line-through',
+                    color: colors.grey,
+                    marginLeft: width(2),
+                  }}>
+                  £{item.price}
+                </Text>
+              </View>
             ) : (
               <Text
                 style={{
-                  fontFamily: fontFamily.poppinBold,
                   color: colors.red,
-                  marginTop: 5,
+                  fontFamily: fontFamily.poppinBold,
                 }}>
                 £{item.price}
               </Text>

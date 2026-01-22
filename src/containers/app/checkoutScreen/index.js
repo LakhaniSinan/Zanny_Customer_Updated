@@ -149,9 +149,13 @@ const CheckoutScreen = ({route}) => {
 
   const {subTotal, discountedSubTotal, total} = useMemo(() => {
     const st = selectedItems.reduce((acc, item) => {
-      const price = parsePriceToNumber(item?.price);
+      const basePrice =
+        Number(item?.discount) > 0
+          ? parsePriceToNumber(item.discount) // ✅ after-discount price
+          : parsePriceToNumber(item.price); // normal price
+
       const qty = Number(item?.quantity || item?.selectedQty || 1);
-      return acc + price * qty;
+      return acc + basePrice * qty;
     }, 0);
 
     const discountPercent = promoData?.discount || 0;
@@ -294,7 +298,7 @@ const CheckoutScreen = ({route}) => {
     async orderPayload => {
       setLoading(true);
       try {
-        const amountInPence = Math.round(total);
+        const amountInPence = Math.round(Number(total) * 100);
 
         const intentRes = await createStripeClientSecret({
           amount: amountInPence,
