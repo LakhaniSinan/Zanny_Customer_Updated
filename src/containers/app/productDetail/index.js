@@ -157,21 +157,36 @@ const ProductDetail = ({route}) => {
     try {
       let tempArr = [...cartData];
       const findIndex = tempArr.findIndex(i => i._id === productDetails._id);
+
       if (
         cartData?.length === 0 ||
         cartData[0]?.merchantId === productDetails?.merchantId
       ) {
+        const finalPrice =
+          productDetails.discount > 0
+            ? productDetails.discount
+            : productDetails.price;
+
         if (findIndex !== -1) {
-          // Copy the object before modifying
+          // Update quantity
+          const newQty = (tempArr[findIndex].selectedQty || 1) + 1;
+
           tempArr[findIndex] = {
             ...tempArr[findIndex],
-            selectedQty: (tempArr[findIndex].selectedQty || 1) + 1,
+            selectedQty: newQty,
+            amount: finalPrice * newQty, // calculate total for this item
           };
         } else {
-          tempArr.push({...productDetails, selectedQty: 1});
+          tempArr.push({
+            ...productDetails,
+            selectedQty: 1,
+            amount: finalPrice, // first item
+          });
         }
+
         dispatch(setCartData(tempArr));
         await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
+
         navigation.navigate('CartScreen');
       } else {
         showModal(
@@ -278,7 +293,7 @@ const ProductDetail = ({route}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View
           style={{
             backgroundColor: colors.orangeDark,
