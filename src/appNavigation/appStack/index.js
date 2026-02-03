@@ -59,6 +59,7 @@ import {handleFetchHomeData} from '../../redux/slices/HomeData';
 import {setCurrentLocation} from '../../redux/slices/Location';
 import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
+import SpecialOrderRequest from '../../containers/app/profile/SpecialOrderRequest';
 
 const Stack = createStackNavigator();
 
@@ -400,6 +401,13 @@ export function CustomerStack() {
       <Stack.Screen
         name="PersonalInfo"
         component={PersonalInfo}
+        options={{
+          headerShown: false,
+        }}
+      />
+       <Stack.Screen
+        name="SpecialOrderRequest"
+        component={SpecialOrderRequest}
         options={{
           headerShown: false,
         }}

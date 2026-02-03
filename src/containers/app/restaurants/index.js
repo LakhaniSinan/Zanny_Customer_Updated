@@ -137,7 +137,7 @@ const Restaurants = ({navigation}) => {
 
             <View style={styles.foodTextContainer}>
               <View style={styles.foodHeader}>
-                <Text style={styles.foodName}>{item?.name}</Text>
+                <Text numberOfLines={1} style={styles.foodName}>{item?.name}</Text>
                 {item?.discount > 0 ? (
                   <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Text style={styles.foodPrice}>£{item?.discount}</Text>
@@ -509,11 +509,13 @@ const styles = StyleSheet.create({
   arrowIcon: {height: 20, width: 20},
 
   // Section Wrappers
-  sectionWrapper: {paddingHorizontal: width(3), marginTop: width(4)},
+  sectionWrapper: {paddingHorizontal: width(3), marginTop: width(4),},
 
   // Food Items
   recommendedCard: {
-    width: width(65),
+    // width: width(50),
+    // backgroundColor: 'red',
+    // gap: 10,
     marginHorizontal: 10,
     marginLeft: width(4),
   },
@@ -524,12 +526,15 @@ const styles = StyleSheet.create({
 
   foodHeader: {
     flexDirection: 'row',
+    // backgroundColor: 'red',
+    gap: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
   },
 
   foodName: {
     fontSize: 14,
+    width: width(50),
     fontWeight: '600',
     color: Colors.black,
   },

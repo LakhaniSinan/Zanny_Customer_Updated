@@ -112,4 +112,6 @@ export const icons = {
   instra: require('../assets/icons/instra.png'),
   Xicon: require('../assets/icons/Xicon.png'),
   facebookIcon: require('../assets/icons/facebook.png'),
+  subscriptionIcon: require('../assets/icons/subscriptionIcon.png'),
+
 };

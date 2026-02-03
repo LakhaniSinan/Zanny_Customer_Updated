@@ -208,7 +208,8 @@ const ProfileScreen = () => {
           iconSet={icons.specialIcon}
           icon="file-text"
           label="Special order request"
-          onPress={showComingSoon}
+          onPress={() => navigation.navigate('SpecialOrderRequest')}
+          // onPress={showComingSoon}
         />
 
         <Row
