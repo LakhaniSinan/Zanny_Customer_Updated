@@ -79,7 +79,7 @@ const AllChefs = () => {
 
   return (
     <View style={styles.container}>
-      <AppHeader goBack={true} text="All Chefs" />
+      <AppHeader goBack={true} text="All Chefs"/>
 
       {/* Search */}
       <View style={styles.searchContainer}>

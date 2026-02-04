@@ -39,6 +39,8 @@ const ChefDetails = ({route, navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [details, setDetails] = useState(null);
 
+  console.log(details , 'details=====================>')
+
   useEffect(() => {
     fetchMerchantDetails();
   }, []);
@@ -209,6 +211,31 @@ const ChefDetails = ({route, navigation}) => {
           ) : null}
         </View>
 
+       <View style={{marginBottom: width(3)}}>
+  <Text style={styles.foodImagesTitle}>Food Images</Text>
+
+  {details?.merchant?.foodImages &&
+  details.merchant.foodImages.length > 0 ? (
+    <FlatList
+      data={details.merchant.foodImages}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyExtractor={(item, index) => index.toString()}
+      renderItem={({item}) => (
+        <Image
+          source={{uri: item}}
+          style={styles.foodImageItem}
+        />
+      )}
+    />
+  ) : (
+    <Text style={styles.noFoodImagesText}>
+      Food Images Not Found
+    </Text>
+  )}
+</View>
+
+
         <FlatList
           ListHeaderComponent={
             <Text
@@ -329,6 +356,32 @@ const styles = StyleSheet.create({
 
     elevation: 5,
   },
+  foodImagesTitle: {
+  fontFamily: fontFamily.poppinBold,
+  fontSize: 14,
+  alignSelf: 'center',
+  color: colors.black,
+  marginLeft: width(3),
+  marginBottom: width(2),
+},
+
+foodImageItem: {
+  height: width(28),
+  width: width(28),
+  borderRadius: 12,
+  marginLeft: width(3),
+  backgroundColor: colors.graylight,
+},
+
+noFoodImagesText: {
+  fontFamily: fontFamily.poppinBold,
+  fontSize: 12,
+  color: colors.gray,
+  alignSelf: 'center'
+  // marginLeft: width(3),
+},
+
+
 
   foodImage: {width: '100%', height: 132, borderRadius: 12},
 

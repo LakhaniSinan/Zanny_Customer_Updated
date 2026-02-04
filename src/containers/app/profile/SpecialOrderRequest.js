@@ -11,6 +11,7 @@ import {
   Modal,
 } from "react-native";
 import AppHeader from "../../../components/headerComponent";
+import CountryPicker from 'react-native-country-picker-modal';
 import DatePicker from "react-native-date-picker";
 import { useNavigation } from "@react-navigation/native";
 
@@ -28,9 +29,10 @@ const SpecialOrderRequest = () => {
   const [dateValue, setDateValue] = useState(new Date());
   const [startTimeValue, setStartTimeValue] = useState(new Date());
   const [endTimeValue, setEndTimeValue] = useState(new Date());
+  const [countryCode, setCountryCode] = useState('GB');
+  const [callingCode, setCallingCode] = useState('44');
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
   const navigation = useNavigation();
-
-  /* ================= STATES ================= */
   const [personal, setPersonal] = useState({
     email: "",
     customerType: "",
@@ -41,13 +43,11 @@ const SpecialOrderRequest = () => {
     note: "",
     gateCode: "",
   });
-
   const [food, setFood] = useState({
     culture: "",
     otherReq: "",
     serving: "",
   });
-
   const [booking, setBooking] = useState({
     date: "",
     startTime: "",
@@ -57,7 +57,6 @@ const SpecialOrderRequest = () => {
     ingredientPlan: "",
     notes: "",
   });
-
   const [kitchen, setKitchen] = useState({
     kitchenType: "",
     equipment: [],
@@ -65,8 +64,75 @@ const SpecialOrderRequest = () => {
     servingItems: [],
     notes: "",
   });
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
-  /* ================= DATE/TIME HANDLERS ================= */
+  const [Access, SetAccess] = useState({
+    PhoneNumber: "",
+    Building: "",
+    CleanUp: [],
+    Review: [],
+  });
+
+  const showError = (msg) => {
+    alert(msg);
+  };
+
+
+  const validateStep = () => {
+    if (step === 1) {
+      if (!personal.email) return showError("Email is required");
+      if (!personal.customerType) return showError("Customer type is required");
+      if (!personal.name) return showError("Name is required");
+      if (!personal.phone) return showError("Phone number is required");
+      if (!personal.contactMethod) return showError("Contact method is required");
+      if (!personal.address) return showError("Service address is required");
+    }
+
+    if (step === 2) {
+      if (!food.culture) return showError("Food culture preference is required");
+      if (!food.serving) return showError("Serving type is required");
+    }
+
+    if (step === 3) {
+      if (!booking.date) return showError("Date is required");
+      if (!booking.startTime) return showError("Start time is required");
+      if (!booking.endTime) return showError("End time is required");
+      if (!booking.guests) return showError("Number of guests is required");
+      if (!booking.serviceType) return showError("Service type is required");
+      if (!booking.ingredientPlan)
+        return showError("Ingredient plan is required");
+      if (!booking.notes) return showError("Notes are required");
+    }
+
+    if (step === 4) {
+      if (!kitchen.kitchenType)
+        return showError("Kitchen type is required");
+      if (!kitchen.equipment)
+        return showError("Cooking equipment is required");
+      if (!kitchen.workspace)
+        return showError("Worktop space is required");
+      if (!kitchen.servingItems)
+        return showError("Serving items are required");
+    }
+
+    if (step === 5) {
+      if (!Access.PhoneNumber)
+        return showError("On-site contact number is required");
+      if (!Access.Building)
+        return showError("Building rules are required");
+      if (!Access.CleanUp)
+        return showError("Cleanup plan is required");
+      if (!Access.Review)
+        return showError("Please confirm review");
+      if (!termsAccepted)
+        return showError("Please accept Terms of Service");
+    }
+
+    return true;
+  };
+
+
+
   const formatDate = (date) => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const day = days[date.getDay()];
@@ -100,7 +166,6 @@ const SpecialOrderRequest = () => {
     setBooking({ ...booking, endTime: formatTime(time) });
   };
 
-  /* ================= HELPERS ================= */
   const toggleCheckbox = (list, value, setter) => {
     if (list.includes(value)) {
       setter(list.filter((i) => i !== value));
@@ -110,6 +175,9 @@ const SpecialOrderRequest = () => {
   };
 
   const nextStep = () => {
+    const isValid = validateStep();
+    if (!isValid) return;
+
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
     } else {
@@ -117,14 +185,14 @@ const SpecialOrderRequest = () => {
     }
   };
 
-  /* ================= RENDER CONTENT ================= */
+
   const renderContent = () => {
     switch (step) {
       case 1:
         return (
           <View style={styles.formContainer}>
             <Text style={styles.sectionTitle}>Personal Information</Text>
-            <View style={{height: 0.5, borderWidth: 0.5, borderColor: 'black'}}/>
+            <View style={{ height: 0.5, borderWidth: 0.5, borderColor: 'black' }} />
 
             <Text style={styles.label}>Email *</Text>
             <TextInput
@@ -169,16 +237,41 @@ const SpecialOrderRequest = () => {
             />
 
             <Text style={styles.label}>Phone Number *</Text>
-            <TextInput
-              style={styles.inputBox}
-              placeholder="+44"
-              placeholderTextColor="gray"
-              keyboardType="phone-pad"
-              value={personal.phone}
-              onChangeText={(t) =>
-                setPersonal({ ...personal, phone: t })
-              }
-            />
+            <View style={styles.phoneContainer}>
+
+              <TouchableOpacity
+                style={styles.countryPickerBtn}
+                onPress={() => setShowCountryPicker(true)}
+              >
+                <CountryPicker
+                  withFlag
+                  withCallingCode
+                  withFilter
+                  withEmoji
+                  countryCode={countryCode}
+                  visible={showCountryPicker}
+                  onSelect={(country) => {
+                    setCountryCode(country.cca2);
+                    setCallingCode(country.callingCode[0]);
+                    setShowCountryPicker(false);
+                  }}
+                  onClose={() => setShowCountryPicker(false)}
+                />
+                <Text style={styles.callingCodeText}>+{callingCode}</Text>
+              </TouchableOpacity>
+
+              <TextInput
+                style={styles.phoneInput}
+                placeholder="Phone number"
+                placeholderTextColor="gray"
+                keyboardType="phone-pad"
+                value={personal.phone}
+                onChangeText={(t) =>
+                  setPersonal({ ...personal, phone: t })
+                }
+              />
+            </View>
+
 
             <Text style={styles.label}>
               Preferred contact method *
@@ -239,7 +332,7 @@ const SpecialOrderRequest = () => {
         return (
           <View style={styles.formContainer}>
             <Text style={styles.sectionTitle}>Food Details</Text>
-            <View style={{height: 0.5, borderWidth: 0.5, borderColor: 'black'}}/>
+            <View style={{ height: 0.5, borderWidth: 0.5, borderColor: 'black' }} />
             <Text style={styles.label}>
               Type of Cultural Food Preference *
             </Text>
@@ -273,7 +366,7 @@ const SpecialOrderRequest = () => {
             <TextInput
               style={[styles.inputBox, { height: 60 }]}
               multiline
-              placeholderTextColor='lightgray'
+              placeholderTextColor='gray'
               placeholder="(e.g dietary needs, allergen information, special req"
               value={food.otherReq}
               onChangeText={(t) =>
@@ -326,7 +419,7 @@ const SpecialOrderRequest = () => {
               style={styles.timeBox}
               onPress={() => setOpenDate(true)}
             >
-              <Image style={styles.leftIcon} source={require('../../../assets/icons/calendar.png')}/>
+              <Image style={styles.leftIcon} source={require('../../../assets/icons/calendar.png')} />
               <Text style={styles.timeValue}>
                 {booking.date || "Select date"}
               </Text>
@@ -347,7 +440,7 @@ const SpecialOrderRequest = () => {
               style={styles.timeBox}
               onPress={() => setOpenStartTime(true)}
             >
-              <Image style={styles.leftIcon} source={require('../../../assets/icons/timing.png')}/>
+              <Image style={styles.leftIcon} source={require('../../../assets/icons/timing.png')} />
 
               <Text style={styles.timeValue}>
                 {booking.startTime || "Select start time"}
@@ -390,7 +483,7 @@ const SpecialOrderRequest = () => {
               style={styles.timeBox}
               onPress={() => setOpenEndTime(true)}
             >
-              <Image style={styles.leftIcon} source={require('../../../assets/icons/timing.png')}/>
+              <Image style={styles.leftIcon} source={require('../../../assets/icons/timing.png')} />
 
               <Text style={styles.timeValue}>
                 {booking.endTime || "Select end time"}
@@ -462,11 +555,11 @@ const SpecialOrderRequest = () => {
               </TouchableOpacity>
             ))}
 
-            <View style={{marginTop: 10}}>
+            <View style={{ marginTop: 10 }}>
               <Text style={styles.label}>Cuisine Preference *</Text>
               <TextInput
                 style={styles.inputBox}
-                value={personal.email}
+                // value={personal.email}
                 onChangeText={(t) =>
                   setPersonal({ ...personal, email: t })
                 }
@@ -474,7 +567,7 @@ const SpecialOrderRequest = () => {
               <Text style={styles.label}>Dish Preference (if any) *</Text>
               <TextInput
                 style={styles.inputBox}
-                value={personal.email}
+                // value={personal.email}
                 onChangeText={(t) =>
                   setPersonal({ ...personal, email: t })
                 }
@@ -482,7 +575,8 @@ const SpecialOrderRequest = () => {
               <Text style={styles.label}>Dish Preference (if any)*</Text>
               <TextInput
                 style={styles.inputBox}
-                value={personal.email}
+
+                // value={personal.email}
                 onChangeText={(t) =>
                   setPersonal({ ...personal, email: t })
                 }
@@ -510,7 +604,7 @@ const SpecialOrderRequest = () => {
                 <Text style={styles.radioText}>{i}</Text>
               </TouchableOpacity>
             ))}
-            <View style={{marginTop: 10}}>
+            <View style={{ marginTop: 10 }}>
               <Text style={styles.label}>Notes *</Text>
               <TextInput
                 style={[styles.inputBoxx, { height: 120 }]}
@@ -561,40 +655,40 @@ const SpecialOrderRequest = () => {
                 <Text style={styles.radioText}>{i}</Text>
               </TouchableOpacity>
             ))}
-            
-            <View style={{marginTop: 10}}>
-                <Text style={styles.label}>Cooking Equipment Available *</Text>
-            {[
-              "Oven",
-              "Hob",
-              "Microwave",
-              "Fridge",
-              "Freezer",
-              "Pots and pans",
-              "Knives",
-              "Utensils",
-              "Mixing bowls",
-              "Baking trays",
-              "Special tools: _ _ _ _ _ _ _ _ _ _ _ _",
-            ].map((i) => (
-              <TouchableOpacity
-                key={i}
-                style={styles.radioRow}
-                onPress={() =>
-                  setKitchen({ ...kitchen, kitchenType: i })
-                }
-              >
-                <View style={styles.radioOuter}>
-                  {kitchen.kitchenType === i && (
-                    <View style={styles.radioInner} />
-                  )}
-                </View>
-                <Text style={styles.radioText}>{i}</Text>
-              </TouchableOpacity>
-            ))}
+
+            <View style={{ marginTop: 10 }}>
+              <Text style={styles.label}>Cooking Equipment Available *</Text>
+              {[
+                "Oven",
+                "Hob",
+                "Microwave",
+                "Fridge",
+                "Freezer",
+                "Pots and pans",
+                "Knives",
+                "Utensils",
+                "Mixing bowls",
+                "Baking trays",
+                "Special tools: _ _ _ _ _ _ _ _ _ _ _ _",
+              ].map((i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={styles.radioRow}
+                  onPress={() =>
+                    setKitchen({ ...kitchen, equipment: i })
+                  }
+                >
+                  <View style={styles.radioOuter}>
+                    {kitchen.equipment === i && (
+                      <View style={styles.radioInner} />
+                    )}
+                  </View>
+                  <Text style={styles.radioText}>{i}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
 
-            <View style={{marginTop: 10}}>
+            <View style={{ marginTop: 10 }}>
               <Text style={styles.label}>Worktop space *</Text>
               {["Small", "Medium", "Large"].map((i) => (
                 <TouchableOpacity
@@ -614,34 +708,34 @@ const SpecialOrderRequest = () => {
               ))}
             </View>
 
-            <View style={{marginTop: 10}}>
-                   <Text style={styles.label}>Serving items Available *</Text>
-            {[
-              "Plates",
-              "Bowls",
-              "Cutlery",
-              "Glasses",
-              "Platters",
-              "Napkins",
-            ].map((i) => (
-              <TouchableOpacity
-                key={i}
-                style={styles.radioRow}
-                onPress={() =>
-                  setKitchen({ ...kitchen, kitchenType: i })
-                }
-              >
-                <View style={styles.radioOuter}>
-                  {kitchen.kitchenType === i && (
-                    <View style={styles.radioInner} />
-                  )}
-                </View>
-                <Text style={styles.radioText}>{i}</Text>
-              </TouchableOpacity>
-            ))}
+            <View style={{ marginTop: 10 }}>
+              <Text style={styles.label}>Serving items Available *</Text>
+              {[
+                "Plates",
+                "Bowls",
+                "Cutlery",
+                "Glasses",
+                "Platters",
+                "Napkins",
+              ].map((i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={styles.radioRow}
+                  onPress={() =>
+                    setKitchen({ ...kitchen, servingItems: i })
+                  }
+                >
+                  <View style={styles.radioOuter}>
+                    {kitchen.servingItems === i && (
+                      <View style={styles.radioInner} />
+                    )}
+                  </View>
+                  <Text style={styles.radioText}>{i}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
 
-            <View style={{marginTop: 10}}>
+            <View style={{ marginTop: 10 }}>
               <Text style={styles.label}>Extras Notes on Kitchen or equipment *</Text>
               <TextInput
                 style={[styles.inputBoxx, { height: 120 }]}
@@ -659,7 +753,7 @@ const SpecialOrderRequest = () => {
         return (
           <View style={styles.formContainer}>
             <Text style={styles.sectionTitle}>Access and Setup</Text>
-            <View style={{height: 2, backgroundColor: 'gray', marginBottom: 10}}/>
+            <View style={{ height: 2, backgroundColor: 'gray', marginBottom: 10 }} />
 
             <Text style={styles.label}>On-site contact (if different from customer):</Text>
             <Text style={styles.labels}>Contact Number *</Text>
@@ -669,9 +763,9 @@ const SpecialOrderRequest = () => {
               placeholder="+44"
               placeholderTextColor="gray"
               keyboardType="phone-pad"
-              value={personal.phone}
+              value={Access.PhoneNumber}
               onChangeText={(t) =>
-                setPersonal({ ...personal, phone: t })
+                SetAccess({ ...Access, PhoneNumber: t })
               }
             />
 
@@ -679,9 +773,9 @@ const SpecialOrderRequest = () => {
             <TextInput
               style={[styles.inputBoxx, { height: 120 }]}
               multiline
-              value={personal.address}
+              value={Access.Building}
               onChangeText={(t) =>
-                setPersonal({ ...personal, address: t })
+                SetAccess({ ...Access, Building: t })
               }
             />
 
@@ -695,11 +789,11 @@ const SpecialOrderRequest = () => {
                 key={i}
                 style={styles.radioRow}
                 onPress={() =>
-                  setFood({ ...food, culture: i })
+                  SetAccess({ ...Access, CleanUp: i })
                 }
               >
                 <View style={styles.radioOuter}>
-                  {food.culture === i && (
+                  {Access.CleanUp === i && (
                     <View style={styles.radioInner} />
                   )}
                 </View>
@@ -707,45 +801,45 @@ const SpecialOrderRequest = () => {
               </TouchableOpacity>
             ))}
 
-            <View style={{marginTop: 10}}>
-            
-            <Text style={styles.label}>Review and Confirmation *</Text>
-            {[
-              "I confirm all details are correct",
-              "I understand the chef will work with the items listed above",
-              "I agree to the payment terms in the app",
-            ].map((i) => (
-              <TouchableOpacity
-                key={i}
-                style={styles.radioRow}
-                onPress={() =>
-                  setFood({ ...food, culture: i })
-                }
-              >
-                <View style={styles.radioOuter}>
-                  {food.culture === i && (
-                    <View style={styles.radioInner} />
-                  )}
-                </View>
-                <Text style={styles.radioText}>{i}</Text>
-              </TouchableOpacity>
-            ))}
+            <View style={{ marginTop: 10 }}>
+
+              <Text style={styles.label}>Review and Confirmation *</Text>
+              {[
+                "I confirm all details are correct",
+                "I understand the chef will work with the items listed above",
+                "I agree to the payment terms in the app",
+              ].map((i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={styles.radioRow}
+                  onPress={() =>
+                    SetAccess({ ...Access, Review: i })
+                  }
+                >
+                  <View style={styles.radioOuter}>
+                    {Access.Review === i && (
+                      <View style={styles.radioInner} />
+                    )}
+                  </View>
+                  <Text style={styles.radioText}>{i}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
 
-           <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 30,}}>
-        <TouchableOpacity
-          style={styles.checkbox}
-          onPress={() => {
-            // Handle terms checkbox
-          }}
-        >
-          {/* Checkbox will be added here */}
-        </TouchableOpacity>
-        <Text style={{fontSize: 14, fontWeight: '500', marginLeft: 1, width: 200}}>
-          By checking this box, I Agree to Zannysfood's 
-          <Text style={{color:'#d60202'}}> Terms of Service</Text>
-        </Text>
-      </View>
+            <View style={{ flexDirection: "row", alignItems: "center", marginTop: 30 }}>
+              <TouchableOpacity
+                style={styles.checkbox}
+                onPress={() => setTermsAccepted(!termsAccepted)}
+              >
+                {termsAccepted && <View style={styles.checkboxInner} />}
+              </TouchableOpacity>
+
+              <Text style={{ fontSize: 14, fontWeight: "500", marginLeft: 6, width: 220 }}>
+                By checking this box, I Agree to Zannysfood's
+                <Text style={{ color: "#d60202" }}> Terms of Service</Text>
+              </Text>
+            </View>
+
           </View>
         );
 
@@ -822,10 +916,10 @@ const SpecialOrderRequest = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
-            <Image source={require('../../../assets/icons/selected.png')}/>
+            <Image source={require('../../../assets/icons/selected.png')} />
             <Text style={styles.modalTitle}>Order request Complete</Text>
             <Text style={styles.modalText}>
-              Update on your request would be 
+              Update on your request would be
               sent to you via email/Phone Number
             </Text>
 
@@ -934,13 +1028,16 @@ const styles = StyleSheet.create({
   inputBox: {
     borderWidth: 1,
     borderColor: "#ddd",
+    color: 'black',
     borderRadius: 30,
     padding: 10,
     marginTop: 4,
     height: 60
   },
   inputBoxx: {
+    textAlignVertical: "top",
     borderWidth: 1,
+    color: 'black',
     borderColor: "#ddd",
     borderRadius: 10,
     padding: 10,
@@ -1018,7 +1115,7 @@ const styles = StyleSheet.create({
   modalBox: {
     width: "85%",
     justifyContent: 'center',
-    alignItems:'center',
+    alignItems: 'center',
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
@@ -1026,7 +1123,7 @@ const styles = StyleSheet.create({
 
   modalTitle: {
     fontSize: 24,
-    textAlign:'center',
+    textAlign: 'center',
     width: 130,
     fontWeight: "700",
     marginTop: 15,
@@ -1037,7 +1134,7 @@ const styles = StyleSheet.create({
   modalText: {
     fontSize: 14,
     width: 200,
-    textAlign:'center',
+    textAlign: 'center',
     color: "#555",
     marginBottom: 20,
   },
@@ -1071,4 +1168,49 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontWeight: "600",
   },
+  checkbox: {
+    width: 18,
+    height: 18,
+    borderWidth: 1.5,
+    borderColor: "#D32F2F",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  checkboxInner: {
+    width: 10,
+    height: 10,
+    backgroundColor: "#D32F2F",
+  },
+  phoneContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderWidth: 1,
+  borderColor: '#ddd',
+  borderRadius: 30,
+  marginTop: 4,
+  height: 60,
+  paddingHorizontal: 12,
+},
+
+countryPickerBtn: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginRight: 8,
+},
+
+callingCodeText: {
+  fontSize: 14,
+  marginLeft: 4,
+  color: '#000',
+  fontWeight: '500',
+},
+
+phoneInput: {
+  flex: 1,
+  fontSize: 14,
+  color: 'black',
+},
+
+
 });
