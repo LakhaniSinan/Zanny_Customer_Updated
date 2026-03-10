@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: fontFamily.poppinBold,
     color: 'black',
-    flex: 1,
+    // flex: 1,
   },
   chefCheckIcon: {
     width: width(5),

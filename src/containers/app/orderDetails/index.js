@@ -23,7 +23,7 @@ import OverLayLoader from '../../../components/loader';
 
 const OrderDetail = ({navigation, route}) => {
   const data = route.params;
-  console.log(data, 'datadatadatadatadatadatadata123d');
+  console.log( 'data' , data);
 
   const {cartData} = useSelector(state => state.CartSlice);
   const [isloading, setIsloding] = useState(false);
@@ -489,6 +489,9 @@ const OrderDetail = ({navigation, route}) => {
 
           <View style={styles.chefSection}>
             <Text style={styles.chefLabel}>Chef's Name</Text>
+            
+                 
+                
             <View style={styles.chefInfoContainer}>
               <Image
                 source={{
@@ -503,6 +506,15 @@ const OrderDetail = ({navigation, route}) => {
               <Text style={styles.chefName}>
                 {data.merchantDetails?.name || 'N/A'}
               </Text>
+               <Image
+                    source={icons.objects}
+                    style={{
+                      width: 14,
+                      height: 14,
+                      marginLeft: 3,
+                      marginBottom: 5,
+                    }}
+                  />
             </View>
           </View>
 

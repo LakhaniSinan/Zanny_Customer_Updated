@@ -39,6 +39,9 @@ export const images = {
 };
 
 export const icons = {
+  reserve : require('../assets/icons/reserve.png'),
+  days : require('../assets/icons/days.png'),
+  heartss : require('../assets/icons/heartss.png'),
   tickIcon: require('../assets/icons/tickIcon.png'),
   timeIcon: require('../assets/icons/timeIcon.png'),
   calendarIcon: require('../assets/icons/calendarIcon.png'),

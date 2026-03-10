@@ -60,6 +60,7 @@ import {setCurrentLocation} from '../../redux/slices/Location';
 import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
 import SpecialOrderRequest from '../../containers/app/profile/SpecialOrderRequest';
+import Favourite from '../../containers/app/favourite';
 
 const Stack = createStackNavigator();
 
@@ -412,6 +413,30 @@ export function CustomerStack() {
           headerShown: false,
         }}
       />
+
+
+  <Stack.Screen
+        name="Favourite"
+        component={Favourite}
+        options={{
+          headerShown: false,
+        }}
+      />
+      {/* <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetail}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="CartScreen"
+        component={CartScreen}
+        options={{
+          headerShown: false,
+        }}
+      /> */}
+
       <Stack.Screen
         name="Orders"
         component={Orders}

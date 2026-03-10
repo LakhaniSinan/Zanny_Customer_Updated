@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Image,
   SafeAreaView,
@@ -6,26 +6,24 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
 } from 'react-native';
-import {width} from 'react-native-dimension';
-import Header from '../../../components/header/index';
-// import Location from '../../auth/Location';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CheckBox from '@react-native-community/checkbox';
-import {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
-import Button from '../../../components/button/index';
 import OverLayLoader from '../../../components/loader';
 import {colors} from '../../../constants/index';
 import {setUserData} from '../../../redux/slices/Login';
 import {getAllAllergies} from '../../../services/allergies';
 import {updateCustomerProfile} from '../../../services/profile';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
-const UpdateAllergies = ({navigation, route}) => {
-  const disptach = useDispatch();
+
+const UpdateAllergies = ({navigation}) => {
+  const dispatch = useDispatch();
+
   const [allergiesData, setAllergiesData] = useState([]);
   const [isloading, setIsLoading] = useState(false);
-  const ref = useRef();
 
   useEffect(() => {
     handleGetAllergies();
@@ -36,42 +34,36 @@ const UpdateAllergies = ({navigation, route}) => {
     user = JSON.parse(user);
 
     setIsLoading(true);
+
     getAllAllergies()
       .then(response => {
         setIsLoading(false);
+
         if (response?.data?.status == 'ok') {
           let tempArr = [];
           let data = response?.data?.data;
-          data?.map((item, ind) => {
+
+          data?.map(item => {
             if (user?.allergies.length > 0) {
-              let resulttt = user?.allergies.find(
-                valllll => valllll == item.name,
-              );
-              if (resulttt !== undefined) {
-                item['isSelected'] = true;
-                tempArr.push(item);
-              } else {
-                item['isSelected'] = false;
-                tempArr.push(item);
-              }
+              let result = user?.allergies.find(v => v == item.name);
+
+              item['isSelected'] = result !== undefined;
             } else {
               item['isSelected'] = false;
-              tempArr.push(item);
             }
+
+            tempArr.push(item);
           });
-          // console.log(tempArr, 'jdkjdkjdk');
+
           setAllergiesData(tempArr);
-        } else {
-          console.log(response?.data, 'jdijdkjkdjjdk');
         }
       })
-      .catch(error => {
+      .catch(() => {
         setIsLoading(false);
-        console.log(error, 'Error====>');
       });
   };
 
-  const handleChange = (index, item) => {
+  const handleChange = index => {
     let tempArr = [...allergiesData];
     tempArr[index].isSelected = !tempArr[index].isSelected;
     setAllergiesData(tempArr);
@@ -80,192 +72,225 @@ const UpdateAllergies = ({navigation, route}) => {
   const hanldeUpadteAllergies = async () => {
     let user = await AsyncStorage.getItem('user');
     user = JSON.parse(user);
+
     let finalArr = [];
-    allergiesData.map(itemmmmmm => {
-      if (itemmmmmm.isSelected) {
-        finalArr.push(itemmmmmm.name);
+
+    allergiesData.map(item => {
+      if (item.isSelected) {
+        finalArr.push(item.name);
       }
     });
-    let finalObjj = {
+
+    let finalObj = {
       ...user,
       allergies: finalArr,
     };
-    AsyncStorage.setItem('user', JSON.stringify(finalObjj));
+
+    AsyncStorage.setItem('user', JSON.stringify(finalObj));
+
     setIsLoading(true);
+
     const payload = {
       allergies: finalArr,
     };
+
     updateCustomerProfile(user?._id, payload)
       .then(response => {
         setIsLoading(false);
+
         if (response.data.status == 'error') {
           alert(response?.data.message);
         } else {
-          alert(response?.data.message);
+          alert('Allergies updated successfully');
+
           let newObj = {
             ...response.data.data,
           };
+
           AsyncStorage.setItem('user', JSON.stringify(newObj));
-          disptach(setUserData(newObj));
+          dispatch(setUserData(newObj));
         }
       })
-      .catch(err => {
+      .catch(() => {
         setIsLoading(false);
       });
   };
 
-  // const handleModalButton=async(type)=>{
-  //   let tempArr=[]
-  //   allergiesData.map((item,ind)=>{
-  //     item.products.map((value,index)=>{
-  //       if (value?.isSelected == true) {
-  //         tempArr.push(value?.name)
-  //       }
-  //     })
-  //   })
-  //   if (type=="yes") {
-  //     let payload={
-  //       allergies:tempArr
-  //     }
-  //     let user=await AsyncStorage.getItem('user')
-  //     user=JSON.parse(user)
-  //       updateCustomerProfile(user?.id,payload).then((res)=>{
-  //         if (res?.data?.data =="ok") {
-  //           AsyncStorage.setItem('user',JSON.stringify(res?.data?.data))
-  //           disptach(setUserData(res?.data?.data))
-  //           ref.current.hide()
-  //         } else {
-  //          alert(res?.data?.message)
-  //         }
-
-  //       }).catch((error)=>{
-  //           console.log(error,"errorororo");
-  //       })
-
-  //       if (route?.params?.type !== "edit") {
-  //         console.log("callledddddd");
-  //         navigation.navigate("Restaurants")
-  //       }
-  //   } else {
-  //       disptach(setUserAllergies(allergiesData))
-  //       ref.current.hide()
-  //       if (route?.params?.type !== "edit") {
-  //         navigation.navigate("Restaurants")
-  //       }
-  //   }
-  // }
-
   return (
     <>
       <OverLayLoader isloading={isloading} />
+
       <SafeAreaView style={styles.container}>
-        <Header text="Update Allergies" goBack={true} />
-        <ScrollView>
+
+        {/* CUSTOM HEADER */}
+
+        <View style={styles.header}>
+
+<View style={{flexDirection: 'row', alignItems: 'center', gap: 30}}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <AntDesign name="arrowleft" size={20} color={colors.black} />
+            
+          </TouchableOpacity>
+
+          <Text style={styles.headerTitle}>Allergies</Text>
+</View>
+          <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={{width: 30 , height: 30, borderWidth: 1, borderColor: colors.gray, borderRadius: 50, alignItems: 'center', justifyContent: 'center'}}>
+            <Image source={require('../../../assets/icons/bellIcon.png')} style={{width: 15, height: 15, resizeMode: 'contain'}} />
+          </TouchableOpacity>
+
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+
           {allergiesData?.map((item, ind) => {
             return (
-              <View
-                style={{
-                  shadowOffset: {width: 0, height: 2},
-                  shadowOpacity: 0.3,
-                  backgroundColor: '#fff',
-                  shadowRadius: 1,
-                  borderRadius: 5,
-                  margin: width(2),
-                  paddingVertical: width(5),
-                  paddingHorizontal: width(5),
-                  elevation: 5,
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginTop: width(1.5),
-                  }}>
-                  <CheckBox
-                    disabled={false}
-                    checked={item?.isSelected}
-                    value={item?.isSelected}
-                    onValueChange={() => handleChange(ind, item)}
-                    tintColors={{
-                      true: colors.yellow,
-                      false: colors.yellow,
-                    }}
+              <TouchableOpacity
+                key={ind}
+                style={styles.row}
+                onPress={() => handleChange(ind)}>
+
+                <View style={styles.leftSection}>
+                  <Image
+                    source={{uri: item?.image}}
+                    style={styles.icon}
                   />
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      flex: 1,
-                      marginLeft: width(2),
-                    }}>
-                    <Text style={{color: colors.grey}}>{item?.name}</Text>
-                    <Image
-                      source={{uri: item?.image}}
-                      style={{width: 30, height: 30, borderRadius: 50}}
-                    />
-                  </View>
+
+                  <Text style={styles.name}>
+                    {item?.name}
+                  </Text>
                 </View>
-              </View>
+
+                <View style={styles.radioOuter}>
+                  {item?.isSelected && (
+                    <View style={styles.radioInner} />
+                  )}
+                </View>
+
+              </TouchableOpacity>
             );
           })}
+
         </ScrollView>
-        <View style={{marginBottom: width(1)}}>
-          <Button heading="Update" onPress={hanldeUpadteAllergies} />
-          {/* <CommonModal ref={ref}>
-      <View
-      style={{
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f0f4f7',
-        marginHorizontal: width(4),
-        padding: width(5),
-      }}>
-      <Text style={styles.quesHead}>
-        Finally, Would you like this information to be saved for future orders??
-      </Text>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          marginBottom: width(2),
-        }}>
-        <View style={{width: '50%'}}>
-          <Button
-            heading="No"
-            color={colors.yellow}
-            style={{width: '100%'}}
-            onPress={()=>handleModalButton("no")}
-          />
-        </View>
-        <View style={{width: '50%'}}>
-          <Button
-            heading="Yes"
-            color={colors.yellow}
-            style={{width: '100%'}}
-            onPress={()=>handleModalButton("yes")}
-          />
-        </View>
-      </View>
-    </View>
-              </CommonModal>  */}
-        </View>
+
+        <TouchableOpacity
+          style={styles.button}
+          activeOpacity={0.8}
+          onPress={hanldeUpadteAllergies}>
+
+          <Text style={styles.buttonText}>
+            Update Allergies
+          </Text>
+
+        </TouchableOpacity>
+
       </SafeAreaView>
     </>
   );
 };
 
+export default UpdateAllergies;
+
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: colors.white,
   },
-  quesHead: {
-    textAlign: 'center',
-    marginVertical: width(2),
-    paddingVertical: width(4),
-    color: '#5a5e65',
-    fontWeight: '500',
-  },
-});
 
-export default UpdateAllergies;
+  /* HEADER */
+
+  header: {
+    height: 55,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+  },
+
+  headerTitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins-Medium',
+    color: colors.black,
+  },
+
+  backIcon: {
+    fontSize: 20,
+    color: colors.black,
+  },
+
+  bell: {
+    fontSize: 18,
+  },
+
+  /* LIST */
+
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  icon: {
+    width: 26,
+    height: 26,
+    marginRight: 12,
+    resizeMode: 'contain',
+  },
+
+  name: {
+    fontSize: 15,
+    color: colors.black,
+    fontFamily: 'Poppins-Regular',
+  },
+
+  /* RADIO */
+
+  radioOuter: {
+    width: 20,
+    height: 20,
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: '#E53935',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  radioInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 12,
+    backgroundColor: '#E53935',
+  },
+
+  /* BUTTON */
+
+  button: {
+    height: 55,
+    backgroundColor: colors.black,
+    borderRadius: 35,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    marginHorizontal: 20,
+    marginBottom: 15,
+  },
+
+  buttonText: {
+    color: colors.white,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 16,
+  },
+
+});

@@ -34,6 +34,7 @@ const MyOrdersScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const [orderCategoryTab, setOrderCategoryTab] = useState('normal');
+  console.log('order', allOrders)
 
   const user = useSelector(state => state.LoginSlice.user);
   const cartData = useSelector(state => state.CartSlice.cartData);
@@ -84,9 +85,13 @@ const MyOrdersScreen = () => {
   };
 
   // ✅ FILTER ORDERS BY TAB
-  const filteredOrders = useMemo(() => {
-    return allOrders.filter(item => item?.orderCategory === orderCategoryTab);
-  }, [allOrders, orderCategoryTab]);
+ // ✅ FILTER ORDERS BY TAB - UPDATED VERSION
+const filteredOrders = useMemo(() => {
+  if (orderCategoryTab === 'normal') {
+    return allOrders; // Show all orders when "All" tab is selected
+  }
+  return allOrders.filter(item => item?.orderCategory === orderCategoryTab);
+}, [allOrders, orderCategoryTab]);
 
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
@@ -174,24 +179,11 @@ const MyOrdersScreen = () => {
               styles.tabText,
               orderCategoryTab === 'normal' && styles.activeText,
             ]}>
-            Normal
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setOrderCategoryTab('daily')}
-          style={[
-            styles.tabButton,
-            orderCategoryTab === 'daily' && styles.activeTab,
-          ]}>
-          <Text
-            style={[
-              styles.tabText,
-              orderCategoryTab === 'daily' && styles.activeText,
-            ]}>
-            Daily
+            All
           </Text>
         </TouchableOpacity>
 
+        
         <TouchableOpacity
           onPress={() => setOrderCategoryTab('preOrder')}
           style={[
@@ -203,9 +195,25 @@ const MyOrdersScreen = () => {
               styles.tabText,
               orderCategoryTab === 'preOrder' && styles.activeText,
             ]}>
-            Pre-Order
+            PreOrder
           </Text>
         </TouchableOpacity>
+        
+        <TouchableOpacity
+          onPress={() => setOrderCategoryTab('daily')}
+          style={[
+            styles.tabButton,
+            orderCategoryTab === 'daily' && styles.activeTab,
+          ]}>
+          <Text
+            style={[
+              styles.tabText,
+              orderCategoryTab === 'daily' && styles.activeText,
+            ]}>
+            Buy Now 
+          </Text>
+        </TouchableOpacity>
+
       </View>
 
       {/* 📦 ORDERS LIST */}
@@ -216,7 +224,7 @@ const MyOrdersScreen = () => {
           return loading ? (
             <HistoryCardSkeleton />
           ) : (
-            <HistoryCard item={item} handleAddToCart={handleAddToCart} />
+            <HistoryCard orderCategoryTab={orderCategoryTab} item={item} handleAddToCart={handleAddToCart} />
           );
         }}
         showsVerticalScrollIndicator={false}
@@ -242,16 +250,18 @@ const MyOrdersScreen = () => {
 
 const styles = StyleSheet.create({
   tabContainer: {
-    backgroundColor: colors.border,
-    borderRadius: 100,
+    // backgroundColor: colors.border,
+    // borderRadius: 100,
     margin: width(4),
     flexDirection: 'row',
     padding: width(1),
     justifyContent: 'space-between',
   },
   tabButton: {
-    height: width(12),
-    borderRadius: 100,
+    height: width(10),
+    width: 100,
+    backgroundColor: colors.border,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: width(8),
@@ -261,7 +271,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontFamily: fontFamily.poppinBold,
-    fontSize: 12,
+    fontSize: 10,
     color: colors.gray,
   },
   activeText: {

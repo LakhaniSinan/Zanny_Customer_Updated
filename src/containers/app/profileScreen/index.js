@@ -219,7 +219,19 @@ const ProfileScreen = () => {
         />
 
         <Row
+          iconSet={icons.heartss}
+          label="Favourite"
+          onPress={() => navigation.navigate('Favourite')}
+        />
+
+         <Row
           iconSet={icons.allergiesIcon}
+          label="Allergies"
+          onPress={() => navigation.navigate('AllergiesAndDietaries')}
+        /> 
+
+        <Row
+          iconSet={icons.settingsIcon}
           label="Settings"
           onPress={showComingSoon}
         />
