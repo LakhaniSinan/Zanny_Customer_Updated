@@ -33,7 +33,7 @@ const MyOrdersScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [orderCategoryTab, setOrderCategoryTab] = useState('normal');
+  const [orderCategoryTab, setOrderCategoryTab] = useState('all');
   console.log('order', allOrders)
 
   const user = useSelector(state => state.LoginSlice.user);
@@ -87,10 +87,25 @@ const MyOrdersScreen = () => {
   // ✅ FILTER ORDERS BY TAB
  // ✅ FILTER ORDERS BY TAB - UPDATED VERSION
 const filteredOrders = useMemo(() => {
-  if (orderCategoryTab === 'normal') {
-    return allOrders; // Show all orders when "All" tab is selected
+
+  if (orderCategoryTab === 'all') {
+    return allOrders;
   }
-  return allOrders.filter(item => item?.orderCategory === orderCategoryTab);
+
+  if (orderCategoryTab === 'buynow') {
+    return allOrders.filter(item => item?.orderCategory === 'normal');
+  }
+
+  if (orderCategoryTab === 'preOrder') {
+    return allOrders.filter(item => item?.orderCategory === 'preOrder');
+  }
+
+   if (orderCategoryTab === 'daily') {
+    return allOrders.filter(item => item?.orderCategory === 'daily');
+  }
+
+  return allOrders;
+
 }, [allOrders, orderCategoryTab]);
 
   const renderEmptyComponent = () => (
@@ -98,10 +113,10 @@ const filteredOrders = useMemo(() => {
       <Image source={images.noOrders} style={styles.emptyImage} />
       <Text style={styles.emptyText}>
         No{' '}
-        {orderCategoryTab === 'normal'
-          ? 'Normal'
-          : orderCategoryTab === 'daliy'
-          ? 'Daliy'
+        {orderCategoryTab === 'all'
+          ? 'all'
+          : orderCategoryTab === 'buynow'
+          ? 'buynow'
           : 'Pre-Order'}{' '}
         Orders Found
       </Text>
@@ -169,15 +184,15 @@ const filteredOrders = useMemo(() => {
       {/* 🔘 TABS */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
-          onPress={() => setOrderCategoryTab('normal')}
+          onPress={() => setOrderCategoryTab('all')}
           style={[
             styles.tabButton,
-            orderCategoryTab === 'normal' && styles.activeTab,
+            orderCategoryTab === 'all' && styles.activeTab,
           ]}>
           <Text
             style={[
               styles.tabText,
-              orderCategoryTab === 'normal' && styles.activeText,
+              orderCategoryTab === 'all' && styles.activeText,
             ]}>
             All
           </Text>
@@ -200,6 +215,21 @@ const filteredOrders = useMemo(() => {
         </TouchableOpacity>
         
         <TouchableOpacity
+          onPress={() => setOrderCategoryTab('buynow')}
+          style={[
+            styles.tabButton,
+            orderCategoryTab === 'buynow' && styles.activeTab,
+          ]}>
+          <Text
+            style={[
+              styles.tabText,
+              orderCategoryTab === 'buynow' && styles.activeText,
+            ]}>
+            Buy Now 
+          </Text>
+        </TouchableOpacity>
+
+          <TouchableOpacity
           onPress={() => setOrderCategoryTab('daily')}
           style={[
             styles.tabButton,
@@ -210,7 +240,7 @@ const filteredOrders = useMemo(() => {
               styles.tabText,
               orderCategoryTab === 'daily' && styles.activeText,
             ]}>
-            Buy Now 
+            Daily 
           </Text>
         </TouchableOpacity>
 
@@ -259,12 +289,12 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     height: width(10),
-    width: 100,
+    width: 75,
     backgroundColor: colors.border,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: width(8),
+    paddingHorizontal: width(3),
   },
   activeTab: {
     backgroundColor: colors.redish,

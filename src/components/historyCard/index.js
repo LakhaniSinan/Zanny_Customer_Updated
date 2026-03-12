@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, { cloneElement } from 'react';
 import {Image, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {fontFamily, icons} from '../../assets';
@@ -30,6 +30,8 @@ const HistoryCard = ({item, handleAddToCart , orderCategoryTab}) => {
   return diffDays;
 
 };
+
+console.log('item==', item);
 
 const days = getDaysFromCreatedAt(item?.createdAt);
 
@@ -62,11 +64,13 @@ const days = getDaysFromCreatedAt(item?.createdAt);
     }
   };
 const type = 'buyOrder'
+ const isPreOrder = item?.orderCategory === 'preOrder';
+
   
 
   return (
     <>
-    {orderCategoryTab === 'preOrder' ? (
+    {isPreOrder  ? (
       <>
       <View
         style={{

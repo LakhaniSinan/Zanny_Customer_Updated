@@ -10,6 +10,8 @@ import {helper} from '../../helper';
 import {setCartData} from '../../redux/slices/Cart';
 import BackButton from '../backIcon';
 import CustomModal from '../customModal';
+import ActionButton from '../actionButton';
+
 
 const CartCard = ({item, index}) => {
   const dispatch = useDispatch();
@@ -108,6 +110,14 @@ const CartCard = ({item, index}) => {
 
   const discountedPrice = item?.foodId?.discount ?? item?.discount ?? 0;
 
+   const orderDate = item?.createdAt ? new Date(item.createdAt).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }) : '';
+
   // FINAL price to show
   const price =
     discountedPrice > 0 ? `£${discountedPrice}` : `£${originalPrice}`;
@@ -125,11 +135,46 @@ const CartCard = ({item, index}) => {
     <View
       style={{
         marginTop: width(2),
-        borderBottomWidth: 1,
-        borderBottomColor: colors.grey,
-        paddingBottom: width(5),
+        borderWidth: 1,
+        borderColor: colors.border,
+        // paddingBottom: width(8),
+        padding: 15,
+        borderRadius: 8,
         marginHorizontal: width(4),
       }}>
+          <View style={{
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+       borderBottomWidth: 1,
+       paddingVertical: 4,
+        borderBottomColor: colors.border,
+      alignItems: 'center',
+      marginBottom: width(4),
+      // paddingHorizontal: width(2),
+    }}>
+      <View style={{paddingVertical: 7,paddingHorizontal: 7,  backgroundColor: colors.border,borderRadius: 8, alignItems: 'center', justifyContent: 'center'}}>
+      <Text style={{
+        fontSize: 14,
+        fontFamily: fontFamily.poppinMedium,
+        color: colors.black,
+      }}>
+        Order #{item?.orderNumber || item?._id?.slice(-6) || '29'}
+      </Text>
+      </View>
+      <Text style={{
+        fontSize: 13,
+        fontFamily: fontFamily.poppinRegular,
+        color: colors.black,
+      }}>
+        {orderDate}
+      </Text>
+        <BackButton
+            icon={icons.share}
+            border={1}
+            onPress={() => handleShareProduct(item)}
+          />
+    </View>
+  
       <View
         style={{
           flexDirection: 'row',
@@ -144,8 +189,9 @@ const CartCard = ({item, index}) => {
             source={foodImage}
             resizeMode="cover"
             style={{
-              height: width(22),
-              width: width(22),
+              height: width(30),
+              width: width(30),
+              marginBottom: 10,
               borderRadius: width(2),
             }}
           />
@@ -296,13 +342,13 @@ const CartCard = ({item, index}) => {
           </View>
         </View>
 
-        <View style={{gap: 8, alignItems: 'center'}}>
+        {/* <View style={{gap: 8, alignItems: 'center'}}>
           <BackButton
             icon={icons.deleteIcon}
             border={1}
             onPress={() => openDeleteModal(item)}
           />
-        </View>
+        </View> */}
       </View>
 
       <Text
@@ -353,7 +399,38 @@ const CartCard = ({item, index}) => {
             />
           </View>
         </View>
+        
+
       </View>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10}}>
+          <View
+              style={{
+                width: width(40),
+                marginTop: width(3),
+              }}>
+              <ActionButton
+                // bgcColor="#3b0b0b"
+                fontColor='#3b0b0b'
+                name="Delete"
+                fontSize={10}
+               onPress={() => openDeleteModal(item)}
+              />
+            </View>
+            
+          <View
+              style={{
+                width: width(40),
+                marginTop: width(3),
+              }}>
+              <ActionButton
+                bgcColor="#3b0b0b"
+                fontColor={colors.white}
+                name="View details"
+                fontSize={10}
+                onPress={() => navigation.navigate('OrderDetail', item)}
+              />
+            </View>
+            </View>
 
       <CustomModal
         visible={modalVisible}
