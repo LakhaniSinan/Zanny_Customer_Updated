@@ -40,6 +40,7 @@ export const images = {
 
 export const icons = {
   reserve : require('../assets/icons/reserve.png'),
+  chat : require('../assets/icons/chat.png'),
   days : require('../assets/icons/days.png'),
   heartss : require('../assets/icons/heartss.png'),
   tickIcon: require('../assets/icons/tickIcon.png'),

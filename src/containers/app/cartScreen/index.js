@@ -101,7 +101,7 @@ const CartScreen = () => {
   const navigation = useNavigation();
   const cartData = useSelector(s => s.CartSlice.cartData) || [];
 
-  console.log('cartData', cartData)
+  console.log('cartData===========================', cartData)
 
   const [promoCode, setPromoCode] = useState('');
   const [isPromoApplied, setIsPromoApplied] = useState(false);
@@ -145,6 +145,22 @@ const CartScreen = () => {
     () => currentLocation?.address,
     [selectedAddress],
   );
+
+  const filteredCartData = useMemo(() => {
+  if (activeTab === 'all') {
+    return cartData;
+  }
+
+  if (activeTab === 'preorder') {
+    return cartData.filter(item => item?.orderType === 'preorder');
+  }
+
+  if (activeTab === 'regular') {
+    return cartData.filter(item => item?.orderType === 'regular');
+  }
+
+  return cartData;
+}, [cartData, activeTab]);
 
   const {subTotal, discountedSubTotal, total} = useMemo(() => {
     // 1️⃣ Subtotal = FINAL prices (discounted if exists)
@@ -722,6 +738,8 @@ const CartScreen = () => {
     payWithApple,
   ]);
 
+
+  
   const renderEmpty = () => (
     <View
       style={{
@@ -772,7 +790,7 @@ const CartScreen = () => {
   );
 
   const renderFooter = () => {
-    if (!cartData?.length) return null;
+   if (!filteredCartData?.length) return null;
     return (
       <View style={{paddingBottom: width(30)}}>
         {/* Delivery Address */}
@@ -998,8 +1016,8 @@ const CartScreen = () => {
 {/* <View style={{borderWidth: 0.5, borderColor: colors.border, marginVertical: 10}}/> */}
 
         <FlatList
-          data={cartData}
-          renderItem={({item, index}) => <CartCard item={item} index={index} />}
+          data={filteredCartData}
+          renderItem={({item, index}) => <CartCard item={item} index={index} total={total} />}
           keyExtractor={(item, i) =>
             item?._id ? `cart-${item._id}` : `cart-${i}`
           }
@@ -1010,7 +1028,7 @@ const CartScreen = () => {
           }}
         />
 
-        {cartData?.length > 0 && !keyboardVisible && (
+        {filteredCartData?.length > 0 && !keyboardVisible && (
           <View
             style={{
               position: 'absolute',

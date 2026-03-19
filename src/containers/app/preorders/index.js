@@ -27,6 +27,7 @@ const PreOrder = ({route}) => {
   const dispatch = useDispatch();
   const {user} = useSelector(state => state.LoginSlice);
   const {cartData} = useSelector(state => state.CartSlice);
+  const {preOrderData} = useSelector(state => state.PreOrderDataSlice);
 
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState([]);
@@ -160,40 +161,50 @@ const PreOrder = ({route}) => {
     ) : null;
 
   // ⭐ ADD TO CART
-  const handleAddToCart = async selectedItem => {
-    if (!user) {
-      showModal('error', 'Please login first to add items in your cart');
-      return;
-    }
+const handleAddToCart = async selectedItem => {
+  if (!user) {
+    showModal('error', 'Please login first to add items in your cart');
+    return;
+  }
 
-    try {
-      let tempArr = [...cartData];
-      const findIndex = tempArr.findIndex(i => i._id === selectedItem._id);
+  try {
+    let tempArr = [...cartData];
+    const findIndex = tempArr.findIndex(
+  i => i._id === selectedItem._id && i.orderType === 'preorder' // or preorder
+);
 
-      if (
-        cartData.length === 0 ||
-        cartData[0].merchantId === selectedItem.merchantId
-      ) {
-        if (findIndex !== -1)
-          tempArr[findIndex].selectedQty =
-            (tempArr[findIndex].selectedQty || 1) + 1;
-        else tempArr.push({...selectedItem, selectedQty: 1});
+    if (
+      cartData.length === 0 ||
+      cartData[0].merchantId === selectedItem.merchantId
+    ) {
+      if (findIndex !== -1) {
+        tempArr[findIndex].selectedQty =
+          (tempArr[findIndex].selectedQty || 1) + 1;
 
-        dispatch(setCartData(tempArr));
-        await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
-
-        showModal('success', 'Item added to cart successfully');
+        tempArr[findIndex].orderType = 'preorder';
       } else {
-        showModal(
-          'error',
-          'You can only add items from one restaurant at a time',
-        );
+        tempArr.push({
+          ...selectedItem,
+          selectedQty: 1,
+          orderType: 'preorder',
+        });
       }
-    } catch (err) {
-      console.log(err);
-      showModal('error', 'Something went wrong!');
+
+      dispatch(setCartData(tempArr));
+      await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
+
+      showModal('success', 'Item added to cart successfully');
+    } else {
+      showModal(
+        'error',
+        'You can only add items from one restaurant at a time',
+      );
     }
-  };
+  } catch (err) {
+    console.log(err);
+    showModal('error', 'Something went wrong!');
+  }
+};
 
   // ⭐ MARK FAVORITE
   const onFavPress = async item => {

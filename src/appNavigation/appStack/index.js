@@ -61,6 +61,7 @@ import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
 import SpecialOrderRequest from '../../containers/app/profile/SpecialOrderRequest';
 import Favourite from '../../containers/app/favourite';
+import Chat from '../../containers/app/chat';
 
 const Stack = createStackNavigator();
 
@@ -332,6 +333,13 @@ export function CustomerStack() {
       <Stack.Screen
         name="CartScreen"
         component={CartScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={Chat}
         options={{
           headerShown: false,
         }}
