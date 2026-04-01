@@ -2060,7 +2060,7 @@ PODS:
     - Yoga
   - RNDeviceInfo (15.0.1):
     - React-Core
-  - RNFBApp (23.8.3):
+  - RNFBApp (23.8.5):
     - DoubleConversion
     - Firebase/CoreOnly (= 12.8.0)
     - glog
@@ -2085,7 +2085,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNFBMessaging (23.8.3):
+  - RNFBMessaging (23.8.5):
     - DoubleConversion
     - Firebase/Messaging (= 12.8.0)
     - FirebaseCoreExtension
@@ -2838,8 +2838,8 @@ SPEC CHECKSUMS:
   RNCMaskedView: ae521efb1c6c2b183ae0f8479487db03c826184c
   RNCPicker: 28c076ae12a1056269ec0305fe35fac3086c477d
   RNDeviceInfo: 36d7f232bfe7c9b5c494cb7793230424ed32c388
-  RNFBApp: 665585d1a40c224954f0a03b5f2d1eb97e747cc8
-  RNFBMessaging: bcdf842e6a020d6765a384b54b73722d6ab8fa30
+  RNFBApp: 8417cad01e0c3613241ca549cb1864a67c383633
+  RNFBMessaging: a98f5fbff3c49609cfea6f75d94dd8b7b0d4686a
   RNGestureHandler: 4d34255948b634d4f3827cc534a1a3d05e50095b
   RNGoogleSignin: a8c3e472b67d0f065b9198e9cd148a0d7c14a50c
   RNImageCropPicker: 367a8e3788651dad88540d9fa8888fcb07ffd1d1
