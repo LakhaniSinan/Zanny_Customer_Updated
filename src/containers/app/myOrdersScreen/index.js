@@ -18,11 +18,17 @@ import ActionBuuton from '../../../components/actionButton';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import HistoryCard from '../../../components/historyCard';
-import OverLayLoader from '../../../components/loader';
 import {colors, Colors} from '../../../constants';
 import {getAllOrdersByCustomerId} from '../../../services/order';
 import {setCartData} from '../../../redux/slices/Cart';
 import HistoryCardSkeleton from '../../../components/cardSkeleton/OrderSkeleton';
+
+const ORDER_TABS = [
+  {key: 'all', label: 'All', category: null},
+  {key: 'preOrder', label: 'PreOrder', category: 'preOrder'},
+  {key: 'buynow', label: 'Buy Now', category: 'normal'},
+  {key: 'daily', label: 'Daily', category: 'daily'},
+];
 
 const MyOrdersScreen = () => {
   const navigation = useNavigation();
@@ -34,7 +40,6 @@ const MyOrdersScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const [orderCategoryTab, setOrderCategoryTab] = useState('all');
-  console.log('order', allOrders)
 
   const user = useSelector(state => state.LoginSlice.user);
   const cartData = useSelector(state => state.CartSlice.cartData);
@@ -84,42 +89,23 @@ const MyOrdersScreen = () => {
     handleGetAllOrders(true);
   };
 
-  // ✅ FILTER ORDERS BY TAB
- // ✅ FILTER ORDERS BY TAB - UPDATED VERSION
-const filteredOrders = useMemo(() => {
+  const filteredOrders = useMemo(() => {
+    const activeTab = ORDER_TABS.find(tab => tab.key === orderCategoryTab);
+    if (!activeTab?.category) {
+      return allOrders;
+    }
+    return allOrders.filter(item => item?.orderCategory === activeTab.category);
+  }, [allOrders, orderCategoryTab]);
 
-  if (orderCategoryTab === 'all') {
-    return allOrders;
-  }
-
-  if (orderCategoryTab === 'buynow') {
-    return allOrders.filter(item => item?.orderCategory === 'normal');
-  }
-
-  if (orderCategoryTab === 'preOrder') {
-    return allOrders.filter(item => item?.orderCategory === 'preOrder');
-  }
-
-   if (orderCategoryTab === 'daily') {
-    return allOrders.filter(item => item?.orderCategory === 'daily');
-  }
-
-  return allOrders;
-
-}, [allOrders, orderCategoryTab]);
+  const activeTabLabel = useMemo(() => {
+    const activeTab = ORDER_TABS.find(tab => tab.key === orderCategoryTab);
+    return activeTab?.label || 'All';
+  }, [orderCategoryTab]);
 
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
       <Image source={images.noOrders} style={styles.emptyImage} />
-      <Text style={styles.emptyText}>
-        No{' '}
-        {orderCategoryTab === 'all'
-          ? 'all'
-          : orderCategoryTab === 'buynow'
-          ? 'buynow'
-          : 'Pre-Order'}{' '}
-        Orders Found
-      </Text>
+      <Text style={styles.emptyText}>No {activeTabLabel} Orders Found</Text>
       {!user && (
         <View style={{width: width(30), marginLeft: 10, marginTop: width(2)}}>
           <ActionBuuton
@@ -183,82 +169,42 @@ const filteredOrders = useMemo(() => {
 
       {/* 🔘 TABS */}
       <View style={styles.tabContainer}>
-        <TouchableOpacity
-          onPress={() => setOrderCategoryTab('all')}
-          style={[
-            styles.tabButton,
-            orderCategoryTab === 'all' && styles.activeTab,
-          ]}>
-          <Text
-            style={[
-              styles.tabText,
-              orderCategoryTab === 'all' && styles.activeText,
-            ]}>
-            All
-          </Text>
-        </TouchableOpacity>
-
-        
-        <TouchableOpacity
-          onPress={() => setOrderCategoryTab('preOrder')}
-          style={[
-            styles.tabButton,
-            orderCategoryTab === 'preOrder' && styles.activeTab,
-          ]}>
-          <Text
-            style={[
-              styles.tabText,
-              orderCategoryTab === 'preOrder' && styles.activeText,
-            ]}>
-            PreOrder
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          onPress={() => setOrderCategoryTab('buynow')}
-          style={[
-            styles.tabButton,
-            orderCategoryTab === 'buynow' && styles.activeTab,
-          ]}>
-          <Text
-            style={[
-              styles.tabText,
-              orderCategoryTab === 'buynow' && styles.activeText,
-            ]}>
-            Buy Now 
-          </Text>
-        </TouchableOpacity>
-
-          <TouchableOpacity
-          onPress={() => setOrderCategoryTab('daily')}
-          style={[
-            styles.tabButton,
-            orderCategoryTab === 'daily' && styles.activeTab,
-          ]}>
-          <Text
-            style={[
-              styles.tabText,
-              orderCategoryTab === 'daily' && styles.activeText,
-            ]}>
-            Daily 
-          </Text>
-        </TouchableOpacity>
-
+        {ORDER_TABS.map(tab => {
+          const isActive = orderCategoryTab === tab.key;
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              onPress={() => setOrderCategoryTab(tab.key)}
+              style={[styles.tabButton, isActive && styles.activeTab]}>
+              <Text style={[styles.tabText, isActive && styles.activeText]}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {/* 📦 ORDERS LIST */}
       <FlatList
         data={loading ? [1, 1, 1] : filteredOrders}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, index) =>
+          loading
+            ? `skeleton-${index}`
+            : item?._id?.toString() || index.toString()
+        }
         renderItem={({item}) => {
           return loading ? (
             <HistoryCardSkeleton />
           ) : (
-            <HistoryCard orderCategoryTab={orderCategoryTab} item={item} handleAddToCart={handleAddToCart} />
+            <HistoryCard
+              orderCategoryTab={orderCategoryTab}
+              item={item}
+              handleAddToCart={handleAddToCart}
+            />
           );
         }}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={!loading && renderEmptyComponent()}
+        ListEmptyComponent={!loading ? renderEmptyComponent : null}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -282,6 +228,7 @@ const styles = StyleSheet.create({
   tabContainer: {
     // backgroundColor: colors.border,
     // borderRadius: 100,
+    justifyContent: 'space-between',
     margin: width(4),
     flexDirection: 'row',
     padding: width(1),
@@ -289,7 +236,7 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     height: width(10),
-    width: 75,
+    width: width(22),
     backgroundColor: colors.border,
     borderRadius: 12,
     alignItems: 'center',

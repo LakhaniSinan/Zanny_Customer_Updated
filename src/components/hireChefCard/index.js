@@ -1,120 +1,55 @@
 import React from 'react';
-import {Alert, Image, Text, View} from 'react-native';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import {width} from 'react-native-dimension';
 import {icons} from '../../assets';
 import {Colors} from '../../constants';
 import PrimaryButton from '../primaryButton';
 
 const HireCheifCard = ({item, handleHireChef}) => {
-  return (
-    <View
-      style={{
-        height: 280,
-        maxWidth: 180,
-        width: '100%',
-        backgroundColor: Colors.white,
-        borderRadius: 19,
-        paddingBottom: width(3),
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+  const coverImage = item?.merchantImage || item?.profilePhoto;
+  const displayName = item?.name || 'Chef';
 
-        elevation: 5,
-      }}>
+  return (
+    <View style={styles.card}>
       <Image
-        source={{uri: item?.merchantImage}}
-        style={{
-          width: '100%',
-          height: 100,
-          borderTopRightRadius: 19,
-          borderTopLeftRadius: 19,
-        }}
+        source={{uri: coverImage}}
+        style={styles.coverImage}
         resizeMode="cover"
       />
-      <View
-        style={{
-          borderRadius: 100,
-          borderWidth: 3,
-          width: 73,
-          position: 'absolute',
-          marginTop: 65,
-          marginLeft: 65,
-          borderColor: Colors.white,
-        }}>
+      <View style={styles.profileWrapper}>
         <Image
-          source={{uri: item?.merchantImage}}
-          style={{height: 68, width: 68, borderRadius: 100}}
+          source={{uri: coverImage}}
+          style={styles.profileImage}
           resizeMode="cover"
         />
       </View>
-      <View
-        style={{
-          marginTop: 42,
-          alignItems: 'center',
-          alignSelf: 'center',
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 5,
-          }}>
-          <Text
-            width={width(20)}
-            numberOfLines={1}
-            style={{fontSize: 14, fontWeight: 600, color: Colors.black}}>
-            {item?.name}
+      <View style={styles.content}>
+        <View style={styles.nameRow}>
+          <Text numberOfLines={1} style={styles.nameText}>
+            {displayName}
           </Text>
-          <Image source={icons.objects} style={{height: 14, width: 14}} />
+          <Image source={icons.objects} style={styles.badgeIcon} />
         </View>
       </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          gap: 17,
-          alignSelf: 'center',
-          marginTop: 15,
-        }}>
-        <View style={{alignItems: 'center'}}>
-          <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>
+      <View style={styles.statsRow}>
+        <View style={styles.statBlock}>
+          <Text style={styles.statValue}>
             5.0
           </Text>
-          <Text style={{fontSize: 8, fontWeight: 400}}>Customer Service</Text>
+          <Text style={styles.statLabel}>Customer Service</Text>
         </View>
-        <View
-          style={{
-            height: 30,
-            borderWidth: 1,
-            borderColor: Colors.softgray,
-          }}
-        />
-        <View style={{alignItems: 'center'}}>
-          <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>
+        <View style={styles.divider} />
+        <View style={styles.statBlock}>
+          <Text style={styles.statValue}>
             100%
           </Text>
-          <Text style={{fontSize: 8, fontWeight: 400}}>Response Rate</Text>
+          <Text style={styles.statLabel}>Response Rate</Text>
         </View>
       </View>
-      <View
-        style={{
-          height: width(10),
-          width: width(40),
-          width: '100%',
-          marginTop: width(2),
-          paddingHorizontal: width(3),
-        }}>
+      <View style={styles.buttonWrapper}>
         <PrimaryButton
           name={'Hire'}
-          onPress={() =>
-            Alert.alert(
-              'Coming Soon',
-              'This feature is currently under development. Please check back later!',
-            )
-          }
+          onPress={() => handleHireChef?.(item)}
         />
       </View>
     </View>
@@ -122,3 +57,94 @@ const HireCheifCard = ({item, handleHireChef}) => {
 };
 
 export default HireCheifCard;
+
+const styles = StyleSheet.create({
+  card: {
+    height: 280,
+    maxWidth: 180,
+    width: '100%',
+    backgroundColor: Colors.white,
+    borderRadius: 19,
+    paddingBottom: width(3),
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  coverImage: {
+    width: '100%',
+    height: 102,
+  },
+  profileWrapper: {
+    borderRadius: 100,
+    borderWidth: 3,
+    width: 73,
+    position: 'absolute',
+    top: 65,
+    left: 53,
+    borderColor: Colors.white,
+    backgroundColor: Colors.white,
+  },
+  profileImage: {
+    height: 68,
+    width: 68,
+    borderRadius: 100,
+  },
+  content: {
+    marginTop: 42,
+    alignItems: 'center',
+    paddingHorizontal: width(2),
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    maxWidth: '100%',
+  },
+  nameText: {
+    maxWidth: width(21),
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.black,
+  },
+  badgeIcon: {
+    height: 14,
+    width: 14,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 17,
+    alignSelf: 'center',
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  statBlock: {
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.black,
+  },
+  statLabel: {
+    fontSize: 8,
+    fontWeight: '400',
+    color: Colors.gray,
+  },
+  divider: {
+    height: 30,
+    borderWidth: 1,
+    borderColor: Colors.softgray,
+  },
+  buttonWrapper: {
+    height: width(10),
+    width: '100%',
+    marginTop: width(2),
+    paddingHorizontal: width(3),
+  },
+});
