@@ -25,6 +25,7 @@ import UpdateAllergies from '../containers/app/updateAllergies';
 import UserAllergies from '../containers/app/userAllergies';
 import UserQuestions from '../containers/app/userQuestions/index';
 import ProductDetail from '../containers/app/productDetail';
+import ChatScreen from '../containers/app/chat';
 import {Linking, Platform} from 'react-native';
 import AllVouchers from '../containers/app/vouchers';
 
@@ -205,6 +206,13 @@ function AppStack() {
       <Stack.Screen
         name="OrderDetail"
         component={OrderDetail}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
         options={{
           headerShown: false,
         }}

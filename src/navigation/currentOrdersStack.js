@@ -5,6 +5,7 @@ import OrderDetail from './../containers/app/orderDetails/index';
 import MyOrdersScreen from '../containers/app/myOrdersScreen';
 import CartScreen from '../containers/app/cartScreen';
 import ProductDetail from '../containers/app/productDetail';
+import ChatScreen from '../containers/app/chat';
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,13 @@ function CurrentOrdersStack() {
       <Stack.Screen
         name="OrderDetail"
         component={OrderDetail}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
         options={{
           headerShown: false,
         }}

@@ -14,6 +14,7 @@ import ChangePassword from '../containers/app/profile/chnagePassword';
 import UserAllergies from '../containers/app/userAllergies';
 import UpdateAllergies from '../containers/app/updateAllergies';
 import AddSupportMsg from '../containers/app/support/addSupportMsg';
+import ChatScreen from '../containers/app/chat';
 
 const Stack = createStackNavigator();
 
@@ -51,6 +52,13 @@ function ProfileStack() {
       <Stack.Screen
         name="OrderDetail"
         component={OrderDetail}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
         options={{
           headerShown: false,
         }}

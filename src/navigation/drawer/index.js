@@ -31,6 +31,7 @@ import OrderStack from '../orderStack';
 import ProfileStack from '../profileStack';
 import AuthStack from './../AuthStack';
 import DrawerContent from './customerContent';
+import ChatScreen from '../../containers/app/chat';
 const Drawer = createDrawerNavigator();
 
 function DrawerNavigation(props) {
@@ -213,6 +214,13 @@ function DrawerNavigation(props) {
       <Drawer.Screen
         name="OrderDetail"
         component={OrderDetail}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Drawer.Screen
+        name="Chat"
+        component={ChatScreen}
         options={{
           headerShown: false,
         }}

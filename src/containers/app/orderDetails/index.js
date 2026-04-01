@@ -674,6 +674,25 @@ const OrderDetail = ({navigation, route}) => {
         <View style={{height: width(20)}} />
       </ScrollView>
       <View style={styles.bottomButtonContainer}>
+        <ActionBuuton
+          onPress={() =>
+            navigation.navigate('Chat', {
+              orderId: data?._id,
+              customerId: user?._id,
+              merchantId: data?.merchantDetails?._id || data?.merchantId,
+              participantName: data?.merchantDetails?.name || 'Merchant',
+              senderType: 'customer',
+            })
+          }
+          name={'Chat with Merchant'}
+          bgcColor={colors.black}
+          fontColor={colors.white}
+          height={width(12)}
+          borderRadius={100}
+          fontSize={16}
+          styleProps={{borderWidth: 0}}
+        />
+        <View style={{height: width(2)}} />
         {data.status == 'Pending' ? (
           <ActionBuuton
             onPress={cofirmAlert}
