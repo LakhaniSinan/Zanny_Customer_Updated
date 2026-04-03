@@ -526,7 +526,7 @@ const AboutChef = () => {
             fontColor={Colors.black}
             bgcColor={Colors.white}
             onPress={() => {
-              // Handle subscribe action
+              navigation.navigate('SubscribeChefScreen', {chefData});
             }}
             height={width(12)}
             fontSize={16}

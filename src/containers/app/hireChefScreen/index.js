@@ -188,6 +188,7 @@ const HireChefScreen = ({navigation}) => {
           <GooglePlacesInput
             selectedLocation={selectedLocation}
             setSelectedLocation={setSelectedLocation}
+            label={'Cooking Address'}
           />
         </View>
 

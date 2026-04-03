@@ -34,6 +34,9 @@ export default productsSlice.reducer;
 export function handelGetCard(userId) {
   try {
     return async dispatch => {
+      if (!userId) {
+        return;
+      }
       getPaymentCardById(userId)
         .then(response => {
           if (response.status === 200 || response.status === 201) {

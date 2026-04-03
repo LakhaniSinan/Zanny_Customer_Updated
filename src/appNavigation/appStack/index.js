@@ -49,6 +49,8 @@ import BottomNavigation from './bottomTab';
 import HireChefScreen from '../../containers/app/hireChefScreen';
 import SelectMeals from '../../containers/app/selectMeals';
 import OrderSummry from '../../containers/app/orderSummry';
+import SubscribeChefScreen from '../../containers/app/subscribeChef';
+import SubscribeChefDay from '../../containers/app/subscribeChef/dayDetail';
 
 const Stack = createStackNavigator();
 
@@ -140,6 +142,20 @@ export function CustomerStack() {
       <Stack.Screen
         name="HireChefScreen"
         component={HireChefScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="SubscribeChefScreen"
+        component={SubscribeChefScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="SubscribeChefDay"
+        component={SubscribeChefDay}
         options={{
           headerShown: false,
         }}
