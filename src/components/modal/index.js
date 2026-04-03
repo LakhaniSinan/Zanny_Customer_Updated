@@ -48,4 +48,6 @@ const CommonModal = React.forwardRef((props, ref) => {
   );
 });
 
+export {default as PaymentCompleteModal} from './PaymentCompleteModal';
+
 export default CommonModal;

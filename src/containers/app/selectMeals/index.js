@@ -447,7 +447,6 @@ const SelectMeals = ({navigation, route}) => {
       <AppHeader text="Select Meals" goBack cartIcon />
 
       <ScrollView>
-        {/* PACKAGES */}
         <Text style={styles.title}>Select Package</Text>
 
         <View style={styles.packageRow}>
