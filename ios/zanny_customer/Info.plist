@@ -26,15 +26,13 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	<key>NSAllowsArbitraryLoads</key>
-	<false/>
-	<key>NSAllowsLocalNetworking</key>
-	<true/>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
 	</dict>
-
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>We need access to your location to provide delivery tracking.</string>
-
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera so you can take photos for orders, profile pictures, and support requests.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

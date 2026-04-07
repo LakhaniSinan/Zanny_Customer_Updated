@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import firestore from '@react-native-firebase/firestore';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import {icons} from '../../../assets';
 import {Colors} from '../../../constants';
 import AudioRecord from 'react-native-audio-record';
 import Sound from 'react-native-sound';
@@ -55,6 +55,17 @@ const formatDuration = seconds => {
   return `${mins}:${secs}`;
 };
 
+const iconMap = {
+  back: icons.ArrowLeft,
+  attach: icons.add,
+  delete: icons.deleteIcon,
+  send: icons.messagIcon,
+  mic: icons.mobileIcon,
+  check: icons.check,
+  tick: icons.tickIcon,
+  profile: icons.profileIcon,
+};
+
 const uploadVoiceNote = async audioUri => {
   const normalizedUri =
     Platform.OS === 'android' && !String(audioUri).startsWith('file://')
@@ -83,6 +94,7 @@ const ChatScreen = ({navigation, route}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [playingMessageId, setPlayingMessageId] = useState(null);
+  const [isPlaybackPaused, setIsPlaybackPaused] = useState(false);
   const flatListRef = useRef(null);
   const recordingIntervalRef = useRef(null);
   const soundRef = useRef(null);
@@ -244,7 +256,13 @@ const ChatScreen = ({navigation, route}) => {
   };
 
   const requestAudioPermission = async () => {
-    if (Platform.OS !== 'android') return true;
+    if (Platform.OS === 'ios') {
+      if (typeof AudioRecord.requestAuthorization === 'function') {
+        const granted = await AudioRecord.requestAuthorization();
+        return !!granted;
+      }
+      return true;
+    }
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
     );
@@ -259,6 +277,7 @@ const ChatScreen = ({navigation, route}) => {
         Alert.alert('Permission required', 'Please allow microphone permission.');
         return;
       }
+      Sound.setCategory('PlayAndRecord');
       AudioRecord.init({
         sampleRate: 16000,
         channels: 1,
@@ -279,8 +298,10 @@ const ChatScreen = ({navigation, route}) => {
   const stopRecording = async shouldSend => {
     try {
       if (!isRecording) return;
+      const durationSec = recordingSeconds;
       if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
       const audioUri = await AudioRecord.stop();
+      Sound.setCategory('Playback');
       setIsRecording(false);
       if (!shouldSend || !audioUri) {
         setRecordingSeconds(0);
@@ -299,7 +320,7 @@ const ChatScreen = ({navigation, route}) => {
       await chatRef.collection('messages').add({
         type: 'voice',
         audioUri: uploadedUrl,
-        durationSec: recordingSeconds,
+        durationSec,
         senderId: currentUserId,
         senderType,
         senderName,
@@ -320,25 +341,46 @@ const ChatScreen = ({navigation, route}) => {
       Alert.alert('Voice note error', 'Voice note send nahi ho saka.');
       setRecordingSeconds(0);
       setIsRecording(false);
+      Sound.setCategory('Playback');
     }
   };
 
   const playVoiceNote = item => {
     if (!item?.audioUri) return;
+    if (soundRef.current && playingMessageId === item.id) {
+      if (isPlaybackPaused) {
+        soundRef.current.play(() => {
+          setPlayingMessageId(null);
+          setIsPlaybackPaused(false);
+          soundRef.current?.release();
+          soundRef.current = null;
+        });
+        setIsPlaybackPaused(false);
+      } else {
+        soundRef.current.pause();
+        setIsPlaybackPaused(true);
+      }
+      return;
+    }
+
     if (soundRef.current) {
-      soundRef.current.stop();
-      soundRef.current.release();
-      soundRef.current = null;
+      soundRef.current.stop(() => {
+        soundRef.current?.release();
+        soundRef.current = null;
+      });
     }
     const nextSound = new Sound(item.audioUri, null, error => {
       if (error) {
         Alert.alert('Playback error', 'Voice note play nahi ho saka.');
         setPlayingMessageId(null);
+        setIsPlaybackPaused(false);
         return;
       }
       setPlayingMessageId(item.id);
+      setIsPlaybackPaused(false);
       nextSound.play(() => {
         setPlayingMessageId(null);
+        setIsPlaybackPaused(false);
         nextSound.release();
         soundRef.current = null;
       });
@@ -403,17 +445,21 @@ const ChatScreen = ({navigation, route}) => {
                 {item?.senderImage ? (
                   <Image source={{uri: item.senderImage}} style={styles.voiceAvatarImage} />
                 ) : (
-                  <Icon name="person" size={15} color="#fff" />
+                  <Image source={iconMap.profile} style={styles.voiceAvatarIcon} />
                 )}
               </View>
               <View style={styles.voiceMain}>
                 <View style={styles.voiceTopRow}>
                   <View style={styles.voicePlayButton}>
-                    <Icon
-                      name={playingMessageId === item.id ? 'pause' : 'play-arrow'}
-                      size={20}
-                      color={item.type === 'sent' ? '#fff' : '#222'}
-                    />
+                    <Text
+                      style={[
+                        styles.voicePlayText,
+                        {color: item.type === 'sent' ? '#fff' : '#222'},
+                      ]}>
+                      {playingMessageId === item.id && !isPlaybackPaused
+                        ? '||'
+                        : '▶'}
+                    </Text>
                   </View>
                   <View style={styles.waveWrap}>
                     {Array.from({length: 34}).map((_, index) => (
@@ -446,11 +492,15 @@ const ChatScreen = ({navigation, route}) => {
           <View style={styles.messageFooter}>
             <Text style={styles.messageTime}>{item.time}</Text>
             {item.type === 'sent' && (
-              <Icon
-                style={styles.tickIcon}
-                name={item.messageStatus === 'sent' ? 'done' : 'done-all'}
-                size={16}
-                color={item.messageStatus === 'seen' ? '#34B7F1' : '#8696a0'}
+              <Image
+                source={iconMap.tick}
+                style={[
+                  styles.tickIcon,
+                  {
+                    tintColor:
+                      item.messageStatus === 'seen' ? '#34B7F1' : '#8696a0',
+                  },
+                ]}
               />
             )}
           </View>
@@ -465,7 +515,7 @@ const ChatScreen = ({navigation, route}) => {
         <TouchableOpacity
           style={styles.headerButton}
           onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color="#000" />
+          <Image source={iconMap.back} style={styles.headerIcon} />
         </TouchableOpacity>
         <View style={styles.headerProfile}>
           <View style={styles.headerInfo}>
@@ -500,7 +550,7 @@ const ChatScreen = ({navigation, route}) => {
           {!isRecording ? (
             <>
               <TouchableOpacity style={styles.attachButton} disabled>
-                <Icon name="attach-file" size={24} color="#d0d0d0" />
+                <Image source={iconMap.attach} style={styles.attachIcon} />
               </TouchableOpacity>
               <View style={styles.inputContainer}>
                 <TextInput
@@ -516,7 +566,7 @@ const ChatScreen = ({navigation, route}) => {
           ) : (
             <View style={styles.recordingWrap}>
               <TouchableOpacity onPress={() => stopRecording(false)}>
-                <Icon name="delete-outline" size={24} color="#ff3b30" />
+                <Image source={iconMap.delete} style={styles.deleteIcon} />
               </TouchableOpacity>
               <View style={styles.recordingCenter}>
                 <View style={styles.recordDot} />
@@ -539,10 +589,21 @@ const ChatScreen = ({navigation, route}) => {
                 startRecording();
               }
             }}>
-            <Icon
-              name={message.trim() ? 'send' : isRecording ? 'check' : 'mic'}
-              size={24}
-              color={message.trim() || isRecording ? '#0084ff' : '#8696a0'}
+            <Image
+              source={
+                message.trim()
+                  ? iconMap.send
+                  : isRecording
+                  ? iconMap.check
+                  : iconMap.mic
+              }
+              style={[
+                styles.sendIcon,
+                {
+                  tintColor:
+                    message.trim() || isRecording ? '#0084ff' : '#8696a0',
+                },
+              ]}
             />
           </TouchableOpacity>
         </View>
@@ -571,6 +632,12 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     padding: 8,
+  },
+  headerIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#000',
+    resizeMode: 'contain',
   },
   headerProfile: {
     flex: 1,
@@ -645,6 +712,9 @@ const styles = StyleSheet.create({
   },
   tickIcon: {
     marginLeft: 4,
+    width: 16,
+    height: 16,
+    resizeMode: 'contain',
   },
   inputBar: {
     flexDirection: 'row',
@@ -661,6 +731,12 @@ const styles = StyleSheet.create({
   attachButton: {
     padding: 8,
   },
+  attachIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#d0d0d0',
+    resizeMode: 'contain',
+  },
   inputContainer: {
     flex: 1,
     flexDirection: 'column',
@@ -669,6 +745,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginHorizontal: 8,
     minHeight: 46,
+    
   },
   input: {
     color: '#000',
@@ -678,6 +755,11 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     padding: 8,
+  },
+  sendIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
   },
   recordingWrap: {
     flex: 1,
@@ -728,6 +810,12 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
   },
+  voiceAvatarIcon: {
+    width: 15,
+    height: 15,
+    tintColor: '#fff',
+    resizeMode: 'contain',
+  },
   voiceMain: {flex: 1},
   voiceTopRow: {flexDirection: 'row', alignItems: 'center'},
   voicePlayButton: {
@@ -739,6 +827,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 8,
   },
+  voicePlayText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
   waveWrap: {flex: 1, flexDirection: 'row', alignItems: 'center'},
   waveBar: {
     width: 2,
@@ -747,6 +839,12 @@ const styles = StyleSheet.create({
   },
   voiceBottomRow: {marginTop: 4, flexDirection: 'row', justifyContent: 'space-between'},
   voiceDuration: {fontSize: 12, color: '#222', fontWeight: '500'},
+  deleteIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#ff3b30',
+    resizeMode: 'contain',
+  },
   participantName: {
     color: '#333',
     fontSize: 13,
