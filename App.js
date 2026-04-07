@@ -1,5 +1,3 @@
-import messaging from '@react-native-firebase/messaging';
-messaging().registerDeviceForRemoteMessages();
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState} from 'react';

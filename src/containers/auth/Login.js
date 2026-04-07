@@ -4,7 +4,11 @@ import appleAuth, {
   AppleAuthRequestScope,
 } from '@invertase/react-native-apple-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import messaging from '@react-native-firebase/messaging';
+import {
+  getMessaging,
+  getToken,
+  onTokenRefresh,
+} from '@react-native-firebase/messaging';
 import {
   GoogleSignin,
   statusCodes,
@@ -93,10 +97,10 @@ const Login = ({navigation}) => {
   };
 
   const initFCM = async () => {
-    await messaging().registerDeviceForRemoteMessages();
-    const token = await messaging().getToken();
+    const messagingInstance = getMessaging();
+    const token = await getToken(messagingInstance);
     setInputValues(prev => ({...prev, fcm: token}));
-    messaging().onTokenRefresh(newToken =>
+    onTokenRefresh(messagingInstance, newToken =>
       setInputValues(prev => ({...prev, fcm: newToken})),
     );
   };

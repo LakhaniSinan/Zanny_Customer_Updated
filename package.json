@@ -16,6 +16,7 @@
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/checkbox": "^0.5.20",
     "@react-native-firebase/app": "^23.3.1",
+    "@react-native-firebase/database": "^23.3.1",
     "@react-native-firebase/firestore": "^23.3.1",
     "@react-native-firebase/messaging": "^23.3.1",
     "@react-native-google-signin/google-signin": "^16.0.0",

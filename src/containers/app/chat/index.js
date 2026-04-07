@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -13,13 +13,15 @@ import {
   PermissionsAndroid,
   Alert,
 } from 'react-native';
-import {useSelector} from 'react-redux';
-import firestore from '@react-native-firebase/firestore';
-import {icons} from '../../../assets';
-import {Colors} from '../../../constants';
+import { useSelector } from 'react-redux';
+import database from '@react-native-firebase/database';
+import { icons } from '../../../assets';
+import { Colors } from '../../../constants';
 import AudioRecord from 'react-native-audio-record';
 import Sound from 'react-native-sound';
 import axios from 'axios';
+const REALTIME_DB_URL = 'https://zanny-app-10dfa-default-rtdb.firebaseio.com/';
+const getDbPathRef = path => database().refFromURL(`${REALTIME_DB_URL}${path}`);
 
 const getDateKey = date => new Date(date).toISOString().split('T')[0];
 
@@ -41,9 +43,21 @@ const formatDate = dateString => {
 const getUserId = user =>
   user?._id || user?.id || user?.customerId || user?.merchantId || '';
 
+const normalizeId = value => {
+  if (!value) return '';
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (typeof value === 'object') {
+    return String(value?._id || value?.id || value?.customerId || value?.merchantId || '');
+  }
+  return '';
+};
+
 const buildChatId = (orderId, customerId, merchantId) => {
-  if (orderId) return `order_${orderId}`;
-  const sorted = [String(customerId || ''), String(merchantId || '')].sort();
+  const normalizedOrderId = normalizeId(orderId);
+  const normalizedCustomerId = normalizeId(customerId);
+  const normalizedMerchantId = normalizeId(merchantId);
+  if (normalizedOrderId) return `order_${normalizedOrderId}`;
+  const sorted = [normalizedCustomerId, normalizedMerchantId].sort();
   return `dm_${sorted.join('_')}`;
 };
 
@@ -83,12 +97,12 @@ const uploadVoiceNote = async audioUri => {
   const response = await axios.post(
     'https://api.cloudinary.com/v1_1/dcmawlfn2/auto/upload',
     form,
-    {headers: {'Content-Type': 'multipart/form-data'}},
+    { headers: { 'Content-Type': 'multipart/form-data' } },
   );
   return response?.data?.secure_url || '';
 };
 
-const ChatScreen = ({navigation, route}) => {
+const ChatScreen = ({ navigation, route }) => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -101,11 +115,11 @@ const ChatScreen = ({navigation, route}) => {
   const seenTimeoutRef = useRef(null);
   const user = useSelector(state => state?.LoginSlice?.user);
 
-  const currentUserId = useMemo(() => getUserId(user), [user]);
+  const currentUserId = useMemo(() => normalizeId(getUserId(user)), [user]);
   const participantName = route?.params?.participantName || 'Message';
-  const orderId = route?.params?.orderId;
-  const customerId = route?.params?.customerId;
-  const merchantId = route?.params?.merchantId;
+  const orderId = normalizeId(route?.params?.orderId);
+  const customerId = normalizeId(route?.params?.customerId);
+  const merchantId = normalizeId(route?.params?.merchantId);
   const senderType = route?.params?.senderType || 'customer';
   const senderName =
     user?.name || user?.fullName || user?.customerName || 'Customer';
@@ -116,6 +130,20 @@ const ChatScreen = ({navigation, route}) => {
     () => buildChatId(orderId, customerId, merchantId),
     [orderId, customerId, merchantId],
   );
+  const logPrefix = '[CustomerChatRTDB]';
+  const ensureChatMeta = async chatRef => {
+    await chatRef.update({
+      chatId,
+      orderId: orderId || null,
+      customerId: customerId || null,
+      merchantId: merchantId || null,
+      customerName: route?.params?.customerName || senderName,
+      merchantName:
+        route?.params?.merchantName || route?.params?.participantName || null,
+      participants: [customerId, merchantId].filter(Boolean),
+      updatedAt: database.ServerValue.TIMESTAMP,
+    });
+  };
 
   useEffect(() => {
     Sound.setCategory('Playback');
@@ -126,93 +154,91 @@ const ChatScreen = ({navigation, route}) => {
         soundRef.current.release();
       }
       if (seenTimeoutRef.current) clearTimeout(seenTimeoutRef.current);
-      AudioRecord.stop().catch(() => {});
+      AudioRecord.stop().catch(() => { });
     };
   }, []);
 
   useEffect(() => {
     if (!chatId || !currentUserId) return;
-
-    const chatRef = firestore().collection('chats').doc(chatId);
-
-    chatRef.set(
-      {
+    const chatRef = getDbPathRef(`chats/${chatId}`);
+    const messagesRef = chatRef.child('messages');
+    console.log(logPrefix, 'subscribe:start', {
+      chatId,
+      orderId,
+      customerId,
+      merchantId,
+      currentUserId,
+      senderType,
+      dbUrl: REALTIME_DB_URL,
+    });
+    ensureChatMeta(chatRef)
+      .then(() => console.log(logPrefix, 'chatMeta:update:success', {chatId}))
+      .catch(error => console.log(logPrefix, 'chatMeta:update:error', error));
+    const onMessagesValue = messagesRef.orderByChild('createdAt').on('value', snapshot => {
+      const payload = snapshot.val() || {};
+      const entries = Object.entries(payload).sort(
+        (a, b) => Number(a?.[1]?.createdAt || 0) - Number(b?.[1]?.createdAt || 0),
+      );
+      console.log(logPrefix, 'messages:snapshot', {
         chatId,
-        orderId: orderId || null,
-        customerId: customerId || null,
-        merchantId: merchantId || null,
-        customerName: route?.params?.customerName || senderName,
-        merchantName: route?.params?.merchantName || route?.params?.participantName || null,
-        participants: [customerId, merchantId].filter(Boolean),
-        updatedAt: firestore.FieldValue.serverTimestamp(),
-      },
-      {merge: true},
-    );
-
-    const unsubscribe = chatRef
-      .collection('messages')
-      .orderBy('createdAt', 'asc')
-      .onSnapshot(snapshot => {
-        const markDeliveredRefs = [];
-        const markSeenRefs = [];
-
-        const next = snapshot.docs.map(doc => {
-          const data = doc.data() || {};
-          const createdAtDate =
-            data.createdAt?.toDate?.() || new Date(data.createdAt || Date.now());
-          const isSent = String(data.senderId) === String(currentUserId);
-
-          if (!isSent) {
-            if (!data.deliveredAt) markDeliveredRefs.push(doc.ref);
-            if (!data.seenAt) markSeenRefs.push(doc.ref);
-          }
-
-          return {
-            id: doc.id,
-            messageType: data.type || 'text',
-            text: data.text || '',
-            audioUri: data.audioUri || '',
-            senderImage: data.senderImage || '',
-            durationSec: Number(data.durationSec || 0),
-            messageStatus: data.seenAt
-              ? 'seen'
-              : data.deliveredAt
-              ? 'delivered'
-              : 'sent',
-            time: createdAtDate.toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-            date: getDateKey(createdAtDate),
-            type: isSent ? 'sent' : 'received',
-          };
-        });
-        setMessages(next);
-
-        if (markDeliveredRefs.length) {
-          Promise.allSettled(
-            markDeliveredRefs.map(ref =>
-              ref.set(
-                {deliveredAt: firestore.FieldValue.serverTimestamp()},
-                {merge: true},
-              ),
-            ),
-          );
-        }
-
-        if (markSeenRefs.length) {
-          if (seenTimeoutRef.current) clearTimeout(seenTimeoutRef.current);
-          seenTimeoutRef.current = setTimeout(() => {
-            Promise.allSettled(
-              markSeenRefs.map(ref =>
-                ref.set({seenAt: firestore.FieldValue.serverTimestamp()}, {merge: true}),
-              ),
-            );
-          }, 700);
-        }
+        totalMessages: entries.length,
       });
+      const updates = {};
+      const seenUpdates = {};
 
-    return () => unsubscribe();
+      const next = entries.map(([messageId, data]) => {
+        const createdAtDate = new Date(data?.createdAt || Date.now());
+        const isSent = String(data?.senderId) === String(currentUserId);
+
+        if (!isSent) {
+          if (!data?.deliveredAt) {
+            updates[`messages/${messageId}/deliveredAt`] = database.ServerValue.TIMESTAMP;
+          }
+          if (!data?.seenAt) {
+            seenUpdates[`messages/${messageId}/seenAt`] = database.ServerValue.TIMESTAMP;
+          }
+        }
+
+        return {
+          id: messageId,
+          messageType: data?.type || 'text',
+          text: data?.text || '',
+          audioUri: data?.audioUri || '',
+          senderImage: data?.senderImage || '',
+          durationSec: Number(data?.durationSec || 0),
+          messageStatus: data?.seenAt ? 'seen' : data?.deliveredAt ? 'delivered' : 'sent',
+          time: createdAtDate.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          date: getDateKey(createdAtDate),
+          type: isSent ? 'sent' : 'received',
+        };
+      });
+      setMessages(next);
+
+      if (Object.keys(updates).length) {
+        chatRef
+          .update(updates)
+          .catch(error => console.log(logPrefix, 'delivered:update:error', error));
+      }
+
+      if (Object.keys(seenUpdates).length) {
+        if (seenTimeoutRef.current) clearTimeout(seenTimeoutRef.current);
+        seenTimeoutRef.current = setTimeout(() => {
+          chatRef
+            .update(seenUpdates)
+            .catch(error => console.log(logPrefix, 'seen:update:error', error));
+        }, 700);
+      }
+    }, error => {
+      console.log(logPrefix, 'messages:listen:error', error);
+    });
+
+    return () => {
+      console.log(logPrefix, 'subscribe:stop', {chatId});
+      messagesRef.off('value', onMessagesValue);
+    };
   }, [
     chatId,
     currentUserId,
@@ -227,32 +253,52 @@ const ChatScreen = ({navigation, route}) => {
 
   const sendTextMessage = async () => {
     const trimmed = message.trim();
-    if (!trimmed || !chatId || !currentUserId) return;
+    if (!trimmed || !chatId || !currentUserId) {
+      console.log(logPrefix, 'sendText:blocked', {
+        reason: 'missing-required-data',
+        trimmedLength: trimmed.length,
+        chatId,
+        currentUserId,
+      });
+      return;
+    }
 
-    const chatRef = firestore().collection('chats').doc(chatId);
-    const now = firestore.FieldValue.serverTimestamp();
-
-    await chatRef.collection('messages').add({
-      text: trimmed,
-      type: 'text',
-      senderId: currentUserId,
-      senderType,
-      senderName,
-      senderImage,
-      createdAt: now,
-    });
-
-    await chatRef.set(
-      {
+    try {
+      const chatRef = getDbPathRef(`chats/${chatId}`);
+      await ensureChatMeta(chatRef);
+      console.log(logPrefix, 'sendText:start', {
+        chatId,
+        senderId: currentUserId,
+        senderType,
+        text: trimmed,
+      });
+      const pushResult = await chatRef.child('messages').push({
+        text: trimmed,
+        type: 'text',
+        senderId: String(currentUserId),
+        senderType,
+        senderName,
+        senderImage,
+        createdAt: database.ServerValue.TIMESTAMP,
+      });
+      await chatRef.update({
         lastMessage: trimmed,
         lastMessageSenderId: currentUserId,
         lastMessageSenderType: senderType,
-        updatedAt: now,
-      },
-      {merge: true},
-    );
-
-    setMessage('');
+        updatedAt: database.ServerValue.TIMESTAMP,
+      });
+      console.log(logPrefix, 'sendText:push:success', {
+        chatId,
+        messageId: pushResult?.key,
+      });
+      setMessage('');
+    } catch (error) {
+      console.log(logPrefix, 'sendText:error', error);
+      Alert.alert(
+        'Message error',
+        error?.message || 'Text message send nahi ho saka.',
+      );
+    }
   };
 
   const requestAudioPermission = async () => {
@@ -315,27 +361,24 @@ const ChatScreen = ({navigation, route}) => {
         return;
       }
 
-      const chatRef = firestore().collection('chats').doc(chatId);
-      const now = firestore.FieldValue.serverTimestamp();
-      await chatRef.collection('messages').add({
+      const chatRef = getDbPathRef(`chats/${chatId}`);
+      await ensureChatMeta(chatRef);
+      await chatRef.child('messages').push({
         type: 'voice',
         audioUri: uploadedUrl,
         durationSec,
-        senderId: currentUserId,
+        senderId: String(currentUserId),
         senderType,
         senderName,
         senderImage,
-        createdAt: now,
+        createdAt: database.ServerValue.TIMESTAMP,
       });
-      await chatRef.set(
-        {
-          lastMessage: 'Voice note',
-          lastMessageSenderId: currentUserId,
-          lastMessageSenderType: senderType,
-          updatedAt: now,
-        },
-        {merge: true},
-      );
+      await chatRef.update({
+        lastMessage: 'Voice note',
+        lastMessageSenderId: currentUserId,
+        lastMessageSenderType: senderType,
+        updatedAt: database.ServerValue.TIMESTAMP,
+      });
       setRecordingSeconds(0);
     } catch (error) {
       Alert.alert('Voice note error', 'Voice note send nahi ho saka.');
@@ -408,7 +451,7 @@ const ChatScreen = ({navigation, route}) => {
     return grouped;
   }, [messages]);
 
-  const renderMessage = ({item}) => {
+  const renderMessage = ({ item }) => {
     if (item.type === 'date') {
       return (
         <View style={styles.dateContainer}>
@@ -443,7 +486,7 @@ const ChatScreen = ({navigation, route}) => {
                   item.type === 'sent' && styles.voiceAvatarSent,
                 ]}>
                 {item?.senderImage ? (
-                  <Image source={{uri: item.senderImage}} style={styles.voiceAvatarImage} />
+                  <Image source={{ uri: item.senderImage }} style={styles.voiceAvatarImage} />
                 ) : (
                   <Image source={iconMap.profile} style={styles.voiceAvatarIcon} />
                 )}
@@ -454,7 +497,7 @@ const ChatScreen = ({navigation, route}) => {
                     <Text
                       style={[
                         styles.voicePlayText,
-                        {color: item.type === 'sent' ? '#fff' : '#222'},
+                        { color: item.type === 'sent' ? '#fff' : '#222' },
                       ]}>
                       {playingMessageId === item.id && !isPlaybackPaused
                         ? '||'
@@ -462,7 +505,7 @@ const ChatScreen = ({navigation, route}) => {
                     </Text>
                   </View>
                   <View style={styles.waveWrap}>
-                    {Array.from({length: 34}).map((_, index) => (
+                    {Array.from({ length: 34 }).map((_, index) => (
                       <View
                         key={`wave-${item.id}-${index}`}
                         style={[
@@ -473,7 +516,7 @@ const ChatScreen = ({navigation, route}) => {
                                 ? 'rgba(255,255,255,0.85)'
                                 : 'rgba(0,0,0,0.5)',
                           },
-                          {height: 6 + ((index * 5) % 16)},
+                          { height: 6 + ((index * 5) % 16) },
                         ]}
                       />
                     ))}
@@ -542,7 +585,7 @@ const ChatScreen = ({navigation, route}) => {
           contentContainerStyle={styles.messagesList}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() =>
-            flatListRef.current?.scrollToEnd({animated: true})
+            flatListRef.current?.scrollToEnd({ animated: true })
           }
         />
 
@@ -594,8 +637,8 @@ const ChatScreen = ({navigation, route}) => {
                 message.trim()
                   ? iconMap.send
                   : isRecording
-                  ? iconMap.check
-                  : iconMap.mic
+                    ? iconMap.check
+                    : iconMap.mic
               }
               style={[
                 styles.sendIcon,
@@ -745,7 +788,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginHorizontal: 8,
     minHeight: 46,
-    
+
   },
   input: {
     color: '#000',
@@ -789,9 +832,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  voiceContainer: {flexDirection: 'row', alignItems: 'center', minWidth: 240},
-  voiceContainerSent: {flexDirection: 'row-reverse'},
-  voiceContainerReceived: {flexDirection: 'row'},
+  voiceContainer: { flexDirection: 'row', alignItems: 'center', minWidth: 240 },
+  voiceContainerSent: { flexDirection: 'row-reverse' },
+  voiceContainerReceived: { flexDirection: 'row' },
   voiceAvatar: {
     width: 30,
     height: 30,
@@ -816,8 +859,8 @@ const styles = StyleSheet.create({
     tintColor: '#fff',
     resizeMode: 'contain',
   },
-  voiceMain: {flex: 1},
-  voiceTopRow: {flexDirection: 'row', alignItems: 'center'},
+  voiceMain: { flex: 1 },
+  voiceTopRow: { flexDirection: 'row', alignItems: 'center' },
   voicePlayButton: {
     width: 28,
     height: 28,
@@ -831,14 +874,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-  waveWrap: {flex: 1, flexDirection: 'row', alignItems: 'center'},
+  waveWrap: { flex: 1, flexDirection: 'row', alignItems: 'center' },
   waveBar: {
     width: 2,
     borderRadius: 2,
     marginRight: 2,
   },
-  voiceBottomRow: {marginTop: 4, flexDirection: 'row', justifyContent: 'space-between'},
-  voiceDuration: {fontSize: 12, color: '#222', fontWeight: '500'},
+  voiceBottomRow: { marginTop: 4, flexDirection: 'row', justifyContent: 'space-between' },
+  voiceDuration: { fontSize: 12, color: '#222', fontWeight: '500' },
   deleteIcon: {
     width: 24,
     height: 24,
