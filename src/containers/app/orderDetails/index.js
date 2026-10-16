@@ -425,7 +425,7 @@ const OrderDetail = ({navigation, route}) => {
             <Text style={styles.orderNumberText}>#{data.orderId}</Text>
           </View>
 
-              <Text style={[styles.totalValue, {color: '#BF2725'}]}>
+              <Text style={[styles.totalValue, {color: colors.red}]}>
                 £{data?.totalBill || '0.00'}
               </Text>
 
@@ -436,6 +436,7 @@ const OrderDetail = ({navigation, route}) => {
                               fontSize: 13,
                               fontFamily: fontFamily.poppinSemiBold,
                               marginRight: 6,
+                              color: colors.black,
                             }}>{days} Days</Text>
                           </View>
 

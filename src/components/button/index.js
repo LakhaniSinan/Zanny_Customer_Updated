@@ -17,7 +17,7 @@ const Button = ({heading, onPress}) => {
           alignItems: 'center',
           marginBottom:width(2)
         }}>
-        <Text style={{color: 'white', fontWeight: 'bold'}}>{heading}</Text>
+        <Text style={{color: colors.white, fontWeight: 'bold'}}>{heading}</Text>
       </View>
     </TouchableOpacity>
   );

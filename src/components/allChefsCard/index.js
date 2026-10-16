@@ -97,7 +97,7 @@ const AllChefsCard = ({item}) => {
         style={{
           width: width(50),
         }}>
-        <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 16}}>
+        <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 16, color: colors.black}}>
           {item?.name}
         </Text>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -111,7 +111,7 @@ const AllChefsCard = ({item}) => {
               paddingHorizontal: width(3),
               borderWidth: 1,
               borderColor: colors.warn,
-              color: '#50555C',
+              color: colors.gray,
               paddingTop: width(1),
             }}>
             British
@@ -126,7 +126,7 @@ const AllChefsCard = ({item}) => {
               paddingHorizontal: width(3),
               borderWidth: 1,
               borderColor: colors.warn,
-              color: '#50555C',
+              color: colors.gray,
               paddingTop: width(1),
             }}>
             American
@@ -148,6 +148,7 @@ const AllChefsCard = ({item}) => {
               fontSize: 12,
               fontFamily: fontFamily.poppinRegular,
               marginTop: width(1),
+              color: colors.gray,
             }}>
             {'4.8 (120+)  2.8 km away'}
           </Text>

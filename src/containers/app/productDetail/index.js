@@ -346,7 +346,7 @@ const ProductDetail = ({route}) => {
             renderItem={({item}) => <ProgressCard item={item} />}
             ListEmptyComponent={
               <View style={{alignItems: 'center', paddingVertical: 20}}>
-                <Text style={{fontSize: 14, color: '#999'}}>
+                <Text style={{fontSize: 14, color: colors.gray}}>
                   {activeTab == 'Nutrition'
                     ? 'No nutrition data available'
                     : 'Coming Soon...'}

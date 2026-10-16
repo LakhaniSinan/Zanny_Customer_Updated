@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
 
   addressIcon: {height: width(5), width: width(5)},
 
-  addressTitle: {fontFamily: fontFamily.poppinBold},
+  addressTitle: {fontFamily: fontFamily.poppinBold, color: Colors.black},
   addressText: {
     fontFamily: fontFamily.poppinRegular,
     color: Colors.graydark,

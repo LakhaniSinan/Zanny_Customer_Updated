@@ -19,10 +19,10 @@ const styles = StyleSheet.create({
     marginRight: '3%',
     fontSize: 16,
     fontWeight: '500',
-    color: 'black',
+    color: colors.black,
   },
   subheading: {
-    color: 'black',
+    color: colors.black,
     width: '40%',
     fontSize: 14,
     fontFamily: fontFamily.poppinRegular,
@@ -54,14 +54,14 @@ const styles = StyleSheet.create({
   },
   deliverytxt: {
     marginTop: '2%',
-    color: 'black',
+    color: colors.black,
     fontWeight: '600',
     width: '58%',
     flexWrap: 'wrap',
     textAlign: 'right',
   },
   pricetxt: {
-    color: 'grey',
+    color: colors.grey,
     fontWeight: '600',
     width: '65%',
     textAlign: 'right',
@@ -70,14 +70,14 @@ const styles = StyleSheet.create({
     paddingRight: 15,
   },
   totaltxt: {
-    color: 'black',
+    color: colors.black,
     paddingTop: '2%',
     width: '40%',
     fontWeight: '700',
     fontSize: 17,
   },
   subtotaltxt: {
-    color: 'black',
+    color: colors.black,
     paddingTop: '2%',
     width: '40%',
     fontWeight: '700',
@@ -110,12 +110,12 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.poppinBold,
   },
   deliveryDateTime: {
-    color: 'white',
+    color: colors.white,
     fontSize: 14,
     fontFamily: fontFamily.poppinRegular,
   },
    deliveryDateTime1: {
-    color: 'white',
+    color: colors.white,
     fontSize: 14,
     fontFamily: fontFamily.poppinLight,
   },
@@ -139,13 +139,13 @@ const styles = StyleSheet.create({
   orderNumberLabel: {
     fontSize: 14,
     fontFamily: fontFamily.poppinRegular,
-    color: 'black',
+    color: colors.black,
     marginRight: width(2),
   },
   orderNumberText: {
     fontSize: 14,
     fontFamily: fontFamily.poppinBold,
-    color: 'black',
+    color: colors.black,
   },
   orderItemContainer: {
     flexDirection: 'row',
@@ -166,19 +166,19 @@ const styles = StyleSheet.create({
   orderItemName: {
     fontSize: 15,
     fontFamily: fontFamily.poppinBold,
-    color: 'black',
+    color: colors.black,
     marginBottom: width(1),
   },
   orderItemPrice: {
     fontSize: 15,
     fontFamily: fontFamily.poppinBold,
-    color: '#FF0000',
+    color: colors.red,
     marginBottom: width(0.5),
   },
   orderItemQty: {
     fontSize: 13,
     fontFamily: fontFamily.poppinRegular,
-    color: '#808080',
+    color: colors.grey,
   },
   itemSeparator: {
     height: 1,
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   chefLabel: {
     fontSize: 14,
     fontFamily: fontFamily.poppinRegular,
-    color: 'black',
+    color: colors.black,
     marginBottom: width(2),
   },
   chefInfoContainer: {
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   chefName: {
     fontSize: 15,
     fontFamily: fontFamily.poppinBold,
-    color: 'black',
+    color: colors.black,
     // flex: 1,
   },
   chefCheckIcon: {
@@ -238,12 +238,12 @@ const styles = StyleSheet.create({
   deliveryAddressLabel: {
     fontSize: 14,
     fontFamily: fontFamily.poppinBold,
-    color: 'black',
+    color: colors.black,
   },
   deliveryAddressText: {
     fontSize: 13,
     fontFamily: fontFamily.poppinRegular,
-    color: 'black',
+    color: colors.black,
     marginLeft: width(7),
     lineHeight: 20,
   },
@@ -262,12 +262,12 @@ const styles = StyleSheet.create({
   costLabel: {
     fontSize: 14,
     fontFamily: fontFamily.poppinRegular,
-    color: 'black',
+    color: colors.black,
   },
   costValue: {
     fontSize: 14,
     fontFamily: fontFamily.poppinRegular,
-    color: '#808080',
+    color: colors.grey,
   },
   dividerLine: {
     height: 1,
@@ -285,12 +285,12 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 16,
     fontFamily: fontFamily.poppinBold,
-    color: 'black',
+    color: colors.black,
   },
   totalValue: {
     fontSize: 16,
     fontFamily: fontFamily.poppinBold,
-    color: 'black',
+    color: colors.black,
   },
   receiptEdge: {
     height: 15,
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
 
   addressIcon: {height: width(5), width: width(5)},
 
-  addressTitle: {fontFamily: fontFamily.poppinBold},
+  addressTitle: {fontFamily: fontFamily.poppinBold, color: colors.black},
   addressText: {
     fontFamily: fontFamily.poppinRegular,
     color: colors.graydark,

@@ -175,8 +175,8 @@ const styles = StyleSheet.create({
 
   icon: {height: width(6), width: width(6)},
   textWrapper: {marginLeft: width(2)},
-  title: {fontFamily: fontFamily.poppinSemiBold, fontSize: 14},
-  description: {fontFamily: fontFamily.poppinRegular, fontSize: 12},
+  title: {fontFamily: fontFamily.poppinSemiBold, fontSize: 14, color: colors.black},
+  description: {fontFamily: fontFamily.poppinRegular, fontSize: 12, color: colors.gray},
 
   centerView: {
     flex: 1,

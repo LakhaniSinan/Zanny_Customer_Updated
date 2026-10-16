@@ -45,10 +45,10 @@ const CartModal = ({
           marginHorizontal: width(4.5),
           marginTop: width(2),
         }}>
-        <Text style={{ fontWeight: '700', fontSize: 16, color: 'black' }}>
+        <Text style={{ fontWeight: '700', fontSize: 16, color: colors.black }}>
           {selectedItem.name}
         </Text>
-        <Text style={{ fontWeight: '700', fontSize: 16, color: 'black' }}>
+        <Text style={{ fontWeight: '700', fontSize: 16, color: colors.black }}>
           £
           {selectedItem.discount > 0
             ? selectedItem.discount
@@ -59,7 +59,7 @@ const CartModal = ({
         style={{
           marginHorizontal: width(4.5),
         }}>
-        <Text style={{ fontWeight: '300', fontSize: 12, color: '#b4b0b0' }}>
+        <Text style={{ fontWeight: '300', fontSize: 12, color: colors.grey }}>
           {selectedItem.description}
         </Text>
       </View>
@@ -92,10 +92,10 @@ const CartModal = ({
                 height: width(10),
               }}
               >
-              <Text style={{ color: 'white', fontSize: 20 }}>-</Text>
+              <Text style={{ color: colors.white, fontSize: 20 }}>-</Text>
             </View>
           </TouchableOpacity>
-          <Text style={{ fontSize: 18, color: 'black', fontWeight: '600' }}>
+          <Text style={{ fontSize: 18, color: colors.black, fontWeight: '600' }}>
             {selectedItem.selectedQty}
           </Text>
           <TouchableOpacity onPress={handleIncrease}>
@@ -110,7 +110,7 @@ const CartModal = ({
                 height: width(10),
               }}
               >
-              <Text style={{ color: 'white', fontSize: 20 }}>+</Text>
+              <Text style={{ color: colors.white, fontSize: 20 }}>+</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -126,7 +126,7 @@ const CartModal = ({
               }}>
               <Text
                 style={{
-                  color: 'white',
+                  color: colors.white,
                 }}>
                 Add to cart
               </Text>

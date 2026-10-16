@@ -143,7 +143,7 @@ const Support = () => {
           />
         ) : (
           <View style={{marginTop: width(40), alignItems: 'center'}}>
-            <Text style={{fontSize: 16, fontFamily: fontFamily.poppinBold}}>
+            <Text style={{fontSize: 16, fontFamily: fontFamily.poppinBold, color: colors.black}}>
               No records found
             </Text>
           </View>

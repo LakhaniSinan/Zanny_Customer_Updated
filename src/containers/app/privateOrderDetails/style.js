@@ -18,10 +18,10 @@ const styles = StyleSheet.create({
     marginRight: '3%',
     fontSize: 16,
     fontWeight: '500',
-    color: 'black',
+    color: colors.black,
   },
   subheading: {
-    color: 'black',
+    color: colors.black,
     width: '40%',
   },
   ordertxtview: {
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
 
   oredernotxt: {
     marginTop: '2%',
-    color: 'black',
+    color: colors.black,
     fontWeight: '700',
     backgroundColor: 'grey',
     borderRadius: 30,
@@ -60,14 +60,14 @@ const styles = StyleSheet.create({
   },
   deliverytxt: {
     marginTop: '2%',
-    color: 'black',
+    color: colors.black,
     fontWeight: '600',
     width: '58%',
     flexWrap: 'wrap',
     textAlign: 'right',
   },
   pricetxt: {
-    color: 'grey',
+    color: colors.grey,
     fontWeight: '600',
     width: '65%',
     textAlign: 'right',
@@ -76,14 +76,14 @@ const styles = StyleSheet.create({
     paddingRight: 15,
   },
   totaltxt: {
-    color: 'black',
+    color: colors.black,
     paddingTop: '2%',
     width: '40%',
     fontWeight: '700',
     fontSize: 17,
   },
   subtotaltxt: {
-    color: 'black',
+    color: colors.black,
     paddingTop: '2%',
     width: '40%',
     fontWeight: '700',

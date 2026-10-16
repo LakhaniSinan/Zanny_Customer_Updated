@@ -109,7 +109,7 @@ const MealItem = ({item, checked, onPress, onDetailsPress}) => {
       />
 
       <View style={{flex: 1}}>
-        <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 14}}>
+        <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 14, color: colors.black}}>
           {item.name}
         </Text>
 
@@ -243,6 +243,7 @@ const MealDetailModal = ({item, onClose}) => {
             style={{
               fontFamily: fontFamily.poppinSemiBold,
               fontSize: 18,
+              color: colors.black,
             }}>
             Meal Details
           </Text>
@@ -286,6 +287,7 @@ const MealDetailModal = ({item, onClose}) => {
             style={{
               fontFamily: fontFamily.poppinSemiBold,
               fontSize: 16,
+              color: colors.black,
             }}>
             {item.name}
           </Text>
@@ -308,7 +310,7 @@ const MealDetailModal = ({item, onClose}) => {
               paddingVertical: 4,
               borderRadius: 20,
             }}>
-            <Text style={{fontSize: 12}}>Starters</Text>
+            <Text style={{fontSize: 12, color: colors.black}}>Starters</Text>
           </View>
         </View>
       </View>
@@ -332,6 +334,7 @@ const MealDetailModal = ({item, onClose}) => {
           fontFamily: fontFamily.poppinSemiBold,
           fontSize: 16,
           marginBottom: width(3),
+          color: colors.black,
         }}>
         Nutrition
       </Text>
@@ -523,6 +526,7 @@ const styles = {
     fontSize: 18,
     paddingHorizontal: width(4),
     paddingTop: width(4),
+    color: colors.black,
   },
   packageRow: {
     flexDirection: 'row',
@@ -539,10 +543,12 @@ const styles = {
   packageTitle: {
     fontFamily: fontFamily.poppinSemiBold,
     fontSize: 13,
+    color: colors.black,
   },
   packageSub: {
     fontSize: 11,
     marginTop: 4,
+    color: colors.gray,
   },
   packagePrice: {
     fontSize: 20,

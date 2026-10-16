@@ -306,6 +306,7 @@ const AboutChef = () => {
                         style={{
                           fontSize: 12,
                           fontFamily: fontFamily.poppinRegular,
+                          color: colors.gray,
                         }}>
                         4.8 (120+)
                       </Text>
@@ -626,7 +627,7 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 10,
     fontFamily: fontFamily.poppinRegular,
-    color: '#50555C',
+    color: Colors.gray,
   },
   ratingRow: {
     flexDirection: 'row',

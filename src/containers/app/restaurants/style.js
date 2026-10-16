@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 150 / 8,
   },
   text: {
-    color: 'grey',
+    color: colors.grey,
   },
 
   headingview: {
@@ -22,20 +22,20 @@ const styles = StyleSheet.create({
 
   productname: {
     fontSize: 18,
-    color: 'black',
+    color: colors.black,
     fontWeight: 'bold',
   },
   pricestyle: {
     marginLeft: width(12),
     fontSize: 16,
-    color: 'black',
+    color: colors.black,
     fontWeight: '500',
     width: '25%',
   },
   discriptionstyle: {
     marginLeft: width(2),
     fontSize: 14,
-    color: 'black',
+    color: colors.black,
   },
   categoryview: {
     marginHorizontal: width(3),
@@ -50,13 +50,13 @@ const styles = StyleSheet.create({
   textstyle: {
     marginLeft: width(5),
     fontSize: 17,
-    color: 'black',
+    color: colors.black,
     fontWeight: '500',
   },
   categtext: {
     marginLeft: width(18),
     fontSize: 16,
-    color: 'black',
+    color: colors.black,
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -114,11 +114,11 @@ const styles = StyleSheet.create({
   txtstyle: {
     fontSize: 14,
     fontWeight: '500',
-    color: 'black',
+    color: colors.black,
     width: '40%',
   },
   txtdate: {
-    color: 'black',
+    color: colors.black,
     marginLeft: '4%',
     marginBottom: '4%',
   },
@@ -131,13 +131,13 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   btntxt: {
-    color: 'white',
+    color: colors.white,
     textAlign: 'center',
     fontWeight: '600',
     fontSize: 12,
   },
   quantity: {
-    color: 'black',
+    color: colors.black,
   },
 
   innerview: {
@@ -167,12 +167,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   subtotalText: {
-    color: 'black',
+    color: colors.black,
     fontSize: 16,
     fontWeight: '500',
   },
   subtotalPrice: {
-    color: 'black',
+    color: colors.black,
     fontSize: 16,
     fontWeight: '500',
   },
@@ -187,11 +187,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   deliveryfeeText: {
-    color: 'black',
+    color: colors.black,
     fontSize: 14,
   },
   deliveryfeePrice: {
-    color: 'black',
+    color: colors.black,
     fontSize: 14,
     marginRight: width(2),
   },
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   heading: {
-    color: 'black',
+    color: colors.black,
     fontSize: 16,
     fontWeight: '600',
     marginLeft: width(2),

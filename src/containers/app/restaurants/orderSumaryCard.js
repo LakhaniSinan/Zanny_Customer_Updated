@@ -36,10 +36,10 @@ const OrderSummaryCard = ({ orderType, orderBill, charges, serviceCharges }) => 
                   alignItems: 'center',
                   justifyContent: 'space-between',
                 }}>
-                <Text style={{ color: 'black' }}>
+                <Text style={{ color: colors.black }}>
                   {item.selectedQty} x {item.name}
                 </Text>
-                <Text style={{ color: 'black' }}>
+                <Text style={{ color: colors.black }}>
                   £{item.discount > 0 ? item.discount : item.price}
                 </Text>
               </View>
@@ -61,8 +61,8 @@ const OrderSummaryCard = ({ orderType, orderBill, charges, serviceCharges }) => 
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-        <Text style={{ color: 'black' }}>Sub total</Text>
-        <Text style={{ color: 'black' }}>£{orderBill.subTotal}</Text>
+        <Text style={{ color: colors.black }}>Sub total</Text>
+        <Text style={{ color: colors.black }}>£{orderBill.subTotal}</Text>
       </View>
       <View
         style={{
@@ -71,8 +71,8 @@ const OrderSummaryCard = ({ orderType, orderBill, charges, serviceCharges }) => 
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-        <Text style={{ color: 'black' }}>Service Charges</Text>
-        <Text style={{ color: 'black' }}>£{serviceCharges?.toFixed(2)}</Text>
+        <Text style={{ color: colors.black }}>Service Charges</Text>
+        <Text style={{ color: colors.black }}>£{serviceCharges?.toFixed(2)}</Text>
       </View>
       {orderType !== "pickup" && <View
         style={{
@@ -81,8 +81,8 @@ const OrderSummaryCard = ({ orderType, orderBill, charges, serviceCharges }) => 
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-        <Text style={{ color: 'black' }}>Delivery Charges</Text>
-        <Text style={{ color: 'black' }}>£{charges}</Text>
+        <Text style={{ color: colors.black }}>Delivery Charges</Text>
+        <Text style={{ color: colors.black }}>£{charges}</Text>
       </View>}
     </View>
   );

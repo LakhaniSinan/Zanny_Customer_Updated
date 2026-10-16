@@ -128,6 +128,7 @@ const MealDetailModal = ({item, onClose}) => {
           style={{
             fontFamily: fontFamily.poppinSemiBold,
             fontSize: 18,
+            color: colors.black,
           }}>
           Meal Details
         </Text>
@@ -165,6 +166,7 @@ const MealDetailModal = ({item, onClose}) => {
             style={{
               fontFamily: fontFamily.poppinSemiBold,
               fontSize: 16,
+              color: colors.black,
             }}>
             {item?.name}
           </Text>
@@ -179,7 +181,7 @@ const MealDetailModal = ({item, onClose}) => {
               paddingVertical: 4,
               borderRadius: 20,
             }}>
-            <Text style={{fontSize: 12}}>Selected Meal</Text>
+            <Text style={{fontSize: 12, color: colors.black}}>Selected Meal</Text>
           </View>
         </View>
       </View>
@@ -200,6 +202,7 @@ const MealDetailModal = ({item, onClose}) => {
           fontFamily: fontFamily.poppinSemiBold,
           fontSize: 16,
           marginBottom: width(3),
+          color: colors.black,
         }}>
         Nutrition
       </Text>
@@ -878,6 +881,7 @@ const styles = {
     fontSize: 18,
     fontFamily: fontFamily.poppinBold,
     marginBottom: width(2),
+    color: colors.black,
   },
   paymentRow: {
     flexDirection: 'row',

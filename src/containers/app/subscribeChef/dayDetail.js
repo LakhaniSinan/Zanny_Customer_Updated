@@ -104,7 +104,7 @@ const MealItem = ({item, checked, onPress, onDetailsPress}) => (
     />
 
     <View style={{flex: 1}}>
-      <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 14}}>
+      <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 14, color: colors.black}}>
         {item.name}
       </Text>
       <Text style={{fontSize: 12, color: colors.gray, marginVertical: 4}}>
@@ -216,7 +216,7 @@ const MealDetailModal = ({item, onClose}) => {
           alignItems: 'center',
           marginBottom: width(4),
         }}>
-        <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 18}}>
+        <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 18, color: colors.black}}>
           Meal Details
         </Text>
         <TouchableOpacity
@@ -248,7 +248,7 @@ const MealDetailModal = ({item, onClose}) => {
           }}
         />
         <View style={{flex: 1}}>
-          <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 16}}>
+          <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 16, color: colors.black}}>
             {item.name}
           </Text>
           <Text
@@ -267,7 +267,7 @@ const MealDetailModal = ({item, onClose}) => {
               paddingVertical: 4,
               borderRadius: 20,
             }}>
-            <Text style={{fontSize: 12}}>Starters</Text>
+            <Text style={{fontSize: 12, color: colors.black}}>Starters</Text>
           </View>
         </View>
       </View>
@@ -288,6 +288,7 @@ const MealDetailModal = ({item, onClose}) => {
           fontFamily: fontFamily.poppinSemiBold,
           fontSize: 16,
           marginBottom: width(3),
+          color: colors.black,
         }}>
         Nutrition
       </Text>
@@ -422,7 +423,7 @@ const SubscribeChefDay = ({navigation, route}) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{paddingHorizontal: width(4), paddingTop: width(2)}}>
           <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-            <Text style={{fontSize: 16}}>🗓</Text>
+            <Text style={{fontSize: 16, color: colors.black}}>🗓</Text>
             <Text
               style={{
                 fontFamily: fontFamily.poppinSemiBold,
@@ -464,7 +465,7 @@ const SubscribeChefDay = ({navigation, route}) => {
             <View style={{flex: 1}}>
               <View
                 style={{flexDirection: 'row', alignItems: 'center', gap: 6}}>
-                <Text style={{fontFamily: fontFamily.poppinBold, fontSize: 15}}>
+                <Text style={{fontFamily: fontFamily.poppinBold, fontSize: 15, color: colors.black}}>
                   {chefData?.name || 'Leanne Wayne'}
                 </Text>
                 <View
@@ -476,7 +477,7 @@ const SubscribeChefDay = ({navigation, route}) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}>
-                  <Text style={{color: '#fff', fontSize: 9, fontWeight: '700'}}>
+                  <Text style={{color: colors.white, fontSize: 9, fontWeight: '700'}}>
                     ✓
                   </Text>
                 </View>
@@ -497,7 +498,7 @@ const SubscribeChefDay = ({navigation, route}) => {
                       paddingVertical: 3,
                       borderRadius: 999,
                     }}>
-                    <Text style={{fontSize: 10, color: '#50555C'}}>{t}</Text>
+                    <Text style={{fontSize: 10, color: Colors.gray}}>{t}</Text>
                   </View>
                 ))}
               </View>
@@ -542,7 +543,7 @@ const SubscribeChefDay = ({navigation, route}) => {
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
               <Image source={icons.clock} style={{width: 18, height: 18}} />
               <Text
-                style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 15}}>
+                style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 15, color: colors.black}}>
                 12 : 30
               </Text>
             </View>
@@ -559,7 +560,7 @@ const SubscribeChefDay = ({navigation, route}) => {
                   }}>
                   <Text
                     style={{
-                      color: ampm === v ? '#fff' : Colors.black,
+                      color: ampm === v ? colors.white : Colors.black,
                       fontFamily: fontFamily.poppinSemiBold,
                       fontSize: 12,
                     }}>
@@ -575,6 +576,7 @@ const SubscribeChefDay = ({navigation, route}) => {
               marginTop: width(5),
               fontFamily: fontFamily.poppinSemiBold,
               fontSize: 15,
+              color: colors.black,
             }}>
             Select Package
           </Text>
@@ -599,7 +601,7 @@ const SubscribeChefDay = ({navigation, route}) => {
                     selectedPackage === pkg.id ? colors.yellow : Colors.white,
                 }}>
                 <Text
-                  style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 13}}>
+                  style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 13, color: colors.black}}>
                   {pkg.title}
                 </Text>
                 <Text
@@ -660,11 +662,11 @@ const SubscribeChefDay = ({navigation, route}) => {
                       justifyContent: 'center',
                     }}>
                     {availability[row.id] && (
-                      <Text style={{color: '#fff', fontSize: 12}}>✓</Text>
+                      <Text style={{color: colors.white, fontSize: 12}}>✓</Text>
                     )}
                   </View>
                   <Text
-                    style={{fontFamily: fontFamily.poppinMedium, fontSize: 14}}>
+                    style={{fontFamily: fontFamily.poppinMedium, fontSize: 14, color: colors.black}}>
                     {row.label}
                   </Text>
                 </TouchableOpacity>
@@ -677,6 +679,7 @@ const SubscribeChefDay = ({navigation, route}) => {
               marginTop: width(5),
               fontFamily: fontFamily.poppinSemiBold,
               fontSize: 16,
+              color: colors.black,
             }}>
             Menu
           </Text>
@@ -716,6 +719,7 @@ const SubscribeChefDay = ({navigation, route}) => {
               marginTop: width(5),
               fontFamily: fontFamily.poppinSemiBold,
               fontSize: 15,
+              color: colors.black,
             }}>
             Special Order
           </Text>
@@ -737,6 +741,7 @@ const SubscribeChefDay = ({navigation, route}) => {
               minHeight: width(24),
               textAlignVertical: 'top',
               fontFamily: fontFamily.poppinRegular,
+              color: Colors.black,
             }}
           />
 
@@ -745,6 +750,7 @@ const SubscribeChefDay = ({navigation, route}) => {
               marginTop: width(5),
               fontFamily: fontFamily.poppinSemiBold,
               fontSize: 15,
+              color: colors.black,
             }}>
             Promo
           </Text>
@@ -763,7 +769,7 @@ const SubscribeChefDay = ({navigation, route}) => {
               onChangeText={setPromo}
               placeholder="Enter Promo Code"
               placeholderTextColor={Colors.grayyy}
-              style={{flex: 1, paddingVertical: width(3), fontSize: 14}}
+              style={{flex: 1, paddingVertical: width(3), fontSize: 14, color: Colors.black}}
             />
             <TouchableOpacity
               style={{
@@ -773,7 +779,7 @@ const SubscribeChefDay = ({navigation, route}) => {
                 borderRadius: 999,
                 margin: 4,
               }}>
-              <Text style={{fontFamily: fontFamily.poppinMedium}}>
+              <Text style={{fontFamily: fontFamily.poppinMedium, color: colors.black}}>
                 Apply Code
               </Text>
             </TouchableOpacity>
@@ -784,6 +790,7 @@ const SubscribeChefDay = ({navigation, route}) => {
               marginTop: width(5),
               fontFamily: fontFamily.poppinSemiBold,
               fontSize: 16,
+              color: colors.black,
             }}>
             Payment Summary
           </Text>
@@ -800,14 +807,14 @@ const SubscribeChefDay = ({navigation, route}) => {
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={{color: Colors.grayyy}}>Sub Total</Text>
-              <Text style={{fontFamily: fontFamily.poppinSemiBold}}>
+              <Text style={{fontFamily: fontFamily.poppinSemiBold, color: colors.black}}>
                 £28.12
               </Text>
             </View>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={{color: Colors.grayyy}}>Traveling Cost</Text>
-              <Text style={{fontFamily: fontFamily.poppinSemiBold}}>£20</Text>
+              <Text style={{fontFamily: fontFamily.poppinSemiBold, color: colors.black}}>£20</Text>
             </View>
             <View
               style={{
@@ -817,10 +824,10 @@ const SubscribeChefDay = ({navigation, route}) => {
                 borderTopColor: colors.border,
                 paddingTop: width(2),
               }}>
-              <Text style={{fontFamily: fontFamily.poppinBold}}>
+              <Text style={{fontFamily: fontFamily.poppinBold, color: colors.black}}>
                 Total Price
               </Text>
-              <Text style={{fontFamily: fontFamily.poppinBold}}>£48.12</Text>
+              <Text style={{fontFamily: fontFamily.poppinBold, color: colors.black}}>£48.12</Text>
             </View>
           </View>
         </View>

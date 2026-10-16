@@ -1,3 +1,4 @@
+import {colors} from '../../../constants';
 import React, { useState } from "react";
 import {
   SafeAreaView,
@@ -459,7 +460,7 @@ const SpecialOrderRequest = () => {
                     <Text
                       style={[
                         styles.ampmText,
-                        startAmPm === i && { color: "#fff" },
+                        startAmPm === i && { color: colors.white },
                       ]}
                     >
                       {i}
@@ -502,7 +503,7 @@ const SpecialOrderRequest = () => {
                     <Text
                       style={[
                         styles.ampmText,
-                        endAmPm === i && { color: "#fff" },
+                        endAmPm === i && { color: colors.white },
                       ]}
                     >
                       {i}
@@ -834,9 +835,9 @@ const SpecialOrderRequest = () => {
                 {termsAccepted && <View style={styles.checkboxInner} />}
               </TouchableOpacity>
 
-              <Text style={{ fontSize: 14, fontWeight: "500", marginLeft: 6, width: 220 }}>
+              <Text style={{ fontSize: 14, fontWeight: "500", marginLeft: 6, width: 220, color: colors.black }}>
                 By checking this box, I Agree to Zannysfood's
-                <Text style={{ color: "#d60202" }}> Terms of Service</Text>
+                <Text style={{ color: colors.red }}> Terms of Service</Text>
               </Text>
             </View>
 
@@ -945,7 +946,7 @@ export default SpecialOrderRequest;
 /* ================= STYLES ================= */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-  stepCountText: { textAlign: "center", marginTop: 10 },
+  stepCountText: { textAlign: "center", marginTop: 10, color: colors.black },
   stepperContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -967,14 +968,14 @@ const styles = StyleSheet.create({
   },
   helperText: {
     textAlign: "center",
-    color: "#973A46",
+    color: colors.redish,
     marginVertical: 10,
     fontSize: 19,
   },
   formContainer: { paddingHorizontal: 20 },
-  sectionTitle: { fontWeight: "600", marginBottom: 10, fontSize: 17, color: '#300303' },
-  label: { marginTop: 12, fontSize: 14 },
-  labels: { fontSize: 14 },
+  sectionTitle: { fontWeight: "600", marginBottom: 10, fontSize: 17, color: colors.black },
+  label: { marginTop: 12, fontSize: 14, color: colors.black },
+  labels: { fontSize: 14, color: colors.black },
 
   timeBox: {
     flexDirection: "row",
@@ -998,7 +999,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: "500",
-    color: "#000",
+    color: colors.black,
   },
 
   ampmWrap: {
@@ -1022,13 +1023,13 @@ const styles = StyleSheet.create({
   ampmText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#000",
+    color: colors.black,
   },
 
   inputBox: {
     borderWidth: 1,
     borderColor: "#ddd",
-    color: 'black',
+    color: colors.black,
     borderRadius: 30,
     padding: 10,
     marginTop: 4,
@@ -1037,7 +1038,7 @@ const styles = StyleSheet.create({
   inputBoxx: {
     textAlignVertical: "top",
     borderWidth: 1,
-    color: 'black',
+    color: colors.black,
     borderColor: "#ddd",
     borderRadius: 10,
     padding: 10,
@@ -1075,7 +1076,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: "#D32F2F",
   },
-  radioText: { fontSize: 14, color: '#300303', fontWeight: '500' },
+  radioText: { fontSize: 14, color: colors.black, fontWeight: '500' },
   checkboxRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -1095,7 +1096,7 @@ const styles = StyleSheet.create({
     height: 10,
     backgroundColor: "#D32F2F",
   },
-  checkboxText: { fontSize: 14, color: '#300303', fontWeight: '500' },
+  checkboxText: { fontSize: 14, color: colors.black, fontWeight: '500' },
   buttonRow: { padding: 16 },
   primaryBtn: {
     backgroundColor: "#000",
@@ -1103,7 +1104,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: "center",
   },
-  primaryText: { color: "#fff", fontWeight: "600" },
+  primaryText: { color: colors.white, fontWeight: "600" },
 
   modalOverlay: {
     flex: 1,
@@ -1128,14 +1129,14 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginTop: 15,
     marginBottom: 10,
-    color: "#000",
+    color: colors.black,
   },
 
   modalText: {
     fontSize: 14,
     width: 200,
     textAlign: 'center',
-    color: "#555",
+    color: colors.gray,
     marginBottom: 20,
   },
 
@@ -1151,7 +1152,7 @@ const styles = StyleSheet.create({
   },
 
   cancelText: {
-    color: "#555",
+    color: colors.gray,
     fontWeight: "600",
   },
 
@@ -1163,7 +1164,7 @@ const styles = StyleSheet.create({
   },
 
   confirmText: {
-    color: "#fff",
+    color: colors.white,
     fontSize: 15,
     alignSelf: 'center',
     fontWeight: "600",
@@ -1202,14 +1203,14 @@ countryPickerBtn: {
 callingCodeText: {
   fontSize: 14,
   marginLeft: 4,
-  color: '#000',
+  color: colors.black,
   fontWeight: '500',
 },
 
 phoneInput: {
   flex: 1,
   fontSize: 14,
-  color: 'black',
+  color: colors.black,
 },
 
 

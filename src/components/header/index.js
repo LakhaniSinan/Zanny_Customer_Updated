@@ -100,7 +100,7 @@ const Header = ({
                 backgroundColor: colors.yellow,
                 borderRadius: 200,
               }}>
-              <Text style={{color: 'white', fontSize: 7}}>
+              <Text style={{color: colors.white, fontSize: 7}}>
                 {cartData?.length}
               </Text>
             </View>
@@ -134,7 +134,7 @@ const Header = ({
                 olor: 'white',
                 fontWeight: '700',
                 fontSize: 16,
-                color: 'white',
+                color: colors.white,
               }}>
               skip
             </Text>

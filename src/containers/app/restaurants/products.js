@@ -253,7 +253,7 @@ const Products = ({route, navigation}) => {
         <Text
           style={{
             fontSize: 13,
-            color: 'white',
+            color: colors.white,
           }}>
           {totalItems} items
         </Text>
@@ -273,7 +273,7 @@ const Products = ({route, navigation}) => {
         });
     }
     return (
-      <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+      <Text style={{fontSize: 16, fontWeight: 'bold', color: colors.white}}>
         £ {totalPrice}
       </Text>
     );
@@ -426,7 +426,7 @@ const Products = ({route, navigation}) => {
               marginTop: 10,
               fontSize: 16,
               fontWeight: 'bold',
-              color: 'black',
+              color: colors.black,
             }}>
             Our Pickup Standard time
           </Text>
@@ -436,7 +436,7 @@ const Products = ({route, navigation}) => {
               marginTop: 10,
               fontSize: 16,
               fontWeight: 'bold',
-              color: 'black',
+              color: colors.black,
             }}>
             {formatTime(details?.pickupTimmings)}
           </Text>
@@ -453,7 +453,7 @@ const Products = ({route, navigation}) => {
               marginTop: 10,
               fontSize: 16,
               fontWeight: 'bold',
-              color: 'black',
+              color: colors.black,
             }}>
             Our Menu
           </Text>
@@ -489,18 +489,18 @@ const Products = ({route, navigation}) => {
                         borderColor: '#a3a3a3',
                       }}>
                       <View style={{marginHorizontal: width(3), width: '60%'}}>
-                        <Text style={{fontWeight: 'bold', color: 'black'}}>
+                        <Text style={{fontWeight: 'bold', color: colors.black}}>
                           {item.name}
                         </Text>
-                        <Text style={{color: 'grey'}}>{item.description}</Text>
+                        <Text style={{color: colors.grey}}>{item.description}</Text>
                         {item.discount > 0 ? (
                           <View style={{flexDirection: 'row'}}>
-                            <Text style={{color: 'grey'}}>
+                            <Text style={{color: colors.grey}}>
                               £{item.discount}
                             </Text>
                             <Text
                               style={{
-                                color: 'grey',
+                                color: colors.grey,
                                 marginLeft: 10,
                                 textDecorationLine: 'line-through',
                               }}>
@@ -510,7 +510,7 @@ const Products = ({route, navigation}) => {
                         ) : (
                           <Text
                             style={{
-                              color: 'grey',
+                              color: colors.grey,
                             }}>
                             £{item.price}
                           </Text>

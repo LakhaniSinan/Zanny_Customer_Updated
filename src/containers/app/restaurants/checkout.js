@@ -470,7 +470,7 @@ const Checkout = ({navigation}) => {
 
                   <Text
                     style={{
-                      color: 'black',
+                      color: colors.black,
                       fontSize: 16,
                       marginLeft: 5,
                       fontWeight: '600',
@@ -508,7 +508,7 @@ const Checkout = ({navigation}) => {
                   <Text
                     numberOfLines={2}
                     style={{
-                      color: 'black',
+                      color: colors.black,
                     }}>
                     {location?.address}
                   </Text>
@@ -623,7 +623,7 @@ const Checkout = ({navigation}) => {
               <View>
                 <Text
                   style={{
-                    color: '#000',
+                    color: colors.black,
                     paddingVertical: width(4),
                     marginHorizontal: width(6),
                     fontSize: 16,
@@ -665,11 +665,11 @@ const Checkout = ({navigation}) => {
                   justifyContent: 'space-between',
                 }}>
                 <Text
-                  style={{fontSize: 18, color: 'black', fontWeight: 'bold'}}>
+                  style={{fontSize: 18, color: colors.black, fontWeight: 'bold'}}>
                   Total
                 </Text>
                 <Text
-                  style={{fontSize: 16, color: 'black', fontWeight: 'bold'}}>
+                  style={{fontSize: 16, color: colors.black, fontWeight: 'bold'}}>
                   £
                   {Number(orderBill.subTotal) +
                     Number(deliveryCharges) +

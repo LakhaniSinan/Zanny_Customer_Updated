@@ -469,7 +469,7 @@ const PaymentScreenInner = ({ navigation, route }) => {
 
           {selectedPaymentType === 'card' && (
             <View style={{ paddingHorizontal: width(4), marginTop: width(2) }}>
-              <Text style={{ fontFamily: fontFamily.poppinMedium, fontSize: 12 }}>
+              <Text style={{ fontFamily: fontFamily.poppinMedium, fontSize: 12, color: colors.black }}>
                 Add Card Details
               </Text>
               <CardField

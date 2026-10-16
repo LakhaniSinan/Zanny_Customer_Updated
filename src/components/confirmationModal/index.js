@@ -39,7 +39,7 @@ const ConfirmationModal = React.forwardRef((props, ref) => {
         <Text
           style={{
             fontSize: 14,
-            color: 'black',
+            color: colors.black,
             marginVertical: width(2),
             textAlign: 'center',
             fontWeight: 'bold',
@@ -63,7 +63,7 @@ const ConfirmationModal = React.forwardRef((props, ref) => {
               onPress={() => {
                 ModalVisibility(false), NegPress;
               }}>
-              <Text style={{color: 'white', fontWeight: 'bold'}}>
+              <Text style={{color: colors.white, fontWeight: 'bold'}}>
                 {NegText}
               </Text>
             </TouchableOpacity>
@@ -79,7 +79,7 @@ const ConfirmationModal = React.forwardRef((props, ref) => {
               onPress={() => {
                 PosPress(), ModalVisibility(false);
               }}>
-              <Text style={{color: 'white', fontWeight: 'bold'}}>
+              <Text style={{color: colors.white, fontWeight: 'bold'}}>
                 {PosText}
               </Text>
             </TouchableOpacity>

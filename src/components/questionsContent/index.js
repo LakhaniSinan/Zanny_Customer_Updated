@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderBottomWidth: 0.5,
     borderBottomColor: '#dde2e6',
-    color: '#5a5e65',
+    color: colors.gray,
     fontWeight: '500',
   },
 
@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
   },
   label: {
     marginLeft: width(2),
+    color: colors.black,
   },
 });
 

@@ -125,7 +125,7 @@ const type = 'buyOrder'
               style={{
                 fontSize: 16,
                 fontFamily: fontFamily.poppinBold,
-                color: '#7a1f1f',
+                color: colors.redish,
               }}>
               {product?.name}
             </Text>
@@ -136,6 +136,7 @@ const type = 'buyOrder'
                 fontSize: 13,
                 fontFamily: fontFamily.poppinSemiBold,
                 marginRight: 6,
+                color: colors.black,
               }}>{days} Days</Text>
             </View>
 
@@ -148,7 +149,7 @@ const type = 'buyOrder'
                       fontSize: 16,
                       textAlign: 'right',
                       fontFamily: fontFamily.poppinBold,
-                      color: '#BF2725',
+                      color: colors.red,
                     }}>
                     £{product.discount}
                   </Text>
@@ -185,6 +186,7 @@ const type = 'buyOrder'
                   fontSize: 13,
                   fontFamily: fontFamily.poppinSemiBold,
                   marginRight: 6,
+                  color: colors.black,
                 }}>
                 Status
               </Text>
@@ -379,7 +381,7 @@ const type = 'buyOrder'
               style={{
                 fontSize: 16,
                 fontFamily: fontFamily.poppinBold,
-                color: '#7a1f1f',
+                color: colors.redish,
               }}>
               {product?.name}
             </Text>
@@ -391,7 +393,7 @@ const type = 'buyOrder'
                     style={{
                       fontSize: 16,
                       fontFamily: fontFamily.poppinBold,
-                      color: '#F1A00A',
+                      color: colors.orangeDark,
                     }}>
                     £{product.discount}
                   </Text>
@@ -424,6 +426,7 @@ const type = 'buyOrder'
                   fontSize: 13,
                   fontFamily: fontFamily.poppinSemiBold,
                   marginRight: 6,
+                  color: colors.black,
                 }}>
                 Status
               </Text>

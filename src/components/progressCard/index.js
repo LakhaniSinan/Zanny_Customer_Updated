@@ -38,8 +38,8 @@ const ProgressCard = ({item}) => {
               marginLeft: 12,
               marginTop: 2,
             }}>
-            <Text style={{fontSize: 14, fontWeight: 500}}>{item?.name}</Text>
-            <Text style={{fontSize: 14, fontWeight: 500}}>{item?.amount}gm</Text>
+            <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>{item?.name}</Text>
+            <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>{item?.amount}gm</Text>
           </View>
           <View
             style={{

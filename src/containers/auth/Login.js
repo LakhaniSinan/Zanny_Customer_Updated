@@ -353,7 +353,7 @@ const Login = ({navigation}) => {
           marginVertical: 20,
         }}>
         <View style={{flex: 1, height: 1, backgroundColor: Colors.softgray}} />
-        <Text style={{marginHorizontal: 10}}>Or</Text>
+        <Text style={{marginHorizontal: 10, color: Colors.gray}}>Or</Text>
         <View style={{flex: 1, height: 1, backgroundColor: Colors.softgray}} />
       </View>
 

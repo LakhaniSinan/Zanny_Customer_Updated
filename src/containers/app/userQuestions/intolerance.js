@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: width(2),
     paddingVertical: width(4),
-    color: '#5a5e65',
+    color: colors.gray,
     fontWeight: '500',
   },
 });

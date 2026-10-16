@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: Colors.black,
   },
   closeIcon: {
     width: width(6),
@@ -207,6 +208,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginTop: 20,
     fontWeight: '600',
+    color: Colors.black,
   },
   updateButton: {
     marginTop: 30,
@@ -215,7 +217,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   updateButtonText: {
-    color: 'white',
+    color: Colors.white,
     textAlign: 'center',
     fontSize: 16,
   },

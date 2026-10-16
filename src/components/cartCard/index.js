@@ -223,7 +223,7 @@ const CartCard = ({item, index, total}) => {
                         style={{
                           fontSize: 16,
                           fontFamily: fontFamily.poppinBold,
-                          color: '#7a1f1f',
+                          color: colors.redish,
                         }}>
                         {foodName}
                       </Text>
@@ -234,6 +234,7 @@ const CartCard = ({item, index, total}) => {
                           fontSize: 13,
                           fontFamily: fontFamily.poppinSemiBold,
                           marginRight: 6,
+                          color: colors.black,
                         }}>{days} Days</Text>
                       </View>
                       </View>
@@ -245,7 +246,7 @@ const CartCard = ({item, index, total}) => {
                                 fontSize: 16,
                                 textAlign: 'right',
                                 fontFamily: fontFamily.poppinBold,
-                                color: '#BF2725',
+                                color: colors.red,
                               }}>
                               £{total}
                             </Text>
@@ -262,7 +263,7 @@ const CartCard = ({item, index, total}) => {
                             style={{
                               fontSize: 12,
                               fontFamily: fontFamily.poppinBold,
-                              color:  '#ED930E',
+                              color: colors.orangeDark,
                             }}>
                             {item?.orderType}
                           </Text>

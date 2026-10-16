@@ -64,7 +64,7 @@ const TermsAndConditions = ({handleAccepted}) => {
           </Text>
           <Text
             style={{
-              color: 'black',
+              color: colors.black,
               textAlign: 'justify',
               fontWeight: '300',
               marginTop: 10,
@@ -76,7 +76,7 @@ const TermsAndConditions = ({handleAccepted}) => {
           </Text>
           <Text
             style={{
-              color: 'black',
+              color: colors.black,
               textAlign: 'justify',
               fontWeight: '300',
               marginTop: 5,
@@ -89,7 +89,7 @@ const TermsAndConditions = ({handleAccepted}) => {
           </Text>
           <Text
             style={{
-              color: 'black',
+              color: colors.black,
               textAlign: 'justify',
               fontWeight: '300',
               marginTop: 5,
@@ -99,7 +99,7 @@ const TermsAndConditions = ({handleAccepted}) => {
           </Text>
           <Text
             style={{
-              color: 'black',
+              color: colors.black,
               textAlign: 'justify',
               fontWeight: '300',
               marginTop: 5,
@@ -110,7 +110,7 @@ const TermsAndConditions = ({handleAccepted}) => {
           </Text>
           <Text
             style={{
-              color: 'black',
+              color: colors.black,
               textAlign: 'justify',
               fontWeight: '300',
               marginTop: 5,
@@ -126,7 +126,7 @@ const TermsAndConditions = ({handleAccepted}) => {
           </Text>
           <Text
             style={{
-              color: 'black',
+              color: colors.black,
               textAlign: 'justify',
               fontWeight: '300',
               marginTop: 5,

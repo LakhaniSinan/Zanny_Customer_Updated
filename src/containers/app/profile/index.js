@@ -62,7 +62,7 @@ const Profile = () => {
         <TouchableOpacity
           onPress={logUserOut}
           style={{ marginBottom: width(2) }}>
-          <Text style={{ fontWeight: "bold", color: "black", fontSize: 16 }}>Log Out</Text>
+          <Text style={{ fontWeight: "bold", color: colors.black, fontSize: 16 }}>Log Out</Text>
         </TouchableOpacity>
       </View> */}
     </SafeAreaView>

@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     txtname: {
         fontSize: 16,
         fontWeight: '500',
-        color: 'black',
+        color: colors.black,
         flexWrap: 'wrap',
         width: '80%',
     },
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
         width: '40%',
     },
     txtdate: {
-        color: 'black',
+        color: colors.black,
     },
     btnview: {
         backgroundColor: colors.pinkColor,
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         width: '80%',
     },
     btntxt: {
-        color: 'white',
+        color: colors.white,
         textAlign: 'center',
         fontWeight: '600',
         fontSize: 12,

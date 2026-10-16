@@ -87,7 +87,7 @@ const Reviews = ({route}) => {
                 fontWeight: 'bold',
                 fontSize: 16,
                 marginBottom: width(2),
-                color: 'black',
+                color: colors.black,
                 textAlign: 'center',
               }}>
               No data found

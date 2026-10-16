@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.warn,
   },
-  tagPillText: {fontSize: 10, color: '#50555C'},
+  tagPillText: {fontSize: 10, color: Colors.gray},
   ratingRow: {flexDirection: 'row', alignItems: 'center', marginTop: 4},
   starIcon: {height: width(3), width: width(3), marginRight: 4},
   metaText: {
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: width(3),
   },
-  dateChipIcon: {fontSize: 15},
+  dateChipIcon: {fontSize: 15, color: Colors.black},
   dateChipText: {
     fontFamily: fontFamily.poppinMedium,
     color: Colors.gray,

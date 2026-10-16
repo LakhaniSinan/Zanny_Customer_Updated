@@ -91,7 +91,7 @@ const PrivateCurrentOrders = ({ navigation, route }) => {
                 fontWeight: 'bold',
                 fontSize: 16,
                 marginBottom: width(2),
-                color: 'black',
+                color: colors.black,
                 textAlign: 'center',
               }}>
               No current orders right now,
@@ -100,7 +100,7 @@ const PrivateCurrentOrders = ({ navigation, route }) => {
               fontWeight: 'bold',
               fontSize: 16,
               marginBottom: width(2),
-              color: 'black',
+              color: colors.black,
               textAlign: 'center',
             }}>
               Place order to see

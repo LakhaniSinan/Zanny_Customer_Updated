@@ -123,12 +123,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   txt: {
-    color: 'black',
+    color: colors.black,
     fontSize: 14,
     fontWeight: '600',
   },
   priceTypo: {
-    color: 'black',
+    color: colors.black,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timetext: {
-    color: 'black',
+    color: colors.black,
     fontSize: 12,
     fontWeight: '600',
   },

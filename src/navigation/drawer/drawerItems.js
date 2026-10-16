@@ -135,7 +135,7 @@ const DrawerItem = props => {
           alignItems: 'center',
         }}>
         <View style={{width: '20%'}}>{renderIcon()}</View>
-        <Text style={{color: 'black', fontWeight: '600'}}>{title}</Text>
+        <Text style={{color: colors.black, fontWeight: '600'}}>{title}</Text>
       </View>
     </TouchableOpacity>
   );

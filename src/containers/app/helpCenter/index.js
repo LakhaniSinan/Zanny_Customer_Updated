@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   backButton: {padding: 6},
-  backIcon: {fontSize: 30, color: '#222'},
+  backIcon: {fontSize: 30, color: colors.black},
   title: {
     flex: 1,
     fontSize: 20,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   iconText: {fontSize: 18},
   contactBody: {flex: 1, paddingLeft: 8},
   contactBodyEmail: {flex: 1, paddingLeft: 8, justifyContent: 'center'},
-  contactLine: {fontSize: 16, color: '#111'},
+  contactLine: {fontSize: 16, color: colors.black},
   copyButton: {width: 44, alignItems: 'center', justifyContent: 'center'},
   copyBox: {
     width: 28,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  socialTxt: {color: '#fff', fontWeight: '700'},
+  socialTxt: {color: colors.white, fontWeight: '700'},
 });
 
 export default HelpCenter;

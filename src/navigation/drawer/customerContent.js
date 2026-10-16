@@ -78,7 +78,7 @@ function DrawerContent(props) {
               </View>
               <View style={{justifyContent: 'flex-end', alignItems: 'center'}}>
                 <Text
-                  style={{fontSize: 20, color: 'white', fontWeight: 'bold'}}>
+                  style={{fontSize: 20, color: colors.white, fontWeight: 'bold'}}>
                   {user?.name}
                 </Text>
               </View>
@@ -121,7 +121,7 @@ function DrawerContent(props) {
                   justifyContent: 'flex-end',
                 }}>
                 <Text
-                  style={{fontSize: 18, color: 'white', fontWeight: 'bold'}}>
+                  style={{fontSize: 18, color: colors.white, fontWeight: 'bold'}}>
                   Login/create Account
                 </Text>
               </TouchableOpacity>

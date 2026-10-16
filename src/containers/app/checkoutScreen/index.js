@@ -92,6 +92,7 @@ const SectionCard = React.memo(({title, children, style}) => (
         fontWeight: '700',
         fontSize: 16,
         fontFamily: fontFamily.poppinBold,
+        color: colors.black,
       }}>
       {title}
     </Text>
@@ -937,7 +938,7 @@ const CheckoutScreen = ({route}) => {
         {/* Promo Code */}
         <View style={{marginHorizontal: width(4), marginTop: width(2)}}>
           <Text
-            style={{fontWeight: '700', fontSize: 16, marginVertical: width(2)}}>
+            style={{fontWeight: '700', fontSize: 16, marginVertical: width(2), color: colors.black}}>
             Promo Code
           </Text>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -976,7 +977,7 @@ const CheckoutScreen = ({route}) => {
 
         <View style={{marginHorizontal: width(4), marginTop: width(2)}}>
           <Text
-            style={{fontWeight: '700', fontSize: 16, marginVertical: width(2)}}>
+            style={{fontWeight: '700', fontSize: 16, marginVertical: width(2), color: colors.black}}>
             Leave a note for chef
           </Text>
           <View style={{}}>
@@ -1006,6 +1007,7 @@ const CheckoutScreen = ({route}) => {
               fontWeight: '700',
               fontSize: 18,
               fontFamily: fontFamily.poppinBold,
+              color: colors.black,
             }}>
             Payment Summary
           </Text>

@@ -120,7 +120,7 @@ const FoodCard = ({
               source={icons.yellowStar}
               style={{height: width(3), width: width(3)}}
             />
-            <Text style={{fontSize: 12, fontFamily: fontFamily.poppinRegular}}>
+            <Text style={{fontSize: 12, fontFamily: fontFamily.poppinRegular, color: colors.gray}}>
               {foodData.foodRating}
             </Text>
           </View>

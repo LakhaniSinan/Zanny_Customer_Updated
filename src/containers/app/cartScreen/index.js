@@ -89,6 +89,7 @@ const SectionCard = React.memo(({title, children, style}) => (
         fontWeight: '700',
         fontSize: 16,
         fontFamily: fontFamily.poppinBold,
+        color: colors.black,
       }}>
       {title}
     </Text>
@@ -882,7 +883,7 @@ const CartScreen = () => {
         {/* Promo Code */}
         <View style={{marginHorizontal: width(4), marginTop: width(2)}}>
           <Text
-            style={{fontWeight: '700', fontSize: 16, marginVertical: width(2)}}>
+            style={{fontWeight: '700', fontSize: 16, marginVertical: width(2), color: colors.black}}>
             Promo Code
           </Text>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -935,6 +936,7 @@ const CartScreen = () => {
               fontWeight: '700',
               fontSize: 18,
               fontFamily: fontFamily.poppinBold,
+              color: colors.black,
             }}>
             Payment Summary
           </Text>
@@ -999,7 +1001,7 @@ const CartScreen = () => {
           paddingVertical: 10,
           borderRadius: 8,
           backgroundColor: isActive ? colors.redish : colors.border,
-          color: isActive ? '#fff' : '#777',
+          color: isActive ? colors.white : colors.gray,
           fontFamily: fontFamily.poppinMedium,
           
         }}>
@@ -1095,7 +1097,7 @@ const styles = StyleSheet.create({
 
   addressIcon: {height: width(5), width: width(5)},
 
-  addressTitle: {fontFamily: fontFamily.poppinBold},
+  addressTitle: {fontFamily: fontFamily.poppinBold, color: colors.black},
   addressText: {
     fontFamily: fontFamily.poppinRegular,
     color: colors.graydark,

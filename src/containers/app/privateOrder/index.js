@@ -323,7 +323,7 @@ const PrivateOrder = ({route, navigation}) => {
             <AntDesign name="wallet" color={colors.yellow} size={22} />
             <Text
               style={{
-                color: 'black',
+                color: colors.black,
                 fontSize: 16,
                 fontWeight: '600',
                 marginLeft: width(2),
@@ -370,7 +370,7 @@ const PrivateOrder = ({route, navigation}) => {
             />
             <Text
               style={{
-                color: 'black',
+                color: colors.black,
                 fontSize: 16,
                 fontWeight: '600',
                 marginLeft: width(2),
@@ -419,7 +419,7 @@ const PrivateOrder = ({route, navigation}) => {
 
             <Text
               style={{
-                color: 'black',
+                color: colors.black,
                 fontSize: 16,
                 marginLeft: 5,
                 fontWeight: '600',
@@ -459,7 +459,7 @@ const PrivateOrder = ({route, navigation}) => {
             }}>
             <Text
               style={{
-                color: 'black',
+                color: colors.black,
               }}>
               {location?.address}
             </Text>
@@ -472,7 +472,7 @@ const PrivateOrder = ({route, navigation}) => {
               marginTop: 10,
               fontSize: 16,
               fontWeight: 'bold',
-              color: 'black',
+              color: colors.black,
               marginBottom: 10,
             }}>
             Select food for your private order
@@ -551,20 +551,20 @@ const PrivateOrder = ({route, navigation}) => {
                             }}></View>
                         </TouchableOpacity>
                         <View style={{marginHorizontal: width(3)}}>
-                          <Text style={{fontWeight: 'bold', color: 'black'}}>
+                          <Text style={{fontWeight: 'bold', color: colors.black}}>
                             {item?.name}
                           </Text>
-                          <Text style={{color: 'grey'}}>
+                          <Text style={{color: colors.grey}}>
                             {item?.description}
                           </Text>
                           {item.discount > 0 ? (
                             <View style={{flexDirection: 'row'}}>
-                              <Text style={{color: 'grey'}}>
+                              <Text style={{color: colors.grey}}>
                                 £{item.discount}
                               </Text>
                               <Text
                                 style={{
-                                  color: 'grey',
+                                  color: colors.grey,
                                   marginLeft: 10,
                                   textDecorationLine: 'line-through',
                                 }}>
@@ -574,7 +574,7 @@ const PrivateOrder = ({route, navigation}) => {
                           ) : (
                             <Text
                               style={{
-                                color: 'grey',
+                                color: colors.grey,
                               }}>
                               £{item.price}
                             </Text>
@@ -617,7 +617,7 @@ const PrivateOrder = ({route, navigation}) => {
                                   : colors.orangeColor,
                               height: width(7),
                             }}>
-                            <Text style={{color: 'white', fontSize: 20}}>
+                            <Text style={{color: colors.white, fontSize: 20}}>
                               -
                             </Text>
                           </View>
@@ -625,7 +625,7 @@ const PrivateOrder = ({route, navigation}) => {
                         <Text
                           style={{
                             fontSize: 18,
-                            color: 'black',
+                            color: colors.black,
                             fontWeight: '600',
                           }}>
                           {selectedProduct[index]?.selectedQty}
@@ -641,7 +641,7 @@ const PrivateOrder = ({route, navigation}) => {
                               backgroundColor: colors.orangeColor,
                               height: width(7),
                             }}>
-                            <Text style={{color: 'white', fontSize: 20}}>
+                            <Text style={{color: colors.white, fontSize: 20}}>
                               +
                             </Text>
                           </View>

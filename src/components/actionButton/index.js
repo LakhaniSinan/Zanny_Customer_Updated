@@ -1,6 +1,7 @@
 import {Text, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {fontFamily} from '../../assets';
+import {Colors} from '../../constants';
 
 const ActionBuuton = ({
   name,
@@ -35,7 +36,7 @@ const ActionBuuton = ({
           ...textStyle,
           fontSize: fontSize ? fontSize : 12,
           fontFamily: fontWeight ? fontWeight : fontFamily.poppinBold,
-          color: fontColor,
+          color: fontColor ? fontColor : Colors.black,
         }}>
         {name}
       </Text>

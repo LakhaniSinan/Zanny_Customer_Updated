@@ -690,7 +690,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerName: {
-    color: '#000',
+    color: Colors.black,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 15,
     fontSize: 12,
-    color: '#000',
+    color: Colors.black,
     overflow: 'hidden',
   },
   messageContainer: {
@@ -742,6 +742,7 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 14,
     lineHeight: 20,
+    color: Colors.black,
   },
   messageFooter: {
     flexDirection: 'row',
@@ -751,7 +752,7 @@ const styles = StyleSheet.create({
   },
   messageTime: {
     fontSize: 11,
-    color: '#8696a0',
+    color: Colors.gray,
   },
   tickIcon: {
     marginLeft: 4,
@@ -791,7 +792,7 @@ const styles = StyleSheet.create({
 
   },
   input: {
-    color: '#000',
+    color: Colors.black,
     fontSize: 16,
     paddingVertical: 12,
     maxHeight: 100,
@@ -828,7 +829,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   recordingText: {
-    color: '#111',
+    color: Colors.black,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -881,7 +882,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   voiceBottomRow: { marginTop: 4, flexDirection: 'row', justifyContent: 'space-between' },
-  voiceDuration: { fontSize: 12, color: '#222', fontWeight: '500' },
+  voiceDuration: { fontSize: 12, color: Colors.black, fontWeight: '500' },
   deleteIcon: {
     width: 24,
     height: 24,
@@ -889,7 +890,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   participantName: {
-    color: '#333',
+    color: Colors.black,
     fontSize: 13,
   },
 });

@@ -62,6 +62,7 @@ const PreOrderCard = ({
                   fontSize: 12,
                   fontFamily: fontFamily.poppinRegular,
                   marginTop: width(1),
+                  color: colors.gray,
                 }}>
                 {'5.0   2.8 km away'}
               </Text>

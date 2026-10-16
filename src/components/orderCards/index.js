@@ -88,7 +88,7 @@ const cardsStyle = StyleSheet.create({
   },
   detailValue: {
     fontWeight: '300',
-    color: 'black',
+    color: colors.black,
     fontWeight: '500',
     fontSize: 12,
   },

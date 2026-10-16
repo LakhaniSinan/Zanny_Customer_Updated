@@ -25,11 +25,11 @@ const styles = StyleSheet.create({
   },
   addressname: {
     fontSize: 16,
-    color: 'black',
+    color: colors.black,
     fontWeight: '400',
   },
   address: {
-    color: 'black',
+    color: colors.black,
     paddingBottom: width(3),
   },
 });

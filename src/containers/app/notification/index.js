@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  sectionLabel: { fontSize: 16, color: '#777' },
+  sectionLabel: { fontSize: 16, color: colors.gray },
   markAll: { color: colors?.red || '#6b0f13', fontWeight: '600' },
 
   cardWrap: {
@@ -209,8 +209,8 @@ const styles = StyleSheet.create({
   },
   iconImg: { width: 24, height: 24 },
   cardBody: { flex: 1, paddingLeft: 8 },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: '#111' },
-  cardSubtitle: { fontSize: 14, color: '#444', marginTop: 6, lineHeight: 20 },
+  cardTitle: { fontSize: 16, fontWeight: '700', color: colors.black },
+  cardSubtitle: { fontSize: 14, color: colors.gray, marginTop: 6, lineHeight: 20 },
   unreadDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors?.red || '#6b0f13' },
 
   ctaButton: {
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 20,
   },
-  ctaText: { color: '#fff', fontWeight: '600' },
+  ctaText: { color: colors.white, fontWeight: '600' },
 });
 
 export default Notifications;

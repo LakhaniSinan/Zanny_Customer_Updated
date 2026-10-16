@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000',
+    color: colors.black,
     marginBottom: 4,
   },
 
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   addressText: {
     flex: 1,
     fontSize: 13,
-    color: '#444',
+    color: colors.gray,
     lineHeight: 18,
   },
 
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   },
 
   removeTxt: {
-    color: '#fff',
+    color: colors.white,
     marginLeft: 6,
     fontSize: 12,
     fontWeight: '500',

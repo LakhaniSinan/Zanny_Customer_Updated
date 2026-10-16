@@ -145,7 +145,7 @@ const Cart = ({navigation}) => {
                                 backgroundColor: colors.orangeColor,
                                 height: width(10),
                               }}>
-                              <Text style={{color: 'white', fontSize: 20}}>
+                              <Text style={{color: colors.white, fontSize: 20}}>
                                 -
                               </Text>
                             </View>
@@ -153,7 +153,7 @@ const Cart = ({navigation}) => {
                           <Text
                             style={{
                               fontSize: 18,
-                              color: 'black',
+                              color: colors.black,
                               fontWeight: '600',
                             }}>
                             {val.selectedQty}
@@ -171,7 +171,7 @@ const Cart = ({navigation}) => {
                                 height: width(10),
                               }}
                               colors={colors.themeColor}>
-                              <Text style={{color: 'white', fontSize: 20}}>
+                              <Text style={{color: colors.white, fontSize: 20}}>
                                 +
                               </Text>
                             </View>
@@ -218,7 +218,7 @@ const Cart = ({navigation}) => {
               fontWeight: 'bold',
               fontSize: 16,
               marginBottom: width(2),
-              color: 'black',
+              color: colors.black,
               textAlign: 'center',
             }}>
             No Items in Cart

@@ -1,3 +1,4 @@
+import {colors} from '../../../constants';
 import React, {useRef, useState} from 'react';
 import {
   Alert,
@@ -96,7 +97,7 @@ const LeaveReviewScreen = ({route, navigation}) => {
       </TouchableOpacity>
 
       <Text style={styles.tipLabel}>
-        Tip <Text style={{color: '#999'}}>(Select who is getting a tip)</Text>
+        Tip <Text style={{color: colors.gray}}>(Select who is getting a tip)</Text>
       </Text>
 
       <View style={styles.tipPersonRow}>
@@ -163,8 +164,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
   },
-  backArrow: {fontSize: 28, color: '#4A0000', marginRight: 10},
-  headerTitle: {fontSize: 20, fontWeight: '600', color: '#4A0000'},
+  backArrow: {fontSize: 28, color: colors.redish, marginRight: 10},
+  headerTitle: {fontSize: 20, fontWeight: '600', color: colors.redish},
 
   iconContainer: {alignItems: 'center', marginTop: 20},
   icon: {width: 120, height: 120, resizeMode: 'contain'},
@@ -173,12 +174,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     fontWeight: '600',
-    color: '#4A0000',
+    color: colors.redish,
     marginTop: 10,
   },
   subTitle: {
     textAlign: 'center',
-    color: '#9E9E9E',
+    color: colors.gray,
     marginTop: 5,
   },
 
@@ -194,6 +195,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
     fontSize: 16,
     fontWeight: '500',
+    color: colors.black,
   },
 
   input: {
@@ -205,6 +207,7 @@ const styles = StyleSheet.create({
     height: 100,
     padding: 10,
     textAlignVertical: 'top',
+    color: colors.black,
   },
 
   photoRow: {
@@ -213,14 +216,15 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginTop: 15,
   },
-  photoIcon: {fontSize: 20},
-  photoText: {marginLeft: 8, color: '#4A0000', fontWeight: '500'},
+  photoIcon: {fontSize: 20, color: colors.black},
+  photoText: {marginLeft: 8, color: colors.redish, fontWeight: '500'},
 
   tipLabel: {
     marginLeft: 20,
     marginTop: 20,
     fontSize: 15,
     fontWeight: '500',
+    color: colors.black,
   },
 
   tipPersonRow: {
@@ -238,8 +242,8 @@ const styles = StyleSheet.create({
   tipPersonBtnActive: {
     backgroundColor: '#4A0000',
   },
-  tipPersonText: {color: '#555'},
-  tipPersonTextActive: {color: '#FFF'},
+  tipPersonText: {color: colors.gray},
+  tipPersonTextActive: {color: colors.white},
 
   tipAmountRow: {
     flexDirection: 'row',
@@ -258,8 +262,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#4A0000',
     borderColor: '#4A0000',
   },
-  tipAmountText: {color: '#777'},
-  tipAmountTextActive: {color: '#FFF'},
+  tipAmountText: {color: colors.gray},
+  tipAmountTextActive: {color: colors.white},
 
   bottomRow: {
     flexDirection: 'row',
@@ -274,7 +278,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
     alignItems: 'center',
   },
-  cancelText: {color: '#555', fontWeight: '600'},
+  cancelText: {color: colors.gray, fontWeight: '600'},
 
   submitBtn: {
     flex: 1,
@@ -284,5 +288,5 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     alignItems: 'center',
   },
-  submitText: {color: '#FFF', fontWeight: '600'},
+  submitText: {color: colors.white, fontWeight: '600'},
 });

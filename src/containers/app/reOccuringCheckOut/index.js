@@ -91,6 +91,7 @@ const SectionCard = React.memo(({title, children, style}) => (
         fontWeight: '700',
         fontSize: 16,
         fontFamily: fontFamily.poppinBold,
+        color: colors.black,
       }}>
       {title}
     </Text>
@@ -786,7 +787,7 @@ const ReOccuringCheckout = ({route}) => {
                   borderBottomWidth: 0.5,
                   borderColor: colors.border,
                 }}>
-                <Text style={{fontFamily: fontFamily.poppinSemiBold}}>
+                <Text style={{fontFamily: fontFamily.poppinSemiBold, color: colors.black}}>
                   {item.day} {moment(item.date).format('DD/MM/YYYY')}
                 </Text>
                 <Image
@@ -1027,6 +1028,7 @@ const ReOccuringCheckout = ({route}) => {
                   fontWeight: '700',
                   fontSize: 16,
                   marginVertical: width(2),
+                  color: colors.black,
                 }}>
                 Promo Code
               </Text>
@@ -1070,6 +1072,7 @@ const ReOccuringCheckout = ({route}) => {
                   fontWeight: '700',
                   fontSize: 16,
                   marginVertical: width(2),
+                  color: colors.black,
                 }}>
                 Leave a note for chef
               </Text>
@@ -1100,6 +1103,7 @@ const ReOccuringCheckout = ({route}) => {
                   fontWeight: '700',
                   fontSize: 18,
                   fontFamily: fontFamily.poppinBold,
+                  color: colors.black,
                 }}>
                 Payment Summary
               </Text>

@@ -188,6 +188,7 @@ const ProfileScreen = () => {
             fontSize: 18,
             fontFamily: fontFamily.poppinBold,
             marginBottom: width(2),
+            color: colors.black,
           }}>
           My Account
         </Text>
@@ -245,6 +246,7 @@ const ProfileScreen = () => {
             fontSize: 18,
             fontFamily: fontFamily.poppinBold,
             marginBottom: width(2),
+            color: colors.black,
           }}>
           Notifications
         </Text>

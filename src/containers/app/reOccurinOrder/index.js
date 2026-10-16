@@ -200,7 +200,7 @@ const ReOccurinOrder = ({navigation}) => {
         {/* -------- CALENDAR -------- */}
 
         <View style={{padding: width(3)}}>
-          <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 16}}>
+          <Text style={{fontFamily: fontFamily.poppinSemiBold, fontSize: 16, color: colors.black}}>
             Select Date
           </Text>
 
@@ -242,6 +242,7 @@ const ReOccurinOrder = ({navigation}) => {
             marginTop: width(4),
             fontSize: 16,
             fontFamily: fontFamily.poppinBold,
+            color: colors.black,
             borderBottomWidth: 0.5,
             borderColor: colors.border,
             paddingBottom: width(2),
@@ -282,7 +283,7 @@ const ReOccurinOrder = ({navigation}) => {
                   borderBottomWidth: 0.5,
                   borderColor: colors.border,
                 }}>
-                <Text style={{fontFamily: fontFamily.poppinSemiBold}}>
+                <Text style={{fontFamily: fontFamily.poppinSemiBold, color: colors.black}}>
                   {item.day} {moment(item.date).format('DD/MM/YYYY')}
                 </Text>
                 <Image

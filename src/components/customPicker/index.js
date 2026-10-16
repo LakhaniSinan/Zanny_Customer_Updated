@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 16,
     fontFamily: fontFamily.poppinBold,
+    color: colors.black,
   },
   option: {
     paddingVertical: width(3),

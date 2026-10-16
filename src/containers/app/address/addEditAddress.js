@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '400',
     justifyContent: 'center',
-    color: 'black',
+    color: colors.black,
     borderWidth: 0.8,
     borderColor: colors.grey,
   },
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     marginVertical: height(2),
     elevation: 5,
     backgroundColor: 'white',
-    color: 'black',
+    color: colors.black,
   },
   drroptext: {
     color: colors.black,
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     textAlign: 'center',
-    color: 'black',
+    color: colors.black,
     fontSize: 16,
   },
   containerView: {

@@ -1,3 +1,4 @@
+import {colors} from '../../../constants';
 import React from 'react';
 import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
 
@@ -40,14 +41,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#333',
+    color: colors.black,
     textAlign: 'center',
     marginBottom: 10,
   },
 
   subtitle: {
     fontSize: 15,
-    color: '#666',
+    color: colors.gray,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 30,
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
 
   buttonText: {
     fontSize: 16,
-    color: '#fff',
+    color: colors.white,
     fontWeight: '600',
   },
 });
