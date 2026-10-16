@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import {width} from 'react-native-dimension';
 import moment from 'moment';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
 

@@ -35,12 +35,18 @@ export const images = {
   first: require('../assets/images/first.png'),
   mapImage: require('../assets/images/mapImage.png'),
   tickertCard: require('../assets/images/tickertCard.png'),
+  reviewIcon: require('../assets/images/reviewIcon.png'),
 };
 
 export const icons = {
+  reserve: require('../assets/icons/reserve.png'),
+  chat: require('../assets/icons/chat.png'),
+  days: require('../assets/icons/days.png'),
+  heartss: require('../assets/icons/heartss.png'),
   tickIcon: require('../assets/icons/tickIcon.png'),
   timeIcon: require('../assets/icons/timeIcon.png'),
   calendarIcon: require('../assets/icons/calendarIcon.png'),
+  filterIcon: require('../assets/icons/filterIcon.png'),
   foodIcon: require('../assets/icons/foodIcon.png'),
   ShoppingCart: require('../assets/icons/ShoppingCart.png'),
   Ticket: require('../assets/icons/Ticket.png'),
@@ -62,6 +68,8 @@ export const icons = {
   Bottle: require('../assets/icons/Bottle.png'),
   ArrowLeft: require('../assets/icons/ArrowLeft.png'),
   arrowDown: require('../assets/icons/arrowDown.png'),
+  closeBtnIcon: require('../assets/icons/closeBtnIcon.png'),
+
   Info: require('../assets/icons/Info.png'),
   positive: require('../assets/icons/positive.png'),
   negative: require('../assets/icons/negative.png'),
@@ -91,6 +99,7 @@ export const icons = {
   hi: require('../assets/icons/hi.png'),
   apple: require('../assets/icons/apple.png'),
   Checkbox: require('../assets/icons/Checkbox.png'),
+  checkIcon: require('../assets/icons/checkIcon.png'),
   fillHeart: require('../assets/icons/fillHeart.png'),
   check: require('../assets/icons/check.png'),
   cross: require('../assets/icons/cross.png'),
@@ -105,5 +114,12 @@ export const icons = {
   privacyIcon: require('../assets/icons/privacyIcon.png'),
   settingsIcon: require('../assets/icons/settingsIcon.png'),
   specialIcon: require('../assets/icons/specialIcon.png'),
+  copyIcon: require('../assets/icons/copyIcon.png'),
+  mobileIcon: require('../assets/icons/mobileIcon.png'),
+  messagIcon: require('../assets/icons/messagIcon.png'),
+  instra: require('../assets/icons/instra.png'),
+  Xicon: require('../assets/icons/Xicon.png'),
+  facebookIcon: require('../assets/icons/facebook.png'),
   subscriptionIcon: require('../assets/icons/subscriptionIcon.png'),
+
 };

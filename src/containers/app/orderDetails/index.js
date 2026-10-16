@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {cloneElement, useEffect, useRef, useState} from 'react';
 import {
   Image,
   ImageBackground,
@@ -7,6 +7,7 @@ import {
   ScrollView,
   Text,
   View,
+  TouchableOpacity,
 } from 'react-native';
 import {width} from 'react-native-dimension';
 import {useDispatch, useSelector} from 'react-redux';
@@ -20,10 +21,11 @@ import styles from './style';
 import {setCartData} from '../../../redux/slices/Cart';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OverLayLoader from '../../../components/loader';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const OrderDetail = ({navigation, route}) => {
   const data = route.params;
-  console.log(data, 'datadatadatadatadatadatadata123d');
+  console.log( 'data' , data);
 
   const {cartData} = useSelector(state => state.CartSlice);
   const [isloading, setIsloding] = useState(false);
@@ -34,6 +36,14 @@ const OrderDetail = ({navigation, route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalConfig, setModalConfig] = useState({});
   const dispatch = useDispatch();
+  const [expandedGroups, setExpandedGroups] = useState({});
+
+  const toggleGroup = (dateKey) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [dateKey]: !prev[dateKey],
+    }));
+  };
 
   const updateRemainingTime = (orderId, pickupMinutes, orderDate) => {
     // Convert order date string to Date object
@@ -232,6 +242,17 @@ const OrderDetail = ({navigation, route}) => {
   };
   const statusStyle = getStatusStyle(data?.status);
 
+    useEffect(() => {
+    if (data?.orderCategory === 'daily' && groupedOrders.length > 0) {
+      const initialExpandedState = {};
+      // Set first group to expanded, others to collapsed
+      groupedOrders.forEach((group, index) => {
+        initialExpandedState[group.date] = index === 0; // Only first is true
+      });
+      setExpandedGroups(initialExpandedState);
+    }
+  }, [data?.orderCategory, data?.order]);
+
   // Format delivery date and time
   const formatDeliveryDateTime = () => {
     if (data?.createdAt) {
@@ -244,6 +265,23 @@ const OrderDetail = ({navigation, route}) => {
     }
     return '';
   };
+
+  console.log('sdf', data?.createdAt);
+
+    const getDaysFromCreatedAt = (date) => {
+
+  const createdDate = new Date(date);
+  const today = new Date();
+
+  const diffTime = today - createdDate;
+
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  return diffDays;
+
+};
+
+  const days = getDaysFromCreatedAt(data?.createdAt);
 
   const showModal = (Icon, type, detail, onConfirm = () => {}) => {
     if (modalVisible) return; // 🔥 IMPORTANT FIX
@@ -321,6 +359,27 @@ const OrderDetail = ({navigation, route}) => {
     }
   };
 
+  console.log(data.order, 'data.orderdata.order');
+
+  const groupedOrders =
+    data?.orderCategory === 'daily'
+      ? Object.values(
+          (data?.order || []).reduce((acc, item) => {
+            const dateKey = item.date;
+
+            if (!acc[dateKey]) {
+              acc[dateKey] = {
+                date: dateKey,
+                items: [],
+              };
+            }
+
+            acc[dateKey].items.push(item);
+            return acc;
+          }, {}),
+        )
+      : data?.order;
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <AppHeader text="Order Details" goBack={true} />
@@ -344,6 +403,11 @@ const OrderDetail = ({navigation, route}) => {
               {data?.status === 'Completed' ? 'Delivered' : data?.status}
             </Text>
           </View>
+              <Text
+               style={styles.deliveryDateTime1}
+           >
+        Expected date of delivery
+            </Text>
           {data?.createdAt && (
             <Text style={styles.deliveryDateTime}>
               {formatDeliveryDateTime()}
@@ -361,39 +425,122 @@ const OrderDetail = ({navigation, route}) => {
             <Text style={styles.orderNumberText}>#{data.orderId}</Text>
           </View>
 
-          {data.order?.map((item, ind) => {
-            return (
-              <View key={ind}>
-                <View style={styles.orderItemContainer}>
-                  <Image
-                    source={{
-                      uri:
-                        item?.image ||
-                        item?.productImage ||
-                        'https://via.placeholder.com/100',
-                    }}
-                    style={styles.orderItemImage}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.orderItemDetails}>
-                    <Text style={styles.orderItemName}>{item.name}</Text>
-                    <Text style={styles.orderItemPrice}>
-                      £{item?.discount > 0 ? item?.discount : item?.price}
-                    </Text>
-                    <Text style={styles.orderItemQty}>
-                      x{item.quantity || item.selectedQty || 1}
-                    </Text>
+              <Text style={[styles.totalValue, {color: '#BF2725'}]}>
+                £{data?.totalBill || '0.00'}
+              </Text>
+
+              
+                          <View style={{flexDirection: 'row', alignItems: 'center', marginTop :10}}>
+                          <Image source={icons.days} style={{width: 14, height: 14, marginRight: 10}} />
+                            <Text style={{
+                              fontSize: 13,
+                              fontFamily: fontFamily.poppinSemiBold,
+                              marginRight: 6,
+                            }}>{days} Days</Text>
+                          </View>
+
+                          <View style={{borderWidth: 0.3, borderColor: 'gray', marginVertical: 5, marginTop: 10}}/>
+              
+
+          {data?.orderCategory === 'daily'
+            ? groupedOrders.map((group, gIndex) => {
+                const isExpanded = expandedGroups[group.date] || false;
+                
+                return (
+                  <View style={{borderBottomWidth: 0.3, borderColor: 'gray'}} key={gIndex}>
+                    {/* DATE HEADING WITH TOGGLE */}
+                    <TouchableOpacity 
+                      onPress={() => toggleGroup(group.date)}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        paddingVertical: width(2),
+                        marginTop: gIndex > 0 ? width(4) : 0,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: fontFamily.poppinBold,
+                          fontSize: 16,
+                          color: colors.black,
+                        }}>
+                        {moment(group.date).format('dddd, MMM D')}
+                      </Text>
+
+                      <Ionicons 
+                        name={isExpanded ? "chevron-up-sharp" : "chevron-down-sharp"} 
+                        size={16} 
+                        color={colors.black} 
+                      />
+                    </TouchableOpacity>
+
+                    {/* ITEMS - SHOW ONLY IF EXPANDED */}
+                    {isExpanded && group.items.map((item, ind) => (
+                      <View key={ind}>
+                        <View style={styles.orderItemContainer}>
+                          <Image
+                            source={{
+                              uri:
+                                item?.image ||
+                                item?.productImage ||
+                                'https://via.placeholder.com/100',
+                            }}
+                            style={styles.orderItemImage}
+                            resizeMode="cover"
+                          />
+                          <View style={styles.orderItemDetails}>
+                            <Text style={styles.orderItemName}>{item.name}</Text>
+                            <Text style={styles.orderItemPrice}>
+                              £{item?.discount > 0 ? item?.discount : item?.price}
+                            </Text>
+                            <Text style={styles.orderItemQty}>
+                              x{item.quantity || item.selectedQty || 1}
+                            </Text>
+                          </View>
+                        </View>
+                        {ind < group.items.length - 1 && (
+                          <View style={styles.itemSeparator} />
+                        )}
+                      </View>
+                    ))}
+
+                  
                   </View>
+                );
+              })
+            : data.order?.map((item, ind) => (
+                <View key={ind}>
+                  <View style={styles.orderItemContainer}>
+                    <Image
+                      source={{
+                        uri:
+                          item?.image ||
+                          item?.productImage ||
+                          'https://via.placeholder.com/100',
+                      }}
+                      style={styles.orderItemImage}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.orderItemDetails}>
+                      <Text style={styles.orderItemName}>{item.name}</Text>
+                      <Text style={styles.orderItemPrice}>
+                        £{item?.discount > 0 ? item?.discount : item?.price}
+                      </Text>
+                      <Text style={styles.orderItemQty}>
+                        x{item.quantity || item.selectedQty || 1}
+                      </Text>
+                    </View>
+                  </View>
+                  {ind < data.order.length - 1 && (
+                    <View style={styles.itemSeparator} />
+                  )}
                 </View>
-                {ind < data.order.length - 1 && (
-                  <View style={styles.itemSeparator} />
-                )}
-              </View>
-            );
-          })}
+              ))}
 
           <View style={styles.chefSection}>
             <Text style={styles.chefLabel}>Chef's Name</Text>
+            
             <View style={styles.chefInfoContainer}>
               <Image
                 source={{
@@ -408,6 +555,15 @@ const OrderDetail = ({navigation, route}) => {
               <Text style={styles.chefName}>
                 {data.merchantDetails?.name || 'N/A'}
               </Text>
+              <Image
+                source={icons.objects}
+                style={{
+                  width: 14,
+                  height: 14,
+                  marginLeft: 3,
+                  marginBottom: 5,
+                }}
+              />
             </View>
           </View>
 
@@ -518,6 +674,25 @@ const OrderDetail = ({navigation, route}) => {
         <View style={{height: width(20)}} />
       </ScrollView>
       <View style={styles.bottomButtonContainer}>
+        <ActionBuuton
+          onPress={() =>
+            navigation.navigate('Chat', {
+              orderId: data?._id,
+              customerId: user?._id,
+              merchantId: data?.merchantDetails?._id || data?.merchantId,
+              participantName: data?.merchantDetails?.name || 'Merchant',
+              senderType: 'customer',
+            })
+          }
+          name={'Chat with Merchant'}
+          bgcColor={colors.black}
+          fontColor={colors.white}
+          height={width(12)}
+          borderRadius={100}
+          fontSize={16}
+          styleProps={{borderWidth: 0}}
+        />
+        <View style={{height: width(2)}} />
         {data.status == 'Pending' ? (
           <ActionBuuton
             onPress={cofirmAlert}
@@ -530,16 +705,31 @@ const OrderDetail = ({navigation, route}) => {
             styleProps={{borderWidth: 0}}
           />
         ) : (
-          <ActionBuuton
-            onPress={() => handleAddToCart(data)}
-            name={'Order Again'}
-            bgcColor={colors.black}
-            fontColor={colors.white}
-            height={width(12)}
-            borderRadius={100}
-            fontSize={16}
-            styleProps={{borderWidth: 0}}
-          />
+          <>
+            {!data?.reviewStatus && (
+              <ActionBuuton
+                onPress={() => navigation.navigate('LeaveReviewScreen', data)}
+                name={'Leave A Rivew'}
+                bgcColor={colors.black}
+                fontColor={colors.white}
+                height={width(12)}
+                borderRadius={100}
+                fontSize={16}
+                styleProps={{borderWidth: 0}}
+              />
+            )}
+            <View style={{height: width(2)}} />
+            <ActionBuuton
+              onPress={() => handleAddToCart(data)}
+              name={'Order Again'}
+              bgcColor={colors.black}
+              fontColor={colors.white}
+              height={width(12)}
+              borderRadius={100}
+              fontSize={16}
+              styleProps={{borderWidth: 0}}
+            />
+          </>
         )}
       </View>
       <OverLayLoader isloading={isloading} />

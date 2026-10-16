@@ -23,7 +23,7 @@ const CustomInput = ({
   maxLength,
   onIconPress,
   autoCapitalize = 'none',
-  onSubmitEditing
+  onSubmitEditing,
 }) => {
   const [hide, setHide] = useState(secureTextEntry);
 

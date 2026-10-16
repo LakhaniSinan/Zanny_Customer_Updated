@@ -42,12 +42,12 @@ const CustomModal = ({
 
           <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
             {type === 'confirmation' && (
-              <View style={styles.btnWrapper}>
+              <View key="modal-cancel" style={styles.btnWrapper}>
                 <PrimaryButton name={'Cancel'} onPress={cancelAction} />
               </View>
             )}
 
-            <View style={styles.btnWrapper}>
+            <View key="modal-primary" style={styles.btnWrapper}>
               <PrimaryButton name={buttonName} onPress={primaryAction} />
             </View>
           </View>

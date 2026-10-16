@@ -130,7 +130,7 @@ const ProfileScreen = () => {
             alignItems: 'center',
             elevation: 6,
           }}
-          onPress={showComingSoon}>
+          onPress={() => navigation.navigate('Notifications')}>
           <Image
             source={icons.notificationsRed}
             style={{height: width(8), width: width(8)}}
@@ -208,7 +208,8 @@ const ProfileScreen = () => {
           iconSet={icons.specialIcon}
           icon="file-text"
           label="Special order request"
-          onPress={showComingSoon}
+          onPress={() => navigation.navigate('SpecialOrderRequest')}
+          // onPress={showComingSoon}
         />
 
         <Row
@@ -218,7 +219,19 @@ const ProfileScreen = () => {
         />
 
         <Row
+          iconSet={icons.heartss}
+          label="Favourite"
+          onPress={() => navigation.navigate('Favourite')}
+        />
+
+         <Row
           iconSet={icons.allergiesIcon}
+          label="Allergies"
+          onPress={() => navigation.navigate('AllergiesAndDietaries')}
+        /> 
+
+        <Row
+          iconSet={icons.settingsIcon}
           label="Settings"
           onPress={showComingSoon}
         />
@@ -268,7 +281,7 @@ const ProfileScreen = () => {
         <Row
           iconSet={icons.personalfo}
           label="Help Center"
-          onPress={() => navigation.navigate('Support')}
+          onPress={() => navigation.navigate('HelpCenter')}
         />
 
         <Row iconSet={icons.logoutIcon} label="Log Out" onPress={logout} />

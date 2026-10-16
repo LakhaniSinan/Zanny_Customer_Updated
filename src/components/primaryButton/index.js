@@ -3,7 +3,15 @@ import React from 'react';
 import {width} from 'react-native-dimension';
 import {Colors} from '../../constants';
 
-const PrimaryButton = ({name, onPress, bgcColor, color, Icon, borderColor}) => {
+const PrimaryButton = ({
+  name,
+  onPress,
+  fontSize,
+  bgcColor,
+  color,
+  Icon,
+  borderColor,
+}) => {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -21,7 +29,7 @@ const PrimaryButton = ({name, onPress, bgcColor, color, Icon, borderColor}) => {
       {Icon && <Image source={Icon} style={{height: 22, width: 22}} />}
       <Text
         style={{
-          fontSize: 15,
+          fontSize: fontSize ? fontSize : 15,
           fontWeight: 500,
           color: color ? color : Colors.white,
         }}>

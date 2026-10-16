@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opening Zannys Food App...</title>
+    <meta name="apple-itunes-app" content="app-id=1670808100">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 {
+            margin: 20px 0;
+            font-size: 24px;
+        }
+        p {
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h1>Opening Zannys Food...</h1>
+        <p>If the app doesn't open, you'll be redirected to the App Store.</p>
+    </div>
+
+    <script>
+        (function() {
+            // Get the product ID from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const pathParts = window.location.pathname.split('/');
+            const productId = pathParts[pathParts.length - 1] || urlParams.get('productId');
+            
+            // App Store URL
+            const APP_STORE_ID = '1670808100';
+            const APP_STORE_URL = `https://apps.apple.com/pk/app/zannys-food-customers/id${APP_STORE_ID}`;
+            
+            // Deep link to open the app
+            const deepLink = `zannysfood://app/ProductDetail/${productId}`;
+            
+            // Check if user is on iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            if (isIOS) {
+                // Try to open the app
+                const startTime = Date.now();
+                const timeout = 2500; // 2.5 seconds timeout
+                
+                // Create a hidden iframe to attempt opening the app
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deepLink;
+                document.body.appendChild(iframe);
+                
+                // Set timeout to redirect to App Store if app doesn't open
+                setTimeout(function() {
+                    const elapsed = Date.now() - startTime;
+                    // If page is still visible after timeout, app didn't open
+                    if (document.visibilityState === 'visible' || document.hidden === false) {
+                        // Redirect to App Store
+                        window.location.href = APP_STORE_URL;
+                    }
+                }, timeout);
+                
+                // Also listen for page visibility changes
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        // App opened, stop the redirect
+                        clearTimeout();
+                    }
+                });
+                
+                // Fallback: If user clicks anywhere, redirect to App Store
+                document.addEventListener('click', function() {
+                    window.location.href = APP_STORE_URL;
+                }, { once: true });
+                
+            } else {
+                // Not iOS, redirect to App Store or show message
+                setTimeout(function() {
+                    window.location.href = APP_STORE_URL;
+                }, 1000);
+            }
+        })();
+    </script>
+</body>
+</html>
+

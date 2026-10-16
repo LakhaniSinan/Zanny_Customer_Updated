@@ -9,6 +9,7 @@ import CurrentOrdersStack from './currentOrdersStack';
 import ExploreStack from './exploreStack';
 import FavouriteStack from './favouriteStack';
 import ProfileStack from './profileStack';
+import PreOrderStackStack from './PreOrderStack';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -50,37 +51,21 @@ const BottomNavigation = () => {
         }}
       />
 
-      <Tab.Screen
-        name="History"
-        component={CurrentOrdersStack}
+        <Tab.Screen
+        name="PreOrder"
+        component={PreOrderStackStack}
         options={{
-          tabBarLabel: 'History',
+          tabBarLabel: 'PreOrder',
           tabBarIcon: ({color}) => (
             <Image
-              source={icons.history}
+              source={icons.reserve}
               resizeMode="contain"
               style={{width: 20, height: 20, tintColor: color}}
             />
           ),
         }}
       />
-
-      <Tab.Screen
-        name="Explore"
-        component={ExploreStack}
-        options={{
-          tabBarLabel: 'Explore',
-          tabBarIcon: ({color}) => (
-            <Image
-              source={icons.explore}
-              resizeMode="contain"
-              style={{width: 20, height: 20, tintColor: color}}
-            />
-          ),
-        }}
-      />
-
-      <Tab.Screen
+       {/* <Tab.Screen
         name="Favourite"
         component={FavouriteStack}
         options={{
@@ -93,7 +78,39 @@ const BottomNavigation = () => {
             />
           ),
         }}
+      /> */}
+
+
+      <Tab.Screen
+        name="Explore"
+        component={ExploreStack}
+        options={{
+          tabBarLabel: 'Explore',
+          tabBarIcon: ({color}) => (
+            <Image
+            source={icons.explore}
+            resizeMode="contain"
+            style={{width: 20, height: 20, tintColor: color}}
+            />
+          ),
+        }}
       />
+        <Tab.Screen
+          name="History"
+          component={CurrentOrdersStack}
+          options={{
+            tabBarLabel: 'History',
+            tabBarIcon: ({color}) => (
+              <Image
+                source={icons.history}
+                resizeMode="contain"
+                style={{width: 20, height: 20, tintColor: color}}
+              />
+            ),
+          }}
+        />
+
+    
 
       <Tab.Screen
         name="Profile"

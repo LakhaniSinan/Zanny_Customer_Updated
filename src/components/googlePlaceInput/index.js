@@ -16,7 +16,7 @@ import {fontFamily, icons, images} from '../../assets';
 import {colors} from '../../constants';
 import {helper} from '../../helper';
 
-const GooglePlacesInput = ({selectedLocation, setSelectedLocation}) => {
+const GooglePlacesInput = ({selectedLocation, setSelectedLocation, label}) => {
   const googleAPIKey = 'AIzaSyAvPVhgFVY2qv4c6kvukvIP2krPJe9dZGA';
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -206,7 +206,7 @@ const GooglePlacesInput = ({selectedLocation, setSelectedLocation}) => {
               color: colors.black,
               fontFamily: fontFamily.poppinBold,
             }}>
-            Delivery Address
+            {label ? label : 'Delivery Address'}
           </Text>
           <View style={{height: width(10)}}>
             <TextInput

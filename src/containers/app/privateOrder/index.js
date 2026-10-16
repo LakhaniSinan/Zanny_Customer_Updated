@@ -24,7 +24,7 @@ import Button from '../../../components/button';
 import Header from '../../../components/header';
 import OverLayLoader from '../../../components/loader';
 import CommonModal from '../../../components/modal';
-import {colors, STRIPE_PUBLISH_LIVE} from '../../../constants';
+import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
 import {
   createStripeClientSecret,
   placeUserOrder,
@@ -487,7 +487,7 @@ const PrivateOrder = ({route, navigation}) => {
       <OverLayLoader isloading={isloading} />
       <SafeAreaView style={{flex: 1, backgroundColor: colors.white}}>
         <StripeProvider
-          publishableKey={STRIPE_PUBLISH_LIVE}
+          publishableKey={STRIPE_PUBLISH_TEST}
           merchantIdentifier="merchant.com.zannycustomer"
           urlScheme="zannysfood">
           <Header goBack={true} text={'Private Order'} />

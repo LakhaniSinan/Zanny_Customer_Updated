@@ -2,7 +2,7 @@ import axios from 'axios';
 // let baseUrl = 'http://192.168.0.39:4000/api/';
 // let baseUrl = 'http://192.168.156.54:4000/api/';
 // let baseUrl = 'https://czmgcw3c-4000.inc1.devtunnels.ms/api/';
-// let baseUrl = 'https://sirldigital.com/zannyFoods/api/';
+// let baseUrl = 'https://zannysfood-28892707e10a.herokuapp.com/api/';
 // let baseUrl = 'https://0g01d8wd-4000.inc1.devtunnels.ms/api/';
 let baseUrl = 'https://pure-sands-31625-2fc0c2d49903.herokuapp.com/api/';
 // let baseUrl = 'https://zannysfood-28892707e10a.herokuapp.com/api/';

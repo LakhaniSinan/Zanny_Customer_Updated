@@ -7,12 +7,13 @@ import {
   usePlatformPay,
 } from '@stripe/stripe-react-native';
 import moment from 'moment';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   FlatList,
   Image,
   Keyboard,
   Platform,
+  StyleSheet,
   Text,
   TextInput,
   View,
@@ -25,7 +26,7 @@ import CartCard from '../../../components/cartCard';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import {STRIPE_PUBLISH_LIVE, colors} from '../../../constants';
+import {STRIPE_PUBLISH_TEST, colors} from '../../../constants';
 import {setCartData} from '../../../redux/slices/Cart';
 import {setCopiedCodeData} from '../../../redux/slices/ClaimedPromo';
 import {getAdminSettings} from '../../../services/adminSettings';
@@ -100,9 +101,12 @@ const CartScreen = () => {
   const navigation = useNavigation();
   const cartData = useSelector(s => s.CartSlice.cartData) || [];
 
+  console.log('cartData===========================', cartData)
+
   const [promoCode, setPromoCode] = useState('');
   const [isPromoApplied, setIsPromoApplied] = useState(false);
   const [promoData, setPromoData] = useState(null);
+  console.log(promoData, 'promoDatapromoDatapromoDatapromoDataasd');
 
   const [merchantDetails, setMerchantDetails] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -111,6 +115,7 @@ const CartScreen = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [isApplePaySupported, setIsApplePaySupported] = useState(false);
   const [isGooglePaySupported, setIsGooglePaySupported] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
   console.log(
     deliveryCharges,
     'deliveryChargesdeliveryChargesdeliveryChargesdeliveryChargesasd',
@@ -119,6 +124,7 @@ const CartScreen = () => {
   const {copiedCode} = useSelector(state => state.CopiedCodeSlice);
   const {user} = useSelector(s => s.LoginSlice);
   const wallet = useSelector(s => s.PaymentCardSlice.currentPaymentCard);
+  console.log(user, 'walletwalletwalletwalletwallet');
 
   const {address} = useSelector(s => s.AddressSlice);
   const selectedAddress = address && address.length ? address[0] : null;
@@ -139,6 +145,22 @@ const CartScreen = () => {
     () => currentLocation?.address,
     [selectedAddress],
   );
+
+  const filteredCartData = useMemo(() => {
+  if (activeTab === 'all') {
+    return cartData;
+  }
+
+  if (activeTab === 'preorder') {
+    return cartData.filter(item => item?.orderType === 'preorder');
+  }
+
+  if (activeTab === 'regular') {
+    return cartData.filter(item => item?.orderType === 'regular');
+  }
+
+  return cartData;
+}, [cartData, activeTab]);
 
   const {subTotal, discountedSubTotal, total} = useMemo(() => {
     // 1️⃣ Subtotal = FINAL prices (discounted if exists)
@@ -653,6 +675,7 @@ const CartScreen = () => {
       merchantDetails,
       userCardDetails: wallet,
       orderType: 'delivery',
+      orderCategory: 'normal',
       paymentType:
         wallet?.paymentMethodId === 'GOOGLE_PAY'
           ? 'GOOGLE_PAY'
@@ -715,6 +738,8 @@ const CartScreen = () => {
     payWithApple,
   ]);
 
+
+  
   const renderEmpty = () => (
     <View
       style={{
@@ -765,15 +790,18 @@ const CartScreen = () => {
   );
 
   const renderFooter = () => {
-    if (!cartData?.length) return null;
+   if (!filteredCartData?.length) return null;
     return (
       <View style={{paddingBottom: width(30)}}>
         {/* Delivery Address */}
+        {/* <View style={{marginBottom: 5, borderRadius: 30, backgroundColor: colors.white,  elevation: 2,}}>
         <SectionCard title="Delivery Address">
+          <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',}}>
           <Text
-            numberOfLines={2}
+            numberOfLines={1}
             style={{
               fontSize: 13,
+              width: width(50),
               color: colors.graydark,
               marginBottom: width(2),
               fontFamily: fontFamily.poppin,
@@ -781,6 +809,7 @@ const CartScreen = () => {
             {addressLine}
           </Text>
           <ActionBuuton
+          styleProps={{width: width(20)}}
             name="Change"
             height={width(9)}
             fontSize={12}
@@ -788,7 +817,40 @@ const CartScreen = () => {
             fontColor={colors.white}
             onPress={() => navigation.navigate('Address')}
           />
+          </View>
         </SectionCard>
+        </View> */}
+
+           <View style={styles.addressLeft}>
+                    <View style={styles.addressIconContainer}>
+                      <Image
+                        source={icons.location}
+                        style={styles.addressIcon}
+                        resizeMode="contain"
+                      />
+                    </View>
+        
+                    <View>
+                      <Text style={styles.addressTitle}>Delivery Address</Text>
+                      <Text style={styles.addressText} numberOfLines={1}>
+                        {addressLine || 'No address available'}
+                      </Text>
+                    </View>
+
+                    <View style={{flex: 1, justifyContent: 'flex-end', alignItems: 'flex-end',}}>
+                      <ActionBuuton
+          styleProps={{width: width(20)}}
+
+                        name="Change"
+                        height={width(9)}
+                        fontSize={12}
+                        bgcColor={colors.redish}
+                        fontColor={colors.white}
+                        onPress={() => navigation.navigate('Address')}
+                      />
+                    </View>
+                    
+                  </View>
 
         {/* Payment Method */}
         <SectionCard title="Payment Method">
@@ -899,14 +961,63 @@ const CartScreen = () => {
 
   return (
     <StripeProvider
-      publishableKey={STRIPE_PUBLISH_LIVE}
+      publishableKey={STRIPE_PUBLISH_TEST}
       merchantIdentifier="merchant.com.zannycustomer"
       urlScheme="zannysfood">
       <View style={{flex: 1, backgroundColor: colors.white}}>
         <AppHeader goBack notificationsIcon text="Cart" />
+        
+
+<View
+  style={{
+    flexDirection: 'row',
+    // marginHorizontal: width(4),
+    gap: 10,
+    marginTop: width(2),
+    backgroundColor: '#F2F2F2',
+    borderRadius: 8,
+    padding: 4,
+      // iOS shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+
+    // Android shadow
+    elevation: 6,
+  }}>
+  {['all', 'preorder', 'regular'].map(tab => {
+    const isActive = activeTab === tab;
+
+    return (
+      <Text
+        key={tab}
+        onPress={() => setActiveTab(tab)}
+        style={{
+          flex: 1,
+          textAlign: 'center',
+          paddingVertical: 10,
+          borderRadius: 8,
+          backgroundColor: isActive ? colors.redish : colors.border,
+          color: isActive ? '#fff' : '#777',
+          fontFamily: fontFamily.poppinMedium,
+          
+        }}>
+        {tab === 'all'
+          ? 'All'
+          : tab === 'preorder'
+          ? 'Pre Order'
+          : 'Regular'}
+      </Text>
+    );
+  })}
+</View>
+
+{/* <View style={{borderWidth: 0.5, borderColor: colors.border, marginVertical: 10}}/> */}
+
         <FlatList
-          data={cartData}
-          renderItem={({item, index}) => <CartCard item={item} index={index} />}
+          data={filteredCartData}
+          renderItem={({item, index}) => <CartCard item={item} index={index} total={total} />}
           keyExtractor={(item, i) =>
             item?._id ? `cart-${item._id}` : `cart-${i}`
           }
@@ -917,7 +1028,7 @@ const CartScreen = () => {
           }}
         />
 
-        {cartData?.length > 0 && !keyboardVisible && (
+        {filteredCartData?.length > 0 && !keyboardVisible && (
           <View
             style={{
               position: 'absolute',
@@ -955,3 +1066,41 @@ const CartScreen = () => {
 };
 
 export default CartScreen;
+
+const styles = StyleSheet.create({
+   addressLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: width(4),
+    paddingVertical: width(4),
+    marginTop : 15,
+    marginHorizontal: width(4),
+    borderRadius: width(100),
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: '#F9F9F9',
+  },
+
+  addressIconContainer: {
+    height: width(10),
+    width: width(10),
+    borderRadius: 50,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  addressIcon: {height: width(5), width: width(5)},
+
+  addressTitle: {fontFamily: fontFamily.poppinBold},
+  addressText: {
+    fontFamily: fontFamily.poppinRegular,
+    color: colors.graydark,
+    fontSize: 12,
+    width: width(40),
+  },
+});
+

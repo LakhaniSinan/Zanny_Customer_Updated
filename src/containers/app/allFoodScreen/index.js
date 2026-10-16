@@ -160,40 +160,49 @@ const AllFoodScreen = ({route}) => {
     ) : null;
 
   // ⭐ ADD TO CART
-  const handleAddToCart = async selectedItem => {
-    if (!user) {
-      showModal('error', 'Please login first to add items in your cart');
-      return;
-    }
+ const handleAddToCart = async selectedItem => {
+  if (!user) {
+    showModal('error', 'Please login first to add items in your cart');
+    return;
+  }
 
-    try {
-      let tempArr = [...cartData];
-      const findIndex = tempArr.findIndex(i => i._id === selectedItem._id);
+  try {
+    let tempArr = [...cartData];
+    const findIndex = tempArr.findIndex(i => i._id === selectedItem._id);
 
-      if (
-        cartData.length === 0 ||
-        cartData[0].merchantId === selectedItem.merchantId
-      ) {
-        if (findIndex !== -1)
-          tempArr[findIndex].selectedQty =
-            (tempArr[findIndex].selectedQty || 1) + 1;
-        else tempArr.push({...selectedItem, selectedQty: 1});
+    if (
+      cartData.length === 0 ||
+      cartData[0].merchantId === selectedItem.merchantId
+    ) {
+      if (findIndex !== -1) {
+        tempArr[findIndex].selectedQty =
+          (tempArr[findIndex].selectedQty || 1) + 1;
 
-        dispatch(setCartData(tempArr));
-        await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
-
-        showModal('success', 'Item added to cart successfully');
+        // ensure orderType stays regular
+        tempArr[findIndex].orderType = 'regular';
       } else {
-        showModal(
-          'error',
-          'You can only add items from one restaurant at a time',
-        );
+        tempArr.push({
+          ...selectedItem,
+          selectedQty: 1,
+          orderType: 'regular',
+        });
       }
-    } catch (err) {
-      console.log(err);
-      showModal('error', 'Something went wrong!');
+
+      dispatch(setCartData(tempArr));
+      await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
+
+      showModal('success', 'Item added to cart successfully');
+    } else {
+      showModal(
+        'error',
+        'You can only add items from one restaurant at a time',
+      );
     }
-  };
+  } catch (err) {
+    console.log(err);
+    showModal('error', 'Something went wrong!');
+  }
+};
 
   // ⭐ MARK FAVORITE
   const onFavPress = async item => {

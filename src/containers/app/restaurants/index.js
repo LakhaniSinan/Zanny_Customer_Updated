@@ -17,17 +17,17 @@ import {width} from 'react-native-dimension';
 import Carousel from 'react-native-snap-carousel';
 
 import {getMessaging} from '@react-native-firebase/messaging';
+import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import {useDispatch, useSelector} from 'react-redux';
 import {fontFamily, icons} from '../../../assets';
 import Category from '../../../components/categoryCard';
 import CustomModal from '../../../components/customModal';
 import HireCheifCard from '../../../components/hireChefCard';
 import SectionHeader from '../../../components/sectionHeader';
+import PermissionSlider from '../../../components/slider';
 import {Colors, colors} from '../../../constants';
 import {helper} from '../../../helper';
 import {handleFetchHomeData} from '../../../redux/slices/HomeData';
-import PermissionSlider from '../../../components/slider';
-import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import RestaurantsSkeleton from './HomeSkeleton';
 
 const Restaurants = ({navigation}) => {
@@ -38,6 +38,9 @@ const Restaurants = ({navigation}) => {
   const {currentLocation} = useSelector(state => state.LocationSlice);
   const [searchQuery, setSearchQuery] = useState('');
   const {homeData} = useSelector(state => state.HomeDataSlice);
+  console.log(homeData, 'homeDatahomeDatahomeDatahomeDatahomeData');
+  console.log(currentLocation, 'homeDatahomeDatahomeDatahomeDatahomeData');
+  // ✅ Custom Modal State
   const [status, setStatus] = useState('');
   console.log(status, 'statusstatusstatusstatus');
 
@@ -134,7 +137,9 @@ const Restaurants = ({navigation}) => {
 
             <View style={styles.foodTextContainer}>
               <View style={styles.foodHeader}>
-                <Text style={styles.foodName}>{item?.name}</Text>
+                <Text numberOfLines={1} style={styles.foodName}>
+                  {item?.name}
+                </Text>
                 {item?.discount > 0 ? (
                   <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Text style={styles.foodPrice}>£{item?.discount}</Text>
@@ -510,7 +515,9 @@ const styles = StyleSheet.create({
 
   // Food Items
   recommendedCard: {
-    width: width(65),
+    // width: width(50),
+    // backgroundColor: 'red',
+    // gap: 10,
     marginHorizontal: 10,
     marginLeft: width(4),
   },
@@ -521,12 +528,15 @@ const styles = StyleSheet.create({
 
   foodHeader: {
     flexDirection: 'row',
+    // backgroundColor: 'red',
+    gap: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
   },
 
   foodName: {
     fontSize: 14,
+    width: width(50),
     fontWeight: '600',
     color: Colors.black,
   },

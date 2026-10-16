@@ -1,17 +1,16 @@
-import React, {useState, forwardRef, useImperativeHandle} from 'react';
+import React, {forwardRef, useImperativeHandle, useState} from 'react';
 import {
   FlatList,
+  Image,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  StyleSheet,
-  Image,
 } from 'react-native';
-import {width, height} from 'react-native-dimension';
+import {height, width} from 'react-native-dimension';
 import Modal from 'react-native-modal';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {colors} from '../../constants';
 import {fontFamily, icons} from '../../assets';
+import {colors} from '../../constants';
 
 const CustomPicker = forwardRef(
   (

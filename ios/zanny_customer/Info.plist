@@ -26,15 +26,13 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	<key>NSAllowsArbitraryLoads</key>
-	<false/>
-	<key>NSAllowsLocalNetworking</key>
-	<true/>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
 	</dict>
-
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>We need access to your location to provide delivery tracking.</string>
-
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera so you can take photos for orders, profile pictures, and support requests.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -51,14 +49,6 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>zannysfood</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>Google Sign-In</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.929084652852-294nak4mtq2cvtguqeq84o8ci9h38stq</string>
 			</array>
 		</dict>
 	</array>

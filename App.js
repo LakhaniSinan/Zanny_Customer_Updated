@@ -1,5 +1,3 @@
-import messaging from '@react-native-firebase/messaging';
-messaging().registerDeviceForRemoteMessages();
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState} from 'react';
@@ -20,6 +18,7 @@ LogBox.ignoreLogs(['useInsertionEffect must not schedule updates']);
 LogBox.ignoreLogs(['Encountered two children with the same key']);
 const App = () => {
   const [termsAccepted, setTermsAccepted] = useState(null);
+
   const [isloading, setIsLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
   const dispatch = store.dispatch;

@@ -114,6 +114,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fontFamily.poppinRegular,
   },
+   deliveryDateTime1: {
+    color: 'white',
+    fontSize: 14,
+    fontFamily: fontFamily.poppinLight,
+  },
   orderCard: {
     marginHorizontal: width(4),
     marginTop: width(3),
@@ -206,7 +211,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: fontFamily.poppinBold,
     color: 'black',
-    flex: 1,
+    // flex: 1,
   },
   chefCheckIcon: {
     width: width(5),

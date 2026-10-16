@@ -1,33 +1,31 @@
 # Resolve react_native_pods.rb with node to allow for hoisting
 require_relative '../node_modules/react-native-permissions/scripts/setup'
-
 require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
+'require.resolve(
+  "react-native/scripts/react_native_pods.rb",
+  {paths: [process.argv[1]]},
   )', __dir__]).strip
-
-platform :ios, min_ios_version_supported
-prepare_react_native_project!
-
+  
+  platform :ios, min_ios_version_supported
+  prepare_react_native_project!
+  $RNFirebaseAsStaticFramework = true
 # Firebase Core Pods
-pod 'Firebase', :modular_headers => true
-pod 'FirebaseCoreInternal', :modular_headers => true
-pod 'GoogleUtilities', :modular_headers => true
-pod 'FirebaseCore', :modular_headers => true
+pod 'Firebase'
+pod 'FirebaseCoreInternal'
+pod 'GoogleUtilities'
+pod 'FirebaseCore'
+pod 'FirebaseFirestoreInternal'
 
 # Firebase Messaging Pod (for push notifications)
-pod 'FirebaseMessaging', :modular_headers => true
+pod 'FirebaseMessaging'
 
 setup_permissions([
   'LocationWhenInUse',
 ])
 
-linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
-end
+linkage = ENV['USE_FRAMEWORKS'] || 'static'
+Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+use_frameworks! :linkage => linkage.to_sym
 
 target 'zanny_customer' do
   config = use_native_modules!
@@ -50,6 +48,8 @@ target 'zanny_customer' do
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         config.build_settings['CLANG_ENABLE_MODULES'] = 'YES'
+        # Xcode 16+ can fail Pod compilation with non-modular include errors.
+        config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
       end
     end
   end

@@ -42,7 +42,7 @@ export const colors = {
   clay: '#F9F9F9',
   clayLite: '#EEEEEE',
   background: '#F2B037B2',
-  warn: '#F6E9D4',
+  warn: '#FAF1EC',
   transparent: '#63606069',
 };
 

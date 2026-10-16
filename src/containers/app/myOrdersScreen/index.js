@@ -1,27 +1,34 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {
   FlatList,
   Image,
   RefreshControl,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {width} from 'react-native-dimension';
-import {useSelector, useDispatch} from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useDispatch, useSelector} from 'react-redux';
 
-import {icons, images} from '../../../assets';
+import {fontFamily, icons, images} from '../../../assets';
 import ActionBuuton from '../../../components/actionButton';
+import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import HistoryCard from '../../../components/historyCard';
-import OverLayLoader from '../../../components/loader';
 import {colors, Colors} from '../../../constants';
 import {getAllOrdersByCustomerId} from '../../../services/order';
-import CustomModal from '../../../components/customModal';
 import {setCartData} from '../../../redux/slices/Cart';
 import HistoryCardSkeleton from '../../../components/cardSkeleton/OrderSkeleton';
+
+const ORDER_TABS = [
+  {key: 'all', label: 'All', category: null},
+  {key: 'preOrder', label: 'PreOrder', category: 'preOrder'},
+  {key: 'buynow', label: 'Buy Now', category: 'normal'},
+  {key: 'daily', label: 'Daily', category: 'daily'},
+];
 
 const MyOrdersScreen = () => {
   const navigation = useNavigation();
@@ -31,6 +38,8 @@ const MyOrdersScreen = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [orderCategoryTab, setOrderCategoryTab] = useState('all');
 
   const user = useSelector(state => state.LoginSlice.user);
   const cartData = useSelector(state => state.CartSlice.cartData);
@@ -59,11 +68,10 @@ const MyOrdersScreen = () => {
   const handleGetAllOrders = async (isRefresh = false) => {
     try {
       if (!isRefresh) setLoading(true);
-
       const response = await getAllOrdersByCustomerId(user?._id);
       setAllOrders(response?.data?.data || []);
     } catch (error) {
-      console.log(error, 'Error fetching orders');
+      console.log(error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -81,14 +89,23 @@ const MyOrdersScreen = () => {
     handleGetAllOrders(true);
   };
 
+  const filteredOrders = useMemo(() => {
+    const activeTab = ORDER_TABS.find(tab => tab.key === orderCategoryTab);
+    if (!activeTab?.category) {
+      return allOrders;
+    }
+    return allOrders.filter(item => item?.orderCategory === activeTab.category);
+  }, [allOrders, orderCategoryTab]);
+
+  const activeTabLabel = useMemo(() => {
+    const activeTab = ORDER_TABS.find(tab => tab.key === orderCategoryTab);
+    return activeTab?.label || 'All';
+  }, [orderCategoryTab]);
+
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
       <Image source={images.noOrders} style={styles.emptyImage} />
-      <Text style={styles.emptyText}>
-        {user
-          ? 'No Orders Found'
-          : 'No orders found, Please login first to see your orders history.'}
-      </Text>
+      <Text style={styles.emptyText}>No {activeTabLabel} Orders Found</Text>
       {!user && (
         <View style={{width: width(30), marginLeft: 10, marginTop: width(2)}}>
           <ActionBuuton
@@ -119,20 +136,13 @@ const MyOrdersScreen = () => {
       return;
     }
 
-    // 1️⃣ Extract merchant from the old order
     const orderMerchantId = orderArray[0]?.merchantId;
+    if (!orderMerchantId) return;
 
-    if (!orderMerchantId) {
-      showModal(icons?.cross, 'error', 'Invalid order data');
-      return;
-    }
-
-    // 2️⃣ If cart is empty → add whole order
     if (cartData.length === 0) {
       dispatch(setCartData(orderArray));
       await AsyncStorage.setItem('cartData', JSON.stringify(orderArray));
-
-      showModal(icons?.check, 'success', 'Order added to cart');
+      showModal(icons.check, 'success', 'Order added to cart');
       return;
     }
 
@@ -148,29 +158,53 @@ const MyOrdersScreen = () => {
       return;
     }
 
-    // 4️⃣ Same merchant → replace entire cart
     dispatch(setCartData(orderArray));
     await AsyncStorage.setItem('cartData', JSON.stringify(orderArray));
-
-    showModal(icons?.check, 'success', 'Order added to cart successfully');
+    showModal(icons.check, 'success', 'Order added successfully');
   };
 
   return (
     <View style={{flex: 1, backgroundColor: Colors.white}}>
       <AppHeader goBack={true} cartIcon={true} text="History" />
 
+      {/* 🔘 TABS */}
+      <View style={styles.tabContainer}>
+        {ORDER_TABS.map(tab => {
+          const isActive = orderCategoryTab === tab.key;
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              onPress={() => setOrderCategoryTab(tab.key)}
+              style={[styles.tabButton, isActive && styles.activeTab]}>
+              <Text style={[styles.tabText, isActive && styles.activeText]}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* 📦 ORDERS LIST */}
       <FlatList
-        data={loading ? [1, 1, 1] : allOrders}
-        keyExtractor={(item, index) => index.toString()}
+        data={loading ? [1, 1, 1] : filteredOrders}
+        keyExtractor={(item, index) =>
+          loading
+            ? `skeleton-${index}`
+            : item?._id?.toString() || index.toString()
+        }
         renderItem={({item}) => {
           return loading ? (
             <HistoryCardSkeleton />
           ) : (
-            <HistoryCard item={item} handleAddToCart={handleAddToCart} />
+            <HistoryCard
+              orderCategoryTab={orderCategoryTab}
+              item={item}
+              handleAddToCart={handleAddToCart}
+            />
           );
         }}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={!loading && renderEmptyComponent()}
+        ListEmptyComponent={!loading ? renderEmptyComponent : null}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -191,23 +225,48 @@ const MyOrdersScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  emptyContainer: {
-    flex: 1,
+  tabContainer: {
+    // backgroundColor: colors.border,
+    // borderRadius: 100,
+    justifyContent: 'space-between',
+    margin: width(4),
+    flexDirection: 'row',
+    padding: width(1),
+    justifyContent: 'space-between',
+  },
+  tabButton: {
+    height: width(10),
+    width: width(22),
+    backgroundColor: colors.border,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 50,
+    paddingHorizontal: width(3),
+  },
+  activeTab: {
+    backgroundColor: colors.redish,
+  },
+  tabText: {
+    fontFamily: fontFamily.poppinBold,
+    fontSize: 10,
+    color: colors.gray,
+  },
+  activeText: {
+    color: colors.white,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 60,
   },
   emptyImage: {
     width: 150,
     height: 150,
     resizeMode: 'contain',
-    marginBottom: 20,
   },
   emptyText: {
-    fontSize: 16,
+    marginTop: 10,
+    fontSize: 15,
     color: Colors.gray,
-    fontWeight: '500',
-    textAlign: 'center',
   },
 });
 

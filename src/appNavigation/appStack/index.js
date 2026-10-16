@@ -1,25 +1,32 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {
+  createStackNavigator,
   HeaderStyleInterpolators,
   TransitionSpecs,
-  createStackNavigator,
 } from '@react-navigation/stack';
 import {useEffect} from 'react';
-import {openSettings, RESULTS} from 'react-native-permissions';
+import {RESULTS} from 'react-native-permissions';
 import {useDispatch, useSelector} from 'react-redux';
 import PaymentScreen from '../../components/stripePayment/PaymentScreen';
 import Address from '../../containers/app/address';
 import AddEditAddress from '../../containers/app/address/addEditAddress';
+import LeaveReviewScreen from '../../containers/app/addReview';
 import AllCategories from '../../containers/app/allCategories';
 import AllChefs from '../../containers/app/allChefs';
 import EditAllergies from '../../containers/app/allergies/editAllergies';
 import AllFoodScreen from '../../containers/app/allFoodScreen';
 import CartScreen from '../../containers/app/cartScreen';
+import Chat from '../../containers/app/chat';
 import CheckoutScreen from '../../containers/app/checkoutScreen';
 import ChefDetails from '../../containers/app/chefDetails';
+import Favourite from '../../containers/app/favourite';
+import HelpCenter from '../../containers/app/helpCenter';
+import HireChefScreen from '../../containers/app/hireChefScreen';
+import Notifications from '../../containers/app/notification';
 import OrderDetail from '../../containers/app/orderDetails';
 import Orders from '../../containers/app/orders';
+import OrderSummry from '../../containers/app/orderSummry';
 import PaymentCard from '../../containers/app/paymentCard';
 import AddEditPaymentCard from '../../containers/app/paymentCard/addEditPaymentCard';
 import PaymentOptions from '../../containers/app/paymentOptions';
@@ -30,6 +37,7 @@ import ProductDetail from '../../containers/app/productDetail';
 import Profile from '../../containers/app/profile';
 import ChangePassword from '../../containers/app/profile/chnagePassword';
 import PersonalInfo from '../../containers/app/profile/personalInfo';
+import SpecialOrderRequest from '../../containers/app/profile/SpecialOrderRequest';
 import ReOccuringCheckout from '../../containers/app/reOccuringCheckOut';
 import ReOccurinOrder from '../../containers/app/reOccurinOrder';
 import restaurants from '../../containers/app/restaurants';
@@ -38,6 +46,9 @@ import Checkout from '../../containers/app/restaurants/checkout';
 import Products from '../../containers/app/restaurants/products';
 import Reviews from '../../containers/app/restaurants/reviews';
 import SearchScreen from '../../containers/app/searchScreen';
+import SelectMeals from '../../containers/app/selectMeals';
+import SubscribeChefScreen from '../../containers/app/subscribeChef';
+import SubscribeChefDay from '../../containers/app/subscribeChef/dayDetail';
 import Support from '../../containers/app/support';
 import AddSupportMsg from '../../containers/app/support/addSupportMsg';
 import TermsAndConditions from '../../containers/app/termsAndConditions';
@@ -55,7 +66,7 @@ import {handleFetchHomeData} from '../../redux/slices/HomeData';
 import {setCurrentLocation} from '../../redux/slices/Location';
 import {handleFetchCardsData} from '../../redux/slices/UserCards';
 import BottomNavigation from './bottomTab';
-import {Platform} from 'react-native';
+import AboutChef from '../../containers/app/aboutChef';
 
 const Stack = createStackNavigator();
 
@@ -116,20 +127,18 @@ export function CustomerStack() {
 
   const handleGetCurrentLocation = async () => {
     try {
-      let status;
-
-      // ✅ iOS: direct request (check pe rely nahi)
-      // ✅ Android: check → request
-      if (Platform.OS === 'ios') {
-        status = await helper.requestLocationPermission();
-      } else {
-        status = await helper.checkLocation();
-        if (status !== RESULTS.GRANTED) {
-          status = await helper.requestLocationPermission();
-        }
-      }
+      let status = await helper.checkLocation();
+      console.log(status, 'statusstatusstatusstatus');
 
       if (status !== RESULTS.GRANTED) {
+        status = await helper.requestLocationPermission();
+      }
+
+      if (status !== 'granted') {
+        console.log(
+          'Location permission denied, using default Canada location',
+        );
+
         await AsyncStorage.setItem(
           'userCurrentAddress',
           JSON.stringify(DEFAULT_UK_LOCATION),
@@ -140,7 +149,6 @@ export function CustomerStack() {
       }
 
       const position = await helper.getCurrentLocation();
-
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
 
@@ -161,8 +169,9 @@ export function CustomerStack() {
 
       dispatch(setCurrentLocation(payload));
     } catch (error) {
-      console.log('Location error:', error);
+      console.log('getLatLngWithAddress error:', error);
 
+      // ❗ Safety fallback
       dispatch(setCurrentLocation(DEFAULT_UK_LOCATION));
     }
   };
@@ -187,8 +196,24 @@ export function CustomerStack() {
           headerShown: false,
           tabBarVisible: false,
         }}
+        name="AboutChef"
+        component={AboutChef}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
         name="ReOccurinOrder"
         component={ReOccurinOrder}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="LeaveReviewScreen"
+        component={LeaveReviewScreen}
       />
       <Stack.Screen
         options={{
@@ -205,6 +230,23 @@ export function CustomerStack() {
         }}
         name="AllChefs"
         component={AllChefs}
+      />
+
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="HelpCenter"
+        component={HelpCenter}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          tabBarVisible: false,
+        }}
+        name="Notifications"
+        component={Notifications}
       />
       <Stack.Screen
         options={{
@@ -232,6 +274,27 @@ export function CustomerStack() {
       <Stack.Screen
         name="ChefDetails"
         component={ChefDetails}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="HireChefScreen"
+        component={HireChefScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="SubscribeChefScreen"
+        component={SubscribeChefScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="SubscribeChefDay"
+        component={SubscribeChefDay}
         options={{
           headerShown: false,
         }}
@@ -275,6 +338,20 @@ export function CustomerStack() {
         }}
       />
       <Stack.Screen
+        name="SelectMeals"
+        component={SelectMeals}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="OrderSummry"
+        component={OrderSummry}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="PaymentScreen"
         component={PaymentScreen}
         options={{
@@ -305,6 +382,13 @@ export function CustomerStack() {
       <Stack.Screen
         name="CartScreen"
         component={CartScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={Chat}
         options={{
           headerShown: false,
         }}
@@ -379,6 +463,36 @@ export function CustomerStack() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="SpecialOrderRequest"
+        component={SpecialOrderRequest}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="Favourite"
+        component={Favourite}
+        options={{
+          headerShown: false,
+        }}
+      />
+      {/* <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetail}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="CartScreen"
+        component={CartScreen}
+        options={{
+          headerShown: false,
+        }}
+      /> */}
+
       <Stack.Screen
         name="Orders"
         component={Orders}

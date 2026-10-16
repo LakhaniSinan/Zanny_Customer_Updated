@@ -57,7 +57,6 @@ const Navigation = () => {
       let productId = null;
       const fullUrlMatch = url.match(/app\/ProductDetail\/([^/?]+)/);
       const pathMatch = url.match(/ProductDetail\/([^/?]+)/);
-
       if (fullUrlMatch) {
         productId = fullUrlMatch[1];
       } else if (pathMatch) {

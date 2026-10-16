@@ -1,5 +1,5 @@
-import {createSlice} from '@reduxjs/toolkit';
-import {getPaymentCardById} from '../../services/paymentCard';
+import { createSlice } from '@reduxjs/toolkit';
+import { getPaymentCardById } from '../../services/paymentCard';
 
 export const initialState = {
   loading: false,
@@ -15,19 +15,19 @@ const CardSlice = createSlice({
       state.loading = true;
       state.hasErrors = false;
     },
-    fetchCardsSuccess: (state, {payload}) => {
+    fetchCardsSuccess: (state, { payload }) => {
       state.loading = false;
       state.cardsData = payload;
       state.hasErrors = false;
     },
-    fetchCardsFailure: (state, {payload}) => {
+    fetchCardsFailure: (state, { payload }) => {
       state.loading = false;
       state.hasErrors = payload || true;
     },
   },
 });
 
-export const {fetchCards, fetchCardsSuccess, fetchCardsFailure} =
+export const { fetchCards, fetchCardsSuccess, fetchCardsFailure } =
   CardSlice.actions;
 
 export default CardSlice.reducer;
@@ -49,4 +49,27 @@ export function handleFetchCardsData(userId) {
       console.log('Cards Data Error', error);
     }
   };
+}
+export function handelGetCard(userId) {
+  try {
+    return async dispatch => {
+      if (!userId) {
+        return;
+      }
+      getPaymentCardById(userId)
+        .then(response => {
+          if (response.status === 200 || response.status === 201) {
+            dispatch(getCardSuccess(response?.data?.cards));
+          } else {
+            dispatch(getCardFailure(response.data));
+          }
+        })
+        .catch(error => {
+          dispatch(getCardFailure(error));
+          console.log(error, 'error');
+        });
+    };
+  } catch (error) {
+    console.log(error, 'ERRR');
+  }
 }

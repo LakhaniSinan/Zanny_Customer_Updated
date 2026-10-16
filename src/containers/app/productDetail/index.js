@@ -266,12 +266,7 @@ const ProductDetail = ({route}) => {
     <View style={styles.bottomBar}>
       <View style={{width: width(45)}}>
         <ActionButton
-          onPress={() =>
-            Alert.alert(
-              'Coming Soon',
-              'This feature is currently under development. Please check back later!',
-            )
-          }
+          onPress={handleAddForPreOrder}
           height={46}
           width={width(45)}
           name={'Pre-order'}
@@ -455,6 +450,7 @@ const HeaderIcons = ({cartData, navigation}) => (
         tintColor={colors.black}
       />
     </TouchableOpacity>
+    <View style={{flexDirection: 'row', gap: 10}}>
     <TouchableOpacity
       style={{
         height: width(10),
@@ -497,6 +493,27 @@ const HeaderIcons = ({cartData, navigation}) => (
         </View>
       )}
     </TouchableOpacity>
+     <TouchableOpacity
+      style={{
+        height: width(10),
+        width: width(10),
+        marginTop: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 100,
+        borderWidth: 1,
+        borderColor: colors.orangeBorder,
+      }}
+      onPress={() => navigation.navigate('Chat')}>
+      <Image
+        source={icons.chat}
+        style={styles.iconSize}
+        resizeMode="contain"
+        tintColor={colors.black}
+      />
+
+    </TouchableOpacity>
+    </View>
   </View>
 );
 
