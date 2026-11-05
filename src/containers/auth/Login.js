@@ -139,26 +139,65 @@ const Login = ({navigation}) => {
   const handleGoogleLogin = async () => {
     try {
       setIsVisible(true);
+      console.log('[GOOGLE] 1. start');
+
       await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
+      console.log('[GOOGLE] 2. play services OK');
+
+      const result = await GoogleSignin.signIn();
+      console.log(
+        '[GOOGLE] 3. signIn result:',
+        JSON.stringify(result, null, 2),
+      );
+
+      // v13+: cancel karne par throw nahi hota, type 'cancelled' aata hai
+      if (result?.type !== 'success') {
+        console.log('[GOOGLE] 3b. not success, type =', result?.type);
+        showModal('error', 'You cancelled the Google login process.');
+        return;
+      }
+
+      const {user, idToken} = result.data;
+      console.log('[GOOGLE] 4. user:', user?.email, user?.name);
+
+      if (!user?.email) {
+        console.log('[GOOGLE] 4b. email missing in google response');
+        showModal('error', 'Could not get email from Google account.');
+        return;
+      }
+
       const payload = {
-        customerImage: userInfo?.user?.photo,
-        email: userInfo?.user?.email,
+        customerImage: user.photo,
+        email: user.email,
         fcm: inputValues.fcm,
         isActive: 'Active',
-        name: userInfo?.user?.name,
+        name: user.name,
         password: null,
+        // idToken, // backend verify kare to uncomment karein
       };
+      console.log('[GOOGLE] 5. payload:', JSON.stringify(payload, null, 2));
 
       const response = await socialLogin(payload);
-      if (response.status === 200 || response.status === 201) {
-        const user = {
+      console.log('[GOOGLE] 6. API status:', response?.status);
+      console.log(
+        '[GOOGLE] 7. API data:',
+        JSON.stringify(response?.data, null, 2),
+      );
+
+      const isHttpOk = response?.status === 200 || response?.status === 201;
+      const isBackendError = response?.data?.status === 'error';
+
+      if (isHttpOk && !isBackendError) {
+        const userDetails = {
           ...response.data.data.userDetails,
-          customerImage: userInfo?.user?.photo,
+          customerImage: user.photo,
         };
+
         await AsyncStorage.setItem('user_token', response.data.data.token);
-        await AsyncStorage.setItem('user', JSON.stringify(user));
-        dispatch(setUserData(user));
+        await AsyncStorage.setItem('user', JSON.stringify(userDetails));
+        dispatch(setUserData(userDetails));
+        console.log('[GOOGLE] 8. login success, navigating');
+
         navigation.reset({
           index: 0,
           routes: [
@@ -166,16 +205,38 @@ const Login = ({navigation}) => {
           ],
         });
       } else {
+        console.log('[GOOGLE] 8b. backend rejected:', response?.data?.message);
         showModal('error', response?.data?.message || 'Google login failed');
       }
     } catch (error) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED)
+      console.log('[GOOGLE] ERROR code:', error?.code);
+      console.log('[GOOGLE] ERROR message:', error?.message);
+      console.log('[GOOGLE] ERROR http status:', error?.response?.status);
+      console.log(
+        '[GOOGLE] ERROR http data:',
+        JSON.stringify(error?.response?.data, null, 2),
+      );
+      console.log('[GOOGLE] ERROR full:', error);
+
+      if (error?.code === statusCodes.SIGN_IN_CANCELLED) {
         showModal('error', 'You cancelled the Google login process.');
-      else if (error.code === statusCodes.IN_PROGRESS)
-        console.log('Sign-in in progress');
-      else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE)
+      } else if (error?.code === statusCodes.IN_PROGRESS) {
+        console.log('[GOOGLE] sign-in already in progress');
+      } else if (error?.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         showModal('error', 'Play services not available or outdated.');
-      else showModal('error', 'Google Sign-In error');
+      } else if (error?.message === 'Network Error') {
+        showModal(
+          'error',
+          'Server se connect nahi ho paa raha. Internet ya server check karein.',
+        );
+      } else {
+        showModal(
+          'error',
+          error?.response?.data?.message ||
+            error?.message ||
+            'Google Sign-In error',
+        );
+      }
     } finally {
       setIsVisible(false);
     }
@@ -343,6 +404,62 @@ const Login = ({navigation}) => {
           paddingHorizontal: width(3),
         }}>
         <PrimaryButton name="login" onPress={onPressLogin} />
+      </View>
+      {/* Social Login Buttons */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          gap: width(5),
+          marginTop: width(2),
+        }}>
+        <TouchableOpacity
+          onPress={handleGoogleLogin}
+          style={{
+            height: width(13),
+            width: '90%',
+            borderRadius: width(7),
+            flexDirection: 'row',
+            gap: 10,
+            borderWidth: 1,
+            borderColor: colors.border,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Image
+            source={icons.Google}
+            resizeMode="contain"
+            style={{height: width(6), width: width(6)}}
+          />
+          <Text style={{fontSize: 13, color: Colors.black}}>
+            Login With Google
+          </Text>
+        </TouchableOpacity>
+
+        {Platform.OS === 'ios' && (
+          <TouchableOpacity
+            onPress={handleAppleLogin}
+            style={{
+              height: width(13),
+              width: '90%',
+              borderRadius: width(7),
+              flexDirection: 'row',
+              gap: 10,
+              borderWidth: 1,
+              borderColor: colors.border,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Image
+              source={icons.apple}
+              resizeMode="contain"
+              style={{height: width(6), width: width(6)}}
+            />
+            <Text style={{fontSize: 13, color: Colors.black}}>
+              Login With Apple
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Or Divider */}

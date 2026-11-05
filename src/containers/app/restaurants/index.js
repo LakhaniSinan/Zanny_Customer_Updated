@@ -38,11 +38,7 @@ const Restaurants = ({navigation}) => {
   const {currentLocation} = useSelector(state => state.LocationSlice);
   const [searchQuery, setSearchQuery] = useState('');
   const {homeData} = useSelector(state => state.HomeDataSlice);
-  console.log(homeData, 'homeDatahomeDatahomeDatahomeDatahomeData');
-  console.log(currentLocation, 'homeDatahomeDatahomeDatahomeDatahomeData');
-  // ✅ Custom Modal State
   const [status, setStatus] = useState('');
-  console.log(status, 'statusstatusstatusstatus');
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({

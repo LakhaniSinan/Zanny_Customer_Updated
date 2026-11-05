@@ -6,58 +6,63 @@ import {icons} from '../../assets';
 
 const ProgressCard = ({item}) => {
   return (
-    <View>
+    <View
+      style={{
+        height: width(11),
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: width(5),
+      }}>
       <View
         style={{
-          height: width(11),
-          flexDirection: 'row',
+          height: 45,
+          width: 43,
+          backgroundColor: Colors.clayDark,
           alignItems: 'center',
-          marginTop: width(5),
+          justifyContent: 'center',
+          borderRadius: 5,
         }}>
+        <Image
+          source={icons.kcal}
+          style={{height: 25, width: 23}}
+          resizeMode="contain"
+        />
+      </View>
+      <View style={{gap: 10}}>
         <View
           style={{
-            height: 45,
-            width: 43,
-            backgroundColor: Colors.clayDark,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 5,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            width: width(74),
+            marginLeft: 12,
+            marginTop: 2,
           }}>
-          <Image
-            source={icons.kcal}
-            style={{height: 25, width: 23}}
-            resizeMode="contain"
-          />
+          <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>
+            {item?.name}
+          </Text>
+          <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>
+            {item?.amount}gm
+          </Text>
         </View>
-        <View style={{gap: 10}}>
+        <View
+          style={{
+            width: width(74),
+            height: 8,
+            borderRadius: 50,
+            marginLeft: 12,
+            backgroundColor: Colors.clayDark,
+          }}>
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              width: width(74),
-              marginLeft: 12,
-              marginTop: 2,
-            }}>
-            <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>{item?.name}</Text>
-            <Text style={{fontSize: 14, fontWeight: 500, color: Colors.black}}>{item?.amount}gm</Text>
-          </View>
-          <View
-            style={{
-              width: width(74),
-              height: 8,
-              borderRadius: 50,
-              marginLeft: 12,
-              backgroundColor: Colors.clayDark,
-            }}>
-            <View
-              style={{
-                width: `£${item?.amount}%`,
-                height: 7,
-                backgroundColor: Colors.grayplus,
-                borderRadius: 500,
-              }}
-            />
-          </View>
+              width: `${Math.min(
+                Math.max(Number(item?.amount) || 0, 0),
+                100,
+              )}%`,
+              height: 7,
+              backgroundColor: Colors.grayplus,
+              borderRadius: 500,
+            }}
+          />
         </View>
       </View>
     </View>

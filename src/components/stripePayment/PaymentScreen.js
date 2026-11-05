@@ -20,7 +20,7 @@ import {
 import { width } from 'react-native-dimension';
 
 import { fontFamily, icons } from '../../assets';
-import { colors, STRIPE_PUBLISH_TEST } from '../../constants';
+import { colors, STRIPE_PUBLISH_KEY } from '../../constants';
 import AppHeader from '../headerComponent';
 import CustomModal from '../customModal';
 import { PaymentCompleteModal } from '../modal';
@@ -730,7 +730,7 @@ const PaymentScreenInner = ({ navigation, route }) => {
 
 const PaymentScreen = props => (
   <StripeProvider
-    publishableKey={STRIPE_PUBLISH_TEST}
+    publishableKey={STRIPE_PUBLISH_KEY}
     merchantIdentifier="merchant.com.yourapp">
     <PaymentScreenInner {...props} />
   </StripeProvider>

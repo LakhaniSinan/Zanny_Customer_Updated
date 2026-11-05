@@ -451,68 +451,67 @@ const HeaderIcons = ({cartData, navigation}) => (
       />
     </TouchableOpacity>
     <View style={{flexDirection: 'row', gap: 10}}>
-    <TouchableOpacity
-      style={{
-        height: width(10),
-        width: width(10),
-        marginTop: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 100,
-        borderWidth: 1,
-        borderColor: colors.orangeBorder,
-      }}
-      onPress={() => navigation.navigate('CartScreen')}>
-      <Image
-        source={icons.ShoppingCart}
-        style={styles.iconSize}
-        resizeMode="contain"
-        tintColor={colors.black}
-      />
-      {cartData?.length > 0 && (
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: -5,
-            backgroundColor: colors.red,
-            width: width(4),
-            height: width(4),
-            borderRadius: width(2),
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <Text
+      <TouchableOpacity
+        style={{
+          height: width(10),
+          width: width(10),
+          marginTop: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 100,
+          borderWidth: 1,
+          borderColor: colors.orangeBorder,
+        }}
+        onPress={() => navigation.navigate('CartScreen')}>
+        <Image
+          source={icons.ShoppingCart}
+          style={styles.iconSize}
+          resizeMode="contain"
+          tintColor={colors.black}
+        />
+        {cartData?.length > 0 && (
+          <View
             style={{
-              color: colors.white,
-              fontSize: 10,
-              fontFamily: fontFamily.poppinRegular,
+              position: 'absolute',
+              top: 0,
+              right: -5,
+              backgroundColor: colors.red,
+              width: width(4),
+              height: width(4),
+              borderRadius: width(2),
+              alignItems: 'center',
+              justifyContent: 'center',
             }}>
-            {cartData?.length}
-          </Text>
-        </View>
-      )}
-    </TouchableOpacity>
-     <TouchableOpacity
-      style={{
-        height: width(10),
-        width: width(10),
-        marginTop: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 100,
-        borderWidth: 1,
-        borderColor: colors.orangeBorder,
-      }}
-      onPress={() => navigation.navigate('Chat')}>
-      <Image
-        source={icons.chat}
-        style={styles.iconSize}
-        resizeMode="contain"
-        tintColor={colors.black}
-      />
-
-    </TouchableOpacity>
+            <Text
+              style={{
+                color: colors.white,
+                fontSize: 10,
+                fontFamily: fontFamily.poppinRegular,
+              }}>
+              {cartData?.length}
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          height: width(10),
+          width: width(10),
+          marginTop: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 100,
+          borderWidth: 1,
+          borderColor: colors.orangeBorder,
+        }}
+        onPress={() => navigation.navigate('Chat')}>
+        <Image
+          source={icons.chat}
+          style={styles.iconSize}
+          resizeMode="contain"
+          tintColor={colors.black}
+        />
+      </TouchableOpacity>
     </View>
   </View>
 );

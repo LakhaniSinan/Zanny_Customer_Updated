@@ -46,10 +46,14 @@ export const colors = {
   transparent: '#63606069',
 };
 
-export const STRIPE_PUBLISH_TEST = ENV.STRIPE_PUBLISH_TEST;
-export const STRIPE_SECRET_TEST = ENV.STRIPE_SECRET_TEST;
-export const STRIPE_PUBLISH_LIVE = ENV.STRIPE_PUBLISH_LIVE;
-export const STRIPE_SECRET_LIVE = ENV.STRIPE_SECRET_LIVE;
+const stripeMode = (ENV.TYPE_OF_STRIPE_KEY || 'test').trim().toLowerCase();
+
+if (stripeMode !== 'test' && stripeMode !== 'live') {
+  throw new Error('TYPE_OF_STRIPE_KEY must be either "test" or "live".');
+}
+
+export const STRIPE_PUBLISH_KEY =
+  stripeMode === 'live' ? ENV.STRIPE_PUBLISH_LIVE : ENV.STRIPE_PUBLISH_TEST;
 export const constants = {};
 
 export const Colors = {

@@ -31,7 +31,7 @@ import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
 import PreOrderCard from '../../../components/preOrderCard';
-import {colors, STRIPE_PUBLISH_TEST} from '../../../constants';
+import {colors, STRIPE_PUBLISH_KEY} from '../../../constants';
 import {setOrderType} from '../../../redux/slices/OrderType';
 import {setPreOrderData} from '../../../redux/slices/PreOrder';
 import {getAdminSettings} from '../../../services/adminSettings';
@@ -1075,7 +1075,7 @@ const CheckoutScreen = ({route}) => {
   };
   return (
     <StripeProvider
-      publishableKey={STRIPE_PUBLISH_TEST}
+      publishableKey={STRIPE_PUBLISH_KEY}
       merchantIdentifier="merchant.com.zannycustomer">
       <View style={{flex: 1, backgroundColor: colors.white}}>
         <AppHeader goBack notificationsIcon text="Check out" />
