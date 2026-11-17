@@ -52,8 +52,9 @@ if (stripeMode !== 'test' && stripeMode !== 'live') {
   throw new Error('TYPE_OF_STRIPE_KEY must be either "test" or "live".');
 }
 
+
 export const STRIPE_PUBLISH_KEY =
-  stripeMode === 'live' ? ENV.STRIPE_PUBLISH_LIVE : ENV.STRIPE_PUBLISH_TEST;
+  stripeMode === 'live' ? ENV.STRIPE_PK_LIVE_KEY : ENV.STRIPE_PK_TEST_KEY;
 export const constants = {};
 
 export const Colors = {

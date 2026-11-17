@@ -1,13 +1,13 @@
 // CartScreen.js (updated with CustomModal)
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   PlatformPay,
   StripeProvider,
   usePlatformPay,
 } from '@stripe/stripe-react-native';
 import moment from 'moment';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -18,19 +18,19 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import {width} from 'react-native-dimension';
-import {useDispatch, useSelector} from 'react-redux';
-import {fontFamily, icons} from '../../../assets';
+import { width } from 'react-native-dimension';
+import { useDispatch, useSelector } from 'react-redux';
+import { fontFamily, icons } from '../../../assets';
 import ActionBuuton from '../../../components/actionButton';
 import CartCard from '../../../components/cartCard';
 import CustomModal from '../../../components/customModal';
 import AppHeader from '../../../components/headerComponent';
 import OverLayLoader from '../../../components/loader';
-import {STRIPE_PUBLISH_KEY, colors} from '../../../constants';
-import {setCartData} from '../../../redux/slices/Cart';
-import {setCopiedCodeData} from '../../../redux/slices/ClaimedPromo';
-import {getAdminSettings} from '../../../services/adminSettings';
-import {getMerchantProfile} from '../../../services/merchant';
+import { STRIPE_PUBLISH_KEY, colors } from '../../../constants';
+import { setCartData } from '../../../redux/slices/Cart';
+import { setCopiedCodeData } from '../../../redux/slices/ClaimedPromo';
+import { getAdminSettings } from '../../../services/adminSettings';
+import { getMerchantProfile } from '../../../services/merchant';
 import {
   applyPromoCode,
   createStripeClientSecret,
@@ -41,14 +41,14 @@ import {
 const parsePriceToNumber = price =>
   Number(String(price ?? '').replace(/[^0-9.]/g, '')) || 0;
 
-const Row = React.memo(({label, value, bold}) => (
+const Row = React.memo(({ label, value, bold }) => (
   <View
     style={{
       flexDirection: 'row',
       justifyContent: 'space-between',
       marginTop: 8,
     }}>
-    <Text style={{color: colors.graydark, fontFamily: fontFamily.poppin}}>
+    <Text style={{ color: colors.graydark, fontFamily: fontFamily.poppin }}>
       {label}
     </Text>
     <Text
@@ -66,11 +66,11 @@ const Row = React.memo(({label, value, bold}) => (
 
 const Divider = React.memo(() => (
   <View
-    style={{height: 1, backgroundColor: colors.border, marginVertical: 12}}
+    style={{ height: 1, backgroundColor: colors.border, marginVertical: 12 }}
   />
 ));
 
-const SectionCard = React.memo(({title, children, style}) => (
+const SectionCard = React.memo(({ title, children, style }) => (
   <View
     style={[
       {
@@ -93,7 +93,7 @@ const SectionCard = React.memo(({title, children, style}) => (
       }}>
       {title}
     </Text>
-    <View style={{marginTop: width(2)}}>{children}</View>
+    <View style={{ marginTop: width(2) }}>{children}</View>
   </View>
 ));
 
@@ -122,15 +122,15 @@ const CartScreen = () => {
     'deliveryChargesdeliveryChargesdeliveryChargesdeliveryChargesasd',
   );
 
-  const {copiedCode} = useSelector(state => state.CopiedCodeSlice);
-  const {user} = useSelector(s => s.LoginSlice);
+  const { copiedCode } = useSelector(state => state.CopiedCodeSlice);
+  const { user } = useSelector(s => s.LoginSlice);
   const wallet = useSelector(s => s.PaymentCardSlice.currentPaymentCard);
   console.log(user, 'walletwalletwalletwalletwallet');
 
-  const {address} = useSelector(s => s.AddressSlice);
+  const { address } = useSelector(s => s.AddressSlice);
   const selectedAddress = address && address.length ? address[0] : null;
-  const {currentLocation} = useSelector(state => state.LocationSlice);
-  const {isPlatformPaySupported, confirmPlatformPayPayment} = usePlatformPay();
+  const { currentLocation } = useSelector(state => state.LocationSlice);
+  const { isPlatformPaySupported, confirmPlatformPayPayment } = usePlatformPay();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
@@ -138,8 +138,8 @@ const CartScreen = () => {
     Icon: null,
     name: '',
     detail: '',
-    onConfirm: () => {},
-    onCancel: () => {},
+    onConfirm: () => { },
+    onCancel: () => { },
   });
 
   const addressLine = useMemo(
@@ -148,22 +148,22 @@ const CartScreen = () => {
   );
 
   const filteredCartData = useMemo(() => {
-  if (activeTab === 'all') {
+    if (activeTab === 'all') {
+      return cartData;
+    }
+
+    if (activeTab === 'preorder') {
+      return cartData.filter(item => item?.orderType === 'preorder');
+    }
+
+    if (activeTab === 'regular') {
+      return cartData.filter(item => item?.orderType === 'regular');
+    }
+
     return cartData;
-  }
+  }, [cartData, activeTab]);
 
-  if (activeTab === 'preorder') {
-    return cartData.filter(item => item?.orderType === 'preorder');
-  }
-
-  if (activeTab === 'regular') {
-    return cartData.filter(item => item?.orderType === 'regular');
-  }
-
-  return cartData;
-}, [cartData, activeTab]);
-
-  const {subTotal, discountedSubTotal, total} = useMemo(() => {
+  const { subTotal, discountedSubTotal, total } = useMemo(() => {
     // 1️⃣ Subtotal = FINAL prices (discounted if exists)
     const st = cartData.reduce((acc, item) => {
       const originalPrice =
@@ -174,8 +174,8 @@ const CartScreen = () => {
         Number(item?.foodId?.discount) > 0
           ? Number(item.foodId.discount)
           : Number(item?.discount) > 0
-          ? Number(item.discount)
-          : originalPrice;
+            ? Number(item.discount)
+            : originalPrice;
 
       const qty = Number(item?.quantity || item?.selectedQty || 1);
       return acc + finalPrice * qty;
@@ -345,8 +345,8 @@ const CartScreen = () => {
         Number(item?.foodId?.discount) > 0
           ? Number(item.foodId.discount)
           : Number(item?.discount) > 0
-          ? Number(item.discount)
-          : originalPrice;
+            ? Number(item.discount)
+            : originalPrice;
 
       const qty = Number(item?.quantity || item?.selectedQty || 1);
       return acc + finalPrice * qty;
@@ -363,7 +363,7 @@ const CartScreen = () => {
     }, [calculateServiceCharges, fetchDeliveryCharges]),
   );
 
-  const showModal = ({icons, title, message, onConfirm}) => {
+  const showModal = ({ icons, title, message, onConfirm }) => {
     setModalData({
       type: 'default',
       Icon: icons,
@@ -439,7 +439,7 @@ const CartScreen = () => {
                 name: 'BottomStack',
                 state: {
                   index: 0,
-                  routes: [{name: 'Home'}],
+                  routes: [{ name: 'Home' }],
                 },
               },
             ],
@@ -469,7 +469,7 @@ const CartScreen = () => {
         });
         const clientSecret = intentRes?.data?.secretKey;
 
-        const {error} = await confirmPlatformPayPayment(clientSecret, {
+        const { error } = await confirmPlatformPayPayment(clientSecret, {
           googlePay: {
             testEnv: true,
             merchantName: 'Zannys Foods',
@@ -558,7 +558,7 @@ const CartScreen = () => {
         console.log('Merchant ID: merchant.com.zannycustomer');
         console.log('Amount:', displayAmount, 'GBP');
 
-        const {error} = await confirmPlatformPayPayment(clientSecret, {
+        const { error } = await confirmPlatformPayPayment(clientSecret, {
           applePay: {
             cartItems: [
               {
@@ -681,10 +681,10 @@ const CartScreen = () => {
         wallet?.paymentMethodId === 'GOOGLE_PAY'
           ? 'GOOGLE_PAY'
           : wallet?.paymentMethodId === 'APPLE_PAY'
-          ? 'APPLE_PAY'
-          : wallet
-          ? 'card'
-          : 'COD',
+            ? 'APPLE_PAY'
+            : wallet
+              ? 'card'
+              : 'COD',
       promoData: promoData,
     };
 
@@ -740,7 +740,7 @@ const CartScreen = () => {
   ]);
 
 
-  
+
   const renderEmpty = () => (
     <View
       style={{
@@ -777,7 +777,7 @@ const CartScreen = () => {
         }}>
         Explore delicious food and start ordering!
       </Text>
-      <View style={{width: width(60)}}>
+      <View style={{ width: width(60) }}>
         <ActionBuuton
           name="Start Ordering"
           height={width(12)}
@@ -791,9 +791,9 @@ const CartScreen = () => {
   );
 
   const renderFooter = () => {
-   if (!filteredCartData?.length) return null;
+    if (!filteredCartData?.length) return null;
     return (
-      <View style={{paddingBottom: width(30)}}>
+      <View style={{ paddingBottom: width(30) }}>
         {/* Delivery Address */}
         {/* <View style={{marginBottom: 5, borderRadius: 30, backgroundColor: colors.white,  elevation: 2,}}>
         <SectionCard title="Delivery Address">
@@ -822,36 +822,35 @@ const CartScreen = () => {
         </SectionCard>
         </View> */}
 
-           <View style={styles.addressLeft}>
-                    <View style={styles.addressIconContainer}>
-                      <Image
-                        source={icons.location}
-                        style={styles.addressIcon}
-                        resizeMode="contain"
-                      />
-                    </View>
-        
-                    <View>
-                      <Text style={styles.addressTitle}>Delivery Address</Text>
-                      <Text style={styles.addressText} numberOfLines={1}>
-                        {addressLine || 'No address available'}
-                      </Text>
-                    </View>
+        <View style={styles.addressLeft}>
+          <View style={styles.addressIconContainer}>
+            <Image
+              source={icons.location}
+              style={styles.addressIcon}
+              resizeMode="contain"
+            />
+          </View>
 
-                    <View style={{flex: 1, justifyContent: 'flex-end', alignItems: 'flex-end',}}>
-                      <ActionBuuton
-          styleProps={{width: width(20)}}
+          <View>
+            <Text style={styles.addressTitle}>Delivery Address</Text>
+            <Text style={styles.addressText} numberOfLines={1}>
+              {addressLine || 'No address available'}
+            </Text>
+          </View>
 
-                        name="Change"
-                        height={width(9)}
-                        fontSize={12}
-                        bgcColor={colors.redish}
-                        fontColor={colors.white}
-                        onPress={() => navigation.navigate('Address')}
-                      />
-                    </View>
-                    
-                  </View>
+          <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'flex-end', }}>
+            <ActionBuuton
+              styleProps={{ width: width(20) }}
+              name="Change"
+              height={width(9)}
+              fontSize={12}
+              bgcColor={colors.redish}
+              fontColor={colors.white}
+              onPress={() => navigation.navigate('Address')}
+            />
+          </View>
+
+        </View>
 
         {/* Payment Method */}
         <SectionCard title="Payment Method">
@@ -865,10 +864,10 @@ const CartScreen = () => {
             {wallet?.paymentMethodId === 'GOOGLE_PAY'
               ? 'Google Pay'
               : wallet?.paymentMethodId === 'APPLE_PAY'
-              ? 'Apple Pay'
-              : wallet?.last4
-              ? `**** ${wallet?.last4}`
-              : 'Select a payment method'}
+                ? 'Apple Pay'
+                : wallet?.last4
+                  ? `**** ${wallet?.last4}`
+                  : 'Select a payment method'}
           </Text>
           <ActionBuuton
             name="Payment Options"
@@ -881,12 +880,12 @@ const CartScreen = () => {
         </SectionCard>
 
         {/* Promo Code */}
-        <View style={{marginHorizontal: width(4), marginTop: width(2)}}>
+        <View style={{ marginHorizontal: width(4), marginTop: width(2) }}>
           <Text
-            style={{fontWeight: '700', fontSize: 16, marginVertical: width(2), color: colors.black}}>
+            style={{ fontWeight: '700', fontSize: 16, marginVertical: width(2), color: colors.black }}>
             Promo Code
           </Text>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <TextInput
               value={promoCode || copiedCode?.promoCode}
               onChangeText={text => {
@@ -907,7 +906,7 @@ const CartScreen = () => {
                 fontFamily: fontFamily.poppin,
               }}
             />
-            <View style={{width: width(30), marginLeft: 10}}>
+            <View style={{ width: width(30), marginLeft: 10 }}>
               <ActionBuuton
                 name="Apply"
                 height={50}
@@ -946,9 +945,8 @@ const CartScreen = () => {
               <Row label="Promo Code" value={`${promoData?.promoCode}`} />
               <Row
                 label="Promo Discount"
-                value={`-${(subTotal - discountedSubTotal).toFixed(2)} (£${
-                  promoData.discount
-                }% OFF)`}
+                value={`-${(subTotal - discountedSubTotal).toFixed(2)} (£${promoData.discount
+                  }% OFF)`}
               />
             </>
           )}
@@ -961,65 +959,66 @@ const CartScreen = () => {
     );
   };
 
+
+  console.log(STRIPE_PUBLISH_KEY,"STRIPE_PUBLISH_KEYSTRIPE_PUBLISH_KEY");
+  
   return (
     <StripeProvider
       publishableKey={STRIPE_PUBLISH_KEY}
       merchantIdentifier="merchant.com.zannycustomer"
       urlScheme="zannysfood">
-      <View style={{flex: 1, backgroundColor: colors.white}}>
+      <View style={{ flex: 1, backgroundColor: colors.white }}>
         <AppHeader goBack notificationsIcon text="Cart" />
-        
+        <View
+          style={{
+            flexDirection: 'row',
+            // marginHorizontal: width(4),
+            gap: 10,
+            marginTop: width(2),
+            backgroundColor: '#F2F2F2',
+            borderRadius: 8,
+            padding: 4,
+            // iOS shadow
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.15,
+            shadowRadius: 6,
 
-<View
-  style={{
-    flexDirection: 'row',
-    // marginHorizontal: width(4),
-    gap: 10,
-    marginTop: width(2),
-    backgroundColor: '#F2F2F2',
-    borderRadius: 8,
-    padding: 4,
-      // iOS shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
+            // Android shadow
+            elevation: 6,
+          }}>
+          {['all', 'preorder', 'regular'].map(tab => {
+            const isActive = activeTab === tab;
 
-    // Android shadow
-    elevation: 6,
-  }}>
-  {['all', 'preorder', 'regular'].map(tab => {
-    const isActive = activeTab === tab;
+            return (
+              <Text
+                key={tab}
+                onPress={() => setActiveTab(tab)}
+                style={{
+                  flex: 1,
+                  textAlign: 'center',
+                  paddingVertical: 10,
+                  borderRadius: 8,
+                  backgroundColor: isActive ? colors.redish : colors.border,
+                  color: isActive ? colors.white : colors.gray,
+                  fontFamily: fontFamily.poppinMedium,
 
-    return (
-      <Text
-        key={tab}
-        onPress={() => setActiveTab(tab)}
-        style={{
-          flex: 1,
-          textAlign: 'center',
-          paddingVertical: 10,
-          borderRadius: 8,
-          backgroundColor: isActive ? colors.redish : colors.border,
-          color: isActive ? colors.white : colors.gray,
-          fontFamily: fontFamily.poppinMedium,
-          
-        }}>
-        {tab === 'all'
-          ? 'All'
-          : tab === 'preorder'
-          ? 'Pre Order'
-          : 'Regular'}
-      </Text>
-    );
-  })}
-</View>
+                }}>
+                {tab === 'all'
+                  ? 'All'
+                  : tab === 'preorder'
+                    ? 'Pre Order'
+                    : 'Regular'}
+              </Text>
+            );
+          })}
+        </View>
 
-{/* <View style={{borderWidth: 0.5, borderColor: colors.border, marginVertical: 10}}/> */}
+        {/* <View style={{borderWidth: 0.5, borderColor: colors.border, marginVertical: 10}}/> */}
 
         <FlatList
           data={filteredCartData}
-          renderItem={({item, index}) => <CartCard item={item} index={index} total={total} />}
+          renderItem={({ item, index }) => <CartCard item={item} index={index} total={total} />}
           keyExtractor={(item, i) =>
             item?._id ? `cart-${item._id}` : `cart-${i}`
           }
@@ -1070,13 +1069,13 @@ const CartScreen = () => {
 export default CartScreen;
 
 const styles = StyleSheet.create({
-   addressLeft: {
+  addressLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: width(4),
     paddingVertical: width(4),
-    marginTop : 15,
+    marginTop: 15,
     marginHorizontal: width(4),
     borderRadius: width(100),
     borderWidth: 1,
@@ -1095,9 +1094,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  addressIcon: {height: width(5), width: width(5)},
+  addressIcon: { height: width(5), width: width(5) },
 
-  addressTitle: {fontFamily: fontFamily.poppinBold, color: colors.black},
+  addressTitle: { fontFamily: fontFamily.poppinBold, color: colors.black },
   addressText: {
     fontFamily: fontFamily.poppinRegular,
     color: colors.graydark,

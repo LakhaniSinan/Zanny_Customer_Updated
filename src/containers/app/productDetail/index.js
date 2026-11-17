@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -9,9 +9,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {width} from 'react-native-dimension';
-import {useDispatch, useSelector} from 'react-redux';
-import {fontFamily, icons} from '../../../assets';
+import { width } from 'react-native-dimension';
+import { useDispatch, useSelector } from 'react-redux';
+import { fontFamily, icons } from '../../../assets';
 import ActionButton from '../../../components/actionButton';
 import ChefsCard from '../../../components/chefsCard';
 import CustomModal from '../../../components/customModal';
@@ -19,30 +19,30 @@ import OverLayLoader from '../../../components/loader';
 import ProgressCard from '../../../components/progressCard';
 import SectionHeader from '../../../components/sectionHeader';
 import SegmentedButtons from '../../../components/SegmentedButtons';
-import {colors, Colors} from '../../../constants';
-import {helper} from '../../../helper';
-import {setCartData} from '../../../redux/slices/Cart';
-import {setPreOrderData} from '../../../redux/slices/PreOrder';
-import {addToFavFun} from '../../../services/favourite';
-import {getProductDetailById} from '../../../services/product';
-import {useNavigation} from '@react-navigation/native';
+import { colors, Colors } from '../../../constants';
+import { helper } from '../../../helper';
+import { setCartData } from '../../../redux/slices/Cart';
+import { setPreOrderData } from '../../../redux/slices/PreOrder';
+import { addToFavFun } from '../../../services/favourite';
+import { getProductDetailById } from '../../../services/product';
+import { useNavigation } from '@react-navigation/native';
 
-const ProductDetail = ({route}) => {
-  const {productId, type, data} = route?.params || {};
+const ProductDetail = ({ route }) => {
+  const { productId, type, data } = route?.params || {};
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const navigationType = type || 'normal';
   const productData = data;
-  const {currentLocation} = useSelector(state => state.LocationSlice);
+  const { currentLocation } = useSelector(state => state.LocationSlice);
 
-  const {user} = useSelector(state => state.LoginSlice);
+  const { user } = useSelector(state => state.LoginSlice);
   const [productDetails, setProductDetails] = useState(null);
   console.log(productDetails, 'productDetailsproductDetailsproductDetails');
 
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('Nutrition');
-  const {cartData} = useSelector(state => state.CartSlice);
-  const {preOrderData} = useSelector(state => state.PreOrderDataSlice);
+  const { cartData } = useSelector(state => state.CartSlice);
+  const { preOrderData } = useSelector(state => state.PreOrderDataSlice);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState({
     Icon: '',
@@ -53,17 +53,17 @@ const ProductDetail = ({route}) => {
   });
 
   const deliveryData = [
-    {icon: icons.package, name: 'Delivery Only'},
-    {icon: icons.clock, name: '20mins'},
-    {icon: icons.yellowStar, name: '4.8 Rating'},
+    { icon: icons.package, name: 'Delivery Only' },
+    { icon: icons.clock, name: '20mins' },
+    { icon: icons.yellowStar, name: '4.8 Rating' },
   ];
   const deliveryDataaa = [
-    {icon: icons.package, name: 'PickedUp Only'},
-    {icon: icons.clock, name: '20mins'},
-    {icon: icons.yellowStar, name: '4.8 Rating'},
+    { icon: icons.package, name: 'PickedUp Only' },
+    { icon: icons.clock, name: '20mins' },
+    { icon: icons.yellowStar, name: '4.8 Rating' },
   ];
 
-  const AllergiesData = [{name: 'Vegan'}, {name: 'Vegetarian'}];
+  const AllergiesData = [{ name: 'Vegan' }, { name: 'Vegetarian' }];
 
   useEffect(() => {
     if (productId) fetchProductDetails();
@@ -147,6 +147,9 @@ const ProductDetail = ({route}) => {
   };
 
   const handleAddToCart = async () => {
+    // alert("OKKKK")
+    console.log(user, productDetails, "VALUESS");
+
     if (!user)
       return showModal('error', 'Please login first to add items in your cart');
 
@@ -156,6 +159,8 @@ const ProductDetail = ({route}) => {
 
     try {
       let tempArr = [...cartData];
+      console.log(tempArr, "tempArrtempArrtempArr");
+
       const findIndex = tempArr.findIndex(i => i._id === productDetails._id);
 
       if (
@@ -166,7 +171,6 @@ const ProductDetail = ({route}) => {
           productDetails.discount > 0
             ? productDetails.discount
             : productDetails.price;
-
         if (findIndex !== -1) {
           // Update quantity
           const newQty = (tempArr[findIndex].selectedQty || 1) + 1;
@@ -187,7 +191,7 @@ const ProductDetail = ({route}) => {
         dispatch(setCartData(tempArr));
         await AsyncStorage.setItem('cartData', JSON.stringify(tempArr));
 
-        navigation.navigate('CartScreen');
+        // navigation.navigate('CartScreen');
       } else {
         showModal(
           'error',
@@ -206,8 +210,8 @@ const ProductDetail = ({route}) => {
         type === 'success'
           ? require('../../../assets/icons/check.png')
           : type == 'alert'
-          ? icons.alertIcon
-          : require('../../../assets/icons/cross.png'),
+            ? icons.alertIcon
+            : require('../../../assets/icons/cross.png'),
       name:
         type === 'success' ? 'Success' : type == 'alert' ? 'Alert' : 'Error',
       detail: message,
@@ -264,7 +268,7 @@ const ProductDetail = ({route}) => {
 
   const BottomButtons = () => (
     <View style={styles.bottomBar}>
-      <View style={{width: width(45)}}>
+      <View style={{ width: width(45) }}>
         <ActionButton
           onPress={handleAddForPreOrder}
           height={46}
@@ -273,7 +277,7 @@ const ProductDetail = ({route}) => {
           fontColor={Colors.black}
         />
       </View>
-      <View style={{width: width(45)}}>
+      <View style={{ width: width(45) }}>
         <ActionButton
           height={46}
           width={width(45)}
@@ -287,14 +291,14 @@ const ProductDetail = ({route}) => {
   );
 
   return (
-    <View style={{flex: 1, backgroundColor: Colors.white}}>
+    <View style={{ flex: 1, backgroundColor: Colors.white }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View
           style={{
             backgroundColor: colors.orangeDark,
           }}>
           <Image
-            source={{uri: productDetails?.image}}
+            source={{ uri: productDetails?.image }}
             style={{
               height: width(90),
               width: '90%',
@@ -343,10 +347,10 @@ const ProductDetail = ({route}) => {
 
           <FlatList
             data={activeTab == 'Nutrition' ? productDetails?.nutritions : []}
-            renderItem={({item}) => <ProgressCard item={item} />}
+            renderItem={({ item }) => <ProgressCard item={item} />}
             ListEmptyComponent={
-              <View style={{alignItems: 'center', paddingVertical: 20}}>
-                <Text style={{fontSize: 14, color: colors.gray}}>
+              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                <Text style={{ fontSize: 14, color: colors.gray }}>
                   {activeTab == 'Nutrition'
                     ? 'No nutrition data available'
                     : 'Coming Soon...'}
@@ -376,14 +380,14 @@ const ProductDetail = ({route}) => {
           <FlatList
             horizontal
             data={AllergiesData || []}
-            renderItem={({item}) => (
+            renderItem={({ item }) => (
               <SegmentedButtons
                 item={item}
                 backgroundColor={Colors.softred}
                 color={Colors.red}
               />
             )}
-            ItemSeparatorComponent={<View style={{width: 10}} />}
+            ItemSeparatorComponent={<View style={{ width: 10 }} />}
           />
 
           <SectionHeader name={'Made by'} fontSize={16} />
@@ -402,8 +406,8 @@ const ProductDetail = ({route}) => {
             horizontal
             showsHorizontalScrollIndicator={false}
             data={productDetails?.otherProducts || []}
-            renderItem={({item}) => <ChefsCard item={item} />}
-            ItemSeparatorComponent={<View style={{width: 10}} />}
+            renderItem={({ item }) => <ChefsCard item={item} />}
+            ItemSeparatorComponent={<View style={{ width: 10 }} />}
             contentContainerStyle={{
               paddingVertical: width(2),
               paddingHorizontal: width(1),
@@ -411,7 +415,7 @@ const ProductDetail = ({route}) => {
           />
         </View>
         <BottomButtons />
-        <View style={{height: width(2)}} />
+        <View style={{ height: width(2) }} />
       </ScrollView>
       <CustomModal
         visible={modalVisible}
@@ -429,7 +433,7 @@ const ProductDetail = ({route}) => {
 
 export default ProductDetail;
 
-const HeaderIcons = ({cartData, navigation}) => (
+const HeaderIcons = ({ cartData, navigation }) => (
   <View style={styles.headerIcons}>
     <TouchableOpacity
       style={{
@@ -450,7 +454,7 @@ const HeaderIcons = ({cartData, navigation}) => (
         tintColor={colors.black}
       />
     </TouchableOpacity>
-    <View style={{flexDirection: 'row', gap: 10}}>
+    <View style={{ flexDirection: 'row', gap: 10 }}>
       <TouchableOpacity
         style={{
           height: width(10),
@@ -516,13 +520,13 @@ const HeaderIcons = ({cartData, navigation}) => (
   </View>
 );
 
-const IconButton = ({icon, onPress}) => (
+const IconButton = ({ icon, onPress }) => (
   <TouchableOpacity style={styles.iconBtn} onPress={onPress}>
     <Image source={icon} style={styles.iconSize} resizeMode="contain" />
   </TouchableOpacity>
 );
 
-const TitleRow = ({productDetails, onShareProduct, onFavIconPress}) => {
+const TitleRow = ({ productDetails, onShareProduct, onFavIconPress }) => {
   return (
     <View style={styles.titleRow}>
       <Text numberOfLines={2} style={styles.title}>
@@ -539,7 +543,7 @@ const TitleRow = ({productDetails, onShareProduct, onFavIconPress}) => {
   );
 };
 
-const PriceRow = ({productDetails, getFinalPrice}) => (
+const PriceRow = ({ productDetails, getFinalPrice }) => (
   <View style={styles.priceRow}>
     <View style={styles.priceLeft}>
       <Text style={styles.finalPrice}>
@@ -564,7 +568,7 @@ const PriceRow = ({productDetails, getFinalPrice}) => (
   </View>
 );
 
-const Location = ({merchant, currentLocation}) => {
+const Location = ({ merchant, currentLocation }) => {
   const [distance, setDistance] = useState(null);
 
   useEffect(() => {
@@ -603,13 +607,13 @@ const Location = ({merchant, currentLocation}) => {
   );
 };
 
-const Description = ({text}) => (
-  <View style={{marginTop: width(2)}}>
+const Description = ({ text }) => (
+  <View style={{ marginTop: width(2) }}>
     <Text style={styles.description}>{text}</Text>
   </View>
 );
 
-const DeliveryInfoRow = ({label, time}) => {
+const DeliveryInfoRow = ({ label, time }) => {
   if (!time) return null;
 
   return (
@@ -632,7 +636,7 @@ const DeliveryInfoRow = ({label, time}) => {
   );
 };
 
-const Tabs = ({activeTab, setActiveTab}) => (
+const Tabs = ({ activeTab, setActiveTab }) => (
   <View style={styles.tabs}>
     {['Nutrition', 'Customize'].map(tab => (
       <TouchableOpacity
@@ -640,10 +644,10 @@ const Tabs = ({activeTab, setActiveTab}) => (
         onPress={
           tab == 'Customize'
             ? () =>
-                Alert.alert(
-                  'Coming Soon',
-                  'This feature is currently under development. Please check back later!',
-                )
+              Alert.alert(
+                'Coming Soon',
+                'This feature is currently under development. Please check back later!',
+              )
             : () => setActiveTab(tab)
         }
         style={[
@@ -655,7 +659,7 @@ const Tabs = ({activeTab, setActiveTab}) => (
         <Text
           style={[
             styles.tabText,
-            {color: activeTab === tab ? Colors.white : Colors.graydark},
+            { color: activeTab === tab ? Colors.white : Colors.graydark },
           ]}>
           {tab == 'Nutrition' ? tab : `${tab} 👑`}
         </Text>
@@ -664,15 +668,15 @@ const Tabs = ({activeTab, setActiveTab}) => (
   </View>
 );
 
-const ChefInfo = ({merchant}) => (
+const ChefInfo = ({ merchant }) => (
   <View style={styles.chefRow}>
     <View style={styles.chefLeft}>
       <Image
-        source={{uri: merchant?.merchantImage}}
+        source={{ uri: merchant?.merchantImage }}
         style={styles.chefImg}
         resizeMode="contain"
       />
-      <View style={{marginLeft: 8}}>
+      <View style={{ marginLeft: 8 }}>
         <Text style={styles.chefLabel}>Chef</Text>
         <View style={styles.chefNameRow}>
           <Text style={styles.chefName}>{merchant?.name}</Text>
@@ -680,7 +684,7 @@ const ChefInfo = ({merchant}) => (
         </View>
       </View>
     </View>
-    <View style={{width: width(20)}}>
+    <View style={{ width: width(20) }}>
       <ActionButton
         name={'Hire'}
         bgcColor={Colors.black}
@@ -723,7 +727,7 @@ const styles = {
     borderWidth: 1,
     borderColor: Colors.clayDark,
   },
-  iconSize: {height: 20, width: 20},
+  iconSize: { height: 20, width: 20 },
 
   /* Title */
   titleRow: {
@@ -750,25 +754,25 @@ const styles = {
     justifyContent: 'space-between',
     marginTop: width(3),
   },
-  priceLeft: {flexDirection: 'row', alignItems: 'center'},
-  finalPrice: {fontSize: 30, fontWeight: '700', color: Colors.red},
+  priceLeft: { flexDirection: 'row', alignItems: 'center' },
+  finalPrice: { fontSize: 30, fontWeight: '700', color: Colors.red },
   oldPrice: {
     fontSize: 16,
     marginLeft: 6,
     textDecorationLine: 'line-through',
     color: Colors.gray,
   },
-  servings: {flexDirection: 'row', alignItems: 'center'},
-  servingsIcon: {height: width(7), width: width(7)},
-  servingsText: {marginLeft: width(2), color: Colors.black},
+  servings: { flexDirection: 'row', alignItems: 'center' },
+  servingsIcon: { height: width(7), width: width(7) },
+  servingsText: { marginLeft: width(2), color: Colors.black },
 
   /* Location */
-  location: {flexDirection: 'row', alignItems: 'center', marginTop: width(1)},
-  locationIcon: {height: 16, width: 16},
-  locationText: {fontSize: 12, color: Colors.grayyy, marginLeft: width(1)},
+  location: { flexDirection: 'row', alignItems: 'center', marginTop: width(1) },
+  locationIcon: { height: 16, width: 16 },
+  locationText: { fontSize: 12, color: Colors.grayyy, marginLeft: width(1) },
 
   /* Description */
-  description: {fontSize: 12, color: Colors.graydark},
+  description: { fontSize: 12, color: Colors.graydark },
 
   /* Delivery row */
   deliveryRow: {
@@ -780,9 +784,9 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  deliveryItem: {flexDirection: 'row', alignItems: 'center', gap: 8},
-  deliveryIcon: {height: 16, width: 16},
-  deliveryText: {fontSize: 12, color: Colors.redish},
+  deliveryItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  deliveryIcon: { height: 16, width: 16 },
+  deliveryText: { fontSize: 12, color: Colors.redish },
 
   /* Tabs */
   tabs: {
@@ -799,10 +803,10 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tabText: {fontSize: 13, fontWeight: 600},
+  tabText: { fontSize: 13, fontWeight: 600 },
 
   /* Flex wrap */
-  flexWrap: {flexDirection: 'row', flexWrap: 'wrap', gap: 10},
+  flexWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
 
   /* Chef */
   chefRow: {
@@ -810,12 +814,12 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  chefLeft: {flexDirection: 'row', alignItems: 'center'},
-  chefImg: {height: 34, width: 34, borderRadius: 100},
-  chefLabel: {fontSize: 11, color: Colors.primaryOrange},
-  chefNameRow: {flexDirection: 'row', alignItems: 'center', gap: 3},
-  chefName: {fontSize: 13, fontWeight: 600, color: Colors.black},
-  verifyIcon: {height: 15, width: 15},
+  chefLeft: { flexDirection: 'row', alignItems: 'center' },
+  chefImg: { height: 34, width: 34, borderRadius: 100 },
+  chefLabel: { fontSize: 11, color: Colors.primaryOrange },
+  chefNameRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  chefName: { fontSize: 13, fontWeight: 600, color: Colors.black },
+  verifyIcon: { height: 15, width: 15 },
 
   /* Bottom Bar */
   bottomBar: {
