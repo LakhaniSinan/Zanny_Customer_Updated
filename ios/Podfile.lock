@@ -2957,7 +2957,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video (6.19.1):
+  - react-native-video (6.19.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2972,7 +2972,7 @@ PODS:
     - React-hermes
     - React-ImageManager
     - React-jsi
-    - react-native-video/Video (= 6.19.1)
+    - react-native-video/Video (= 6.19.3)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -2982,7 +2982,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video/Fabric (6.19.1):
+  - react-native-video/Fabric (6.19.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3006,7 +3006,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video/Video (6.19.1):
+  - react-native-video/Video (6.19.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3031,7 +3031,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-webview (13.16.1):
+  - react-native-webview (13.17.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3564,7 +3564,7 @@ PODS:
     - Yoga
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.31.0):
+  - RNGestureHandler (2.32.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3589,7 +3589,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNGoogleSignin (16.1.2):
+  - RNGoogleSignin (16.1.5):
     - DoubleConversion
     - glog
     - GoogleSignIn (~> 9.0)
@@ -3667,7 +3667,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - TOCropViewController (~> 2.8.0)
     - Yoga
-  - RNPermissions (5.5.1):
+  - RNPermissions (5.6.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -4241,7 +4241,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   abseil: a05cc83bf02079535e17169a73c5be5ba47f714b
-  AppAuth: 1c1a8afa7e12f2ec3a294d9882dfa5ab7d3cb063
+  AppAuth: 3147509b510313b43ce49b34af43c5bded8d2ee7
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
   BEMCheckBox: 5ba6e37ade3d3657b36caecc35c8b75c6c2b1a4e
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
@@ -4268,11 +4268,11 @@ SPEC CHECKSUMS:
   GoogleAdsOnDeviceConversion: b25c8d714e457fe2ceae3d3bdc102b6cf9677afb
   GoogleAppMeasurement: 57270ccc2b77472d7e85c4cbe45972564eff78bb
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleSignIn: fcee2257188d5eda57a5e2b6a715550ffff9206d
+  GoogleSignIn: ddc94fbec7fcc7422d470b8febd1b3b54d34ee39
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   "gRPC-C++": cc207623316fb041a7a3e774c252cf68a058b9e8
   gRPC-Core: 860978b7db482de8b4f5e10677216309b5ff6330
-  GTMAppAuth: 217a876b249c3c585a54fd6f73e6b58c4f5c4238
+  GTMAppAuth: 9566e1a3451fd6967b58188fa15286fb6ae7914f
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: 44bb6fe76a6eb400d3a992e2d0b21946ae999fa9
   leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
@@ -4316,8 +4316,8 @@ SPEC CHECKSUMS:
   react-native-maps: 9febd31278b35cd21e4fad2cf6fa708993be5dab
   react-native-render-html: 5afc4751f1a98621b3009432ef84c47019dcb2bd
   react-native-safe-area-context: 5928d84c879db2f9eb6969ca70e68f58623dbf25
-  react-native-video: a36f69535becfd3a05035b90fef6036bf265c9fb
-  react-native-webview: 3fa25e595ae48899139dc2ccfcf975b1dab9f743
+  react-native-video: b2eacc81a945484c4d03535515df9956afb4f9f0
+  react-native-webview: 4064cd9f38ffd6b33e429614ba792fa032df6d7c
   React-NativeModulesApple: 3e3e6bf35c6ba5d0aa785e899087385821fa78bd
   React-oscompat: 56b4766e96b06843a3af49a6763ef40992e720aa
   React-perflogger: 8fe9ec5f9ddbab1b8906c1aec159aa946e0ba041
@@ -4353,19 +4353,6 @@ SPEC CHECKSUMS:
   RNAudioRecord: b253d15d8141c5ef6bc614fc9d9f06577870bfc3
   RNCAsyncStorage: c1dca434eda758348a549efb46822b4091d76804
   RNCCheckbox: 33b44487ca8008394ce658cc32b26eab04f426ef
-<<<<<<< HEAD
-  RNCMaskedView: ae521efb1c6c2b183ae0f8479487db03c826184c
-  RNCPicker: 28c076ae12a1056269ec0305fe35fac3086c477d
-  RNDeviceInfo: 36d7f232bfe7c9b5c494cb7793230424ed32c388
-  RNFBApp: 665585d1a40c224954f0a03b5f2d1eb97e747cc8
-  RNFBMessaging: bcdf842e6a020d6765a384b54b73722d6ab8fa30
-  RNGestureHandler: 4d34255948b634d4f3827cc534a1a3d05e50095b
-  RNGoogleSignin: a8c3e472b67d0f065b9198e9cd148a0d7c14a50c
-  RNImageCropPicker: 367a8e3788651dad88540d9fa8888fcb07ffd1d1
-  RNPermissions: 87dd66ce956207bc6c9372960b53e3e079b8a32f
-  RNScreens: 3402421da150f080d9e1293cfa5558548a735fb6
-  RNVectorIcons: 1fe59cfa2d3ac94ceb9d373a59c54609471b8d56
-=======
   RNCMaskedView: d72fac1c6517be910e8be1370ac324059bcbe677
   RNCPicker: d957426e631657b70d391c4193db87c91c8406b3
   RNDeviceInfo: 4c852998208b60dc192ae3529e5867817719ad1e
@@ -4374,14 +4361,13 @@ SPEC CHECKSUMS:
   RNFBFirestore: a25a58824c754d04f881ad8f198399a65f53166d
   RNFBMessaging: 8f724188ff85d91c817ac7fa4ae70ea7d135fc01
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: 9f4a34fa910cb20032a567691439357b6ddf904f
-  RNGoogleSignin: c5e06e3e0ea2ec42f125a1c16384dae4bc87aafc
+  RNGestureHandler: 68ba7ecad10103554bbc46f72ab46713c665005e
+  RNGoogleSignin: 46012d89062ef541e0dedac5131b4ffce7e402c1
   RNImageCropPicker: 2889fd7ef4b4bb7aeef8a0b598661f934f01f5e1
-  RNPermissions: 3dfd6b556a995a001650eab4633dd4c248c76a69
+  RNPermissions: 60322368db55899f54c67a06955d4006515af2c3
   RNScreens: da4e25611bd431c423b66ecf3aabb5b8b2e04e80
   RNSound: 5314ef3cbce83c776790fda511fdb6110c78d2ee
   RNVectorIcons: d7d40d54aa3281f36b840bc1caaefa163166af34
->>>>>>> origin/staging
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Stripe: a4b6584549bac3698733ed564e55b0b067cfda8a
   stripe-react-native: 32f65cd835aaafc3731cecb3572ef0a46972a5a8
